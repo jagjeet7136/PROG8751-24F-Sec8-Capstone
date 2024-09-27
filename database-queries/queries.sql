@@ -24,3 +24,15 @@ CREATE TABLE Category (
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO Category (name, description) VALUES
+('Electronics', 'Devices, gadgets, and accessories'),
+('Fashion', 'Clothing, shoes, and accessories for men, women, and children'),
+('Home & Kitchen', 'Furniture, decor, and kitchen appliances'),
+('Books', 'Books across different genres and categories'),
+('Toys & Games', 'Toys, puzzles, and games for children and adults'),
+('Health & Beauty', 'Health care products, cosmetics, and personal care items'),
+('Sports & Outdoors', 'Sporting goods, outdoor gear, and fitness equipment'),
+('Automotive', 'Car accessories, tools, and spare parts'),
+('Groceries', 'Daily essentials, food, and beverages'),
+('Jewelry', 'Rings, necklaces, bracelets, and other jewelry items');
