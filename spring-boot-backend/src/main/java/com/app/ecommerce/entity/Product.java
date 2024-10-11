@@ -1,18 +1,16 @@
 package com.app.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.DynamicUpdate;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
-@DynamicUpdate
 @Table(name = "product")
 public class Product {
 
@@ -24,13 +22,22 @@ public class Product {
 
     private String description;
 
-    private BigDecimal price;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String longDescription;
+
+    private Double discountedPrice;
+
+    private Double price;
 
     private String imageUrl;
 
     private int stock = 0;
 
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
+    private Category category;
 
     private LocalDateTime createdAt;
 
@@ -46,6 +53,4 @@ public class Product {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }
-
