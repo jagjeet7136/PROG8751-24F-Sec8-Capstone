@@ -1,0 +1,150 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.homeComp {
+  display: flex;
+  flex-direction: column;
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  margin: 25px 20px 20px;
+  color: #00aa95;
+}
+
+.homeWrapper {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  width: 50%;
+}
+
+.homeHeading {
+  font-size: 80px;
+}
+
+.homePara {
+  margin-top: 20px;
+  font-size: 30px;
+}
+
+.homeImage {
+  margin: 20px;
+  width: 50%;
+}
+
+.bannerSlideshow {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 3s ease;
+  padding: 20px;
+}
+
+.section {
+  margin: 20px 0;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: left;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.productCard {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.productImage {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.productName {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.productDescription {
+  font-size: 14px;
+  color: #777;
+}
+
+.productPrice {
+  font-size: 16px;
+  color: #e67e22;
+  font-weight: bold;
+}
+
+@media (max-width: 1185px) {
+  .home {
+    flex-direction: column;
+    margin: 0px 40px 0 40px;
+    align-items: center;
+  }
+
+  .homeWrapper {
+    width: 100%;
+    height: 60%;
+    padding-top: 40px;
+  }
+
+  .homeImage {
+    width: 80vw;
+    height: 50vw;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+@media (max-width: 917px) {
+  .homeHeading {
+    font-size: 7vw;
+  }
+
+  .homePara {
+    font-size: 4vw;
+  }
+
+  .homeImage {
+    width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .homePara {
+    font-size: 19px;
+  }
+
+  .home {
+    margin: 20px;
+  }
+}
