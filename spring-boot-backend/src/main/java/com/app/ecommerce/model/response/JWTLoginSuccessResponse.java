@@ -1,4 +1,4 @@
-package com.app.todolist.model.response;
+package com.app.ecommerce.model.response;
 
 import lombok.Data;
 

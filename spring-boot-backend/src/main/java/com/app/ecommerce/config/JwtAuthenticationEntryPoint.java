@@ -1,6 +1,6 @@
-package com.app.todolist.configurations;
+package com.app.ecommerce.config;
 
-import com.app.todolist.model.response.InvalidLoginResponse;
+import com.app.ecommerce.model.response.InvalidLoginResponse;
 import com.google.gson.Gson;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

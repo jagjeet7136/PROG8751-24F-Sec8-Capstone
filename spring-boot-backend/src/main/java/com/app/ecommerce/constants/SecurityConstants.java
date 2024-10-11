@@ -1,4 +1,4 @@
-package com.app.todolist.constants;
+package com.app.ecommerce.constants;
 
 public class SecurityConstants {
 

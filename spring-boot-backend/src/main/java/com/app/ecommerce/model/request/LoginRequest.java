@@ -1,4 +1,4 @@
-package com.app.todolist.model.request;
+package com.app.ecommerce.model.request;
 
 import lombok.Data;
 import javax.validation.constraints.NotBlank;

@@ -1,7 +1,7 @@
-package com.app.todolist.configurations;
+package com.app.ecommerce.config;
 
-import com.app.todolist.constants.SecurityConstants;
-import com.app.todolist.entity.User;
+import com.app.ecommerce.constants.SecurityConstants;
+import com.app.ecommerce.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

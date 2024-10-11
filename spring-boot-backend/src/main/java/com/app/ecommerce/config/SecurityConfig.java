@@ -1,6 +1,6 @@
-package com.app.todolist.configurations;
+package com.app.ecommerce.config;
 
-import com.app.todolist.constants.SecurityConstants;
+import com.app.ecommerce.constants.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,17 +25,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private JwtAuthenticationEntryPoint entryPoint;
+    private com.app.ecommerce.config.JwtAuthenticationEntryPoint entryPoint;
 
     @Autowired
-    private CustomUserDetailsService customUserDetailService;
+    private com.app.ecommerce.config.CustomUserDetailsService customUserDetailService;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
+    public com.app.ecommerce.config.JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new com.app.ecommerce.config.JwtAuthenticationFilter();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.js",
                         "/ping"
                 ).permitAll()
-                .antMatchers("/user/login", "/user/register").permitAll()
+                .antMatchers("/user/login", "/user/register", "/products").permitAll()
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
 

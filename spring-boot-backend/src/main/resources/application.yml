@@ -8,14 +8,16 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.MySQL5Dialect
     generate-ddl: true
     hibernate.ddl-auto: update
     show-sql: true
     open-in-view: false
     properties:
       hibernate:
+        globally_quoted_identifiers: true
         format-sql: true
+        enable_lazy_load_no_trans: true
 
 application:
   title: ecommerce-backend

@@ -1,4 +1,4 @@
-package com.app.todolist.exceptions;
+package com.app.ecommerce.exceptions;
 
 public class NotFoundException extends Exception{
     public NotFoundException() {}

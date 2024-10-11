@@ -1,6 +1,6 @@
-package com.app.todolist.exceptions;
+package com.app.ecommerce.exceptions;
 
-import com.app.todolist.model.dto.ApiErrorDTO;
+import com.app.ecommerce.model.dto.ApiErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;

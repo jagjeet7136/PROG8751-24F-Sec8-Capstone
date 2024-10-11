@@ -1,6 +1,6 @@
-package com.app.todolist.repository;
+package com.app.ecommerce.repository;
 
-import com.app.todolist.entity.User;
+import com.app.ecommerce.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

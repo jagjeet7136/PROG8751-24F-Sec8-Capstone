@@ -1,7 +1,7 @@
-package com.app.todolist.configurations;
+package com.app.ecommerce.config;
 
-import com.app.todolist.entity.User;
-import com.app.todolist.repository.UserRepository;
+import com.app.ecommerce.entity.User;
+import com.app.ecommerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

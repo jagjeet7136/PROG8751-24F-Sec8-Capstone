@@ -1,10 +1,10 @@
 package com.app.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
