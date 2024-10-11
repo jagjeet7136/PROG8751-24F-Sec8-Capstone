@@ -15,9 +15,8 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        globally_quoted_identifiers: true
         format-sql: true
-        enable_lazy_load_no_trans: true
+
 
 application:
   title: ecommerce-backend
