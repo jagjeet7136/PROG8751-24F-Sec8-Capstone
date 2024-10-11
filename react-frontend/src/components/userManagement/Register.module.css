@@ -1,0 +1,164 @@
+.register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 35px;
+  justify-content: space-between;
+  height: 100vh;
+  background-color: #f7f7f7;
+}
+
+.registerIcon {
+  height: 100px;
+  width: 120px;
+}
+
+.registerHeading {
+  padding: 20px;
+  font-size: 32px;
+  font-weight: 650;
+  margin: 0 auto;
+  color: #2c3e50;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 120px;
+}
+
+.registerForm input {
+  height: 50px;
+  width: 300px;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  padding-left: 20px;
+  transition: border 0.3s ease;
+}
+
+.registerForm > input,
+.password {
+  margin-bottom: 22px;
+}
+
+.registerButton {
+  border: 0px;
+  background-color: #3498db;
+  height: 50px;
+  color: white;
+  border-radius: 5px;
+  width: 300px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.passwordContainer,
+.confirmPasswordContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password,
+.confirmPassword {
+  height: 50px;
+  width: 300px;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  padding-left: 20px;
+  padding-right: 50px;
+  transition: border 0.3s ease;
+}
+
+.passwordToggle,
+.confirmPasswordToggle {
+  position: absolute;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #3498db;
+}
+
+.confirmPasswordMargin {
+  margin-bottom: 22px;
+}
+
+.confirmPasswordNoMargin {
+  margin-bottom: 0px;
+}
+
+.tPContainer {
+  margin-bottom: -7px;
+  color: #7f8c8d;
+}
+
+.tPContainer a {
+  text-decoration: none;
+  color: #3498db;
+}
+
+.loginContainer {
+  margin: 25px 0px;
+}
+
+.loginContainer a {
+  text-decoration: none;
+  color: #3498db;
+}
+
+.errorMessageContainer,
+.successMsgContainer {
+  width: 100%;
+  justify-content: start;
+  margin: 10px 0 30px 0;
+  display: none;
+}
+
+.errorMessageContainer {
+  color: #e74c3c;
+}
+
+.successMsgContainer {
+  color: #2ecc71;
+}
+
+.errorMessageContainer.active,
+.successMsgContainer.active {
+  display: flex;
+}
+
+.errorMessageContainer h6,
+.successMsgContainer h6 {
+  font-size: 13px;
+}
+
+.errorMessageContainer img,
+.successMsgContainer img {
+  width: 15px;
+  height: 15px;
+  margin-right: 8px;
+}
+
+@media (max-width: 400px) {
+  .registerForm,
+  .registerForm input,
+  .passwordContainer,
+  .confirmPasswordContainer,
+  .registerButton {
+    width: 100%;
+  }
+
+  .loginContainer,
+  .tPContainer {
+    font-size: 14px;
+  }
+
+  .registerForm {
+    margin-bottom: 30px;
+  }
+
+  .registerHeading {
+    font-size: 8.4vw;
+  }
+}

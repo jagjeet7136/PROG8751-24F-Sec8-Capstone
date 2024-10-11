@@ -1,7 +1,6 @@
-import axios from "axios";
 import { useRef, useState } from "react";
 import styles from "./Register.module.css";
-import todoSmallIcon from "../../icons/logo-transparent-png.png"
+import todoSmallIcon from "../../icons/logo-transparent-png.png";
 import { Link } from "react-router-dom";
 
 export const Register = () => {
@@ -16,43 +15,55 @@ export const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const onSubmit = (event) => {
+    const onSubmit = async (event) => {
+        event.preventDefault(); // Prevent the default form submission
         if (!isFormValid) {
             setIsFormValid(true);
         }
         if (userCreated) {
             setUserCreated(false);
         }
-        event.preventDefault();
+
         const newUser = {
             userFullName: userFullName.current.value,
             email: email.current.value,
             password: password.current.value,
             confirmPassword: confirmPassword.current.value,
-        }
-        axios.post("http://localhost:9898/user/register", newUser)
-            .then(response => {
-                userFullName.current.value = "";
-                email.current.value = "";
-                password.current.value = "";
-                confirmPassword.current.value = "";
-                setUserCreated(true);
-                setSuccessMsg("User created Successfully");
-            })
-            .catch(error => {
-                let caughtErrorMessage = "Some error occured!";
-                if (error.response) {
-                    if (error.response.data.errors != null && error.response.data.errors.length > 0) {
-                        caughtErrorMessage = error.response.data.errors[0];
-                    }
-                    else if (error.response.data.message != null && error.response.data.message.trim().length > 0) {
-                        caughtErrorMessage = error.response.data.message;
-                    }
-                }
-                setErrorMsg(caughtErrorMessage);
-                setIsFormValid(false);
+        };
+
+        try {
+            const response = await fetch("http://localhost:9898/user/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newUser),
             });
-    }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                let caughtErrorMessage = "Some error occurred!";
+                if (errorData.errors && errorData.errors.length > 0) {
+                    caughtErrorMessage = errorData.errors[0];
+                } else if (errorData.message && errorData.message.trim().length > 0) {
+                    caughtErrorMessage = errorData.message;
+                }
+                throw new Error(caughtErrorMessage);
+            }
+
+            // Clear the form fields
+            userFullName.current.value = "";
+            email.current.value = "";
+            password.current.value = "";
+            confirmPassword.current.value = "";
+
+            setUserCreated(true);
+            setSuccessMsg("User created Successfully");
+        } catch (error) {
+            setErrorMsg(error.message);
+            setIsFormValid(false);
+        }
+    };
 
     return (
         <div className={styles.register}>

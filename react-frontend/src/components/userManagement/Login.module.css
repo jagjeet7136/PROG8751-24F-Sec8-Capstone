@@ -1,0 +1,132 @@
+.login {
+  display: flex;
+  flex-direction: column;
+  padding: 35px;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+.loginIcon {
+  height: 100px;
+  width: 120px;
+}
+
+.loginHeading {
+  padding: 20px;
+  font-size: 32px;
+  font-weight: 650;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 120px;
+}
+
+.loginForm input {
+  height: 50px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding-left: 20px;
+}
+
+.username {
+  margin-bottom: 30px;
+}
+
+.passwordContainerMargin {
+  margin-bottom: 30px;
+}
+
+.passwordContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password {
+  height: 50px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding-left: 20px;
+  padding-right: 50px;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.loginButton {
+  border: 0px;
+  background-color: #3498db;
+  height: 50px;
+  color: white;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.loginContainer {
+  margin: 25px 0px;
+}
+
+.loginContainer a {
+  text-decoration: none;
+  color: #3498db;
+}
+
+.tPContainer {
+  margin-bottom: -7px;
+  color: grey;
+}
+
+.tPContainer a {
+  text-decoration: none;
+  color: #3498db;
+}
+
+.errorMessageContainer {
+  width: 100%;
+  justify-content: start;
+  color: red;
+  margin: 10px 0 30px 0;
+  display: none;
+}
+
+.errorMessageContainer.active {
+  display: flex;
+}
+
+.errorMessageContainer h6 {
+  font-size: 13px;
+}
+
+.errorMessageContainer img {
+  width: 15px;
+  height: 15px;
+  margin-right: 8px;
+}
+
+@media (max-width: 400px) {
+  .loginForm,
+  .loginForm input,
+  .passwordContainer {
+    width: 100%;
+  }
+
+  .loginContainer,
+  .tPContainer {
+    font-size: 14px;
+  }
+
+  .loginForm {
+    margin-bottom: 80px;
+  }
+}
