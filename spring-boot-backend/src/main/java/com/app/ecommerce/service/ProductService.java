@@ -19,4 +19,9 @@ public class ProductService {
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
+    public Product getProduct(String productId) {
+        return productRepository.findById(Long.parseLong(productId)).get();
+
+    }
 }

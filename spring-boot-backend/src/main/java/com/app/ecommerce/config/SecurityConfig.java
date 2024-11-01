@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.js",
                         "/ping"
                 ).permitAll()
-                .antMatchers("/user/login", "/user/register", "/products").permitAll()
+                .antMatchers("/user/login", "/user/register", "/user/getUser", "/products/**").permitAll()
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
 
