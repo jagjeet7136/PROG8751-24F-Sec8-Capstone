@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("cart")
+@CrossOrigin
 public class CartController {
 
     @Autowired
@@ -36,12 +37,12 @@ public class CartController {
         return new ResponseEntity<>("Product added to cart successfully", HttpStatus.OK);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{itemId}")
     public ResponseEntity<Cart> removeProductFromCart(
             Principal principal,
-            @RequestParam Long productId) {
+            @PathVariable Long itemId) {
         User loggedInUser = userService.getLoggedInUser(principal);
-        Cart cart = cartService.removeProductFromCart(loggedInUser, productId);
+        Cart cart = cartService.removeProductFromCart(loggedInUser, itemId);
         return ResponseEntity.ok(cart);
     }
 

@@ -46,7 +46,7 @@ public class CartService {
 
     public Cart removeProductFromCart(User user, Long productId) {
         Cart cart = getOrCreateCart(user);
-
+System.out.println(productId);
         // Find the CartItem with the specified product
         CartItem cartItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
