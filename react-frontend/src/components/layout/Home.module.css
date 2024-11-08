@@ -37,6 +37,22 @@
   width: 50%;
 }
 
+.addToCartButton {
+  padding: 12px;
+  background-color: #00aa95;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.addToCartButton:hover {
+  background-color: #008c7a;
+}
+
 .bannerSlideshow {
   width: 100%;
   height: 400px;
@@ -79,6 +95,9 @@
   border-radius: 8px;
   padding: 10px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .productImage {

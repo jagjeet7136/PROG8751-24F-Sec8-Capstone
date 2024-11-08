@@ -1,79 +1,85 @@
 .cartContainer {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  
-  .cartItemsList {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 20px;
-  }
-  
-  .cartItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .itemDetails {
-    display: flex;
-    gap: 15px;
-  }
-  
-  .itemName,
-  .itemPrice,
-  .itemQuantity {
-    font-weight: 500;
-  }
-  
-  .removeButton {
-    color: #e74c3c;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-size: 14px;
-  }
-  
-  .summary {
-    margin: 20px 0;
-  }
-  
-  .summaryItem,
-  .summaryTotal {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-  }
-  
-  .summaryTotal {
-    font-weight: 700;
-    font-size: 18px;
-  }
-  
-  .cartActions {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .cancelButton,
-  .checkoutButton {
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .cancelButton {
-    background-color: #e74c3c;
-    color: #fff;
-  }
-  
-  .checkoutButton {
-    background-color: #27ae60;
-    color: #fff;
-  }
-  
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  min-height: 40vh;
+}
+
+.cartItemsList {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.cartItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.itemDetails {
+  display: flex;
+  gap: 15px;
+}
+
+.itemName,
+.itemPrice,
+.itemQuantity {
+  font-weight: 500;
+}
+
+.removeButton {
+  color: #e74c3c;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 14px;
+}
+
+.summary {
+  margin: 20px 0;
+}
+
+.summaryItem,
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.summaryTotal {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.cartActions {
+  display: flex;
+  gap: 10px;
+}
+
+.cartItemImage {
+  width: 80px; /* Adjust as needed for smaller image */
+  height: auto;
+  border-radius: 5px;
+}
+
+.cancelButton,
+.checkoutButton {
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.checkoutButton {
+  background-color: #27ae60;
+  color: #fff;
+}

@@ -13,7 +13,7 @@ import { ProductDetails } from "./components/layout/ProductDetails";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import { useContext, useLayoutEffect } from "react";
 import jwt_decode from "jwt-decode"; // Fixing the import
-import { Cart } from "./components/layout/Cart";
+import Cart  from "./components/layout/Cart";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);

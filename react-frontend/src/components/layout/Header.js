@@ -67,6 +67,9 @@ export const Header = (props) => {
         <Link to="/login" onClick={logoutHandler}>
           Logout
         </Link>
+        <Link to="/cart">
+                    Cart
+                </Link>
       </div>
     ) : (
       <div>
