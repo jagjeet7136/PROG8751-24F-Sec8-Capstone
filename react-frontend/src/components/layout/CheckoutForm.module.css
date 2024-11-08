@@ -1,0 +1,149 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.checkoutForm {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: 25px 20px;
+  color: #00aa95;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.section {
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.section h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #00aa95;
+  padding-bottom: 5px;
+}
+
+label {
+  font-size: 16px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+}
+
+input,
+select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #333;
+  margin-top: 5px;
+  width: 100%;
+}
+
+input:focus,
+select:focus {
+  border-color: #00aa95;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 170, 149, 0.2);
+}
+
+.radioContainer {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.radioContainer label {
+  font-size: 16px;
+  color: #777;
+}
+
+.submitButton {
+  width: 50%;
+  padding: 12px 0;
+  background-color: #00aa95;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #008c7a;
+}
+
+
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+.submitButton {
+  width: 100%;
+}
+
+.radioContainer {
+  display: flex;
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .checkoutFormContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section h3 {
+    font-size: 20px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+  }
+
+  .submitButton {
+    font-size: 16px;
+    padding: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .section h3 {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+  }
+
+  .submitButton {
+    font-size: 14px;
+    padding: 8px 0;
+  }
+}

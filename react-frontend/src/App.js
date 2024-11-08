@@ -1,3 +1,4 @@
+import CheckoutForm from "./components/layout/CheckoutForm";
 import styles from "./App.css";
 import {
   BrowserRouter as Router,
@@ -13,7 +14,7 @@ import { ProductDetails } from "./components/layout/ProductDetails";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import { useContext, useLayoutEffect } from "react";
 import jwt_decode from "jwt-decode"; // Fixing the import
-import Cart  from "./components/layout/Cart";
+import Cart from "./components/layout/Cart";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);
@@ -71,6 +72,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/products/:productId" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<CheckoutForm />} />
           </Routes>
         </div>
       </Router>
