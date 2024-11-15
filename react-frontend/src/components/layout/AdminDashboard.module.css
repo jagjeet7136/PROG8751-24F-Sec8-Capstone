@@ -1,0 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .adminDashboard {
+    padding: 25px 20px;
+  }
+  
+  .adminDashboard h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .section {
+    margin: 20px 0;
+  }
+  
+  .addSection {
+    margin: 20px 0;
+    width: 50vw;
+  }
+  
+  .searchBar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .searchBar input {
+    padding: 8px;
+    font-size: 16px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .searchBar button {
+    padding: 8px 16px;
+    background-color: #00aa95;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .searchBar button:hover {
+    background-color: #008c7a;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .pagination button {
+    padding: 8px 12px;
+    background-color: #00aa95;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .pagination button:disabled {
+    background-color: #ccc;
+  }
+  
+  .pagination span {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .list {
+    margin-top: 20px;
+  }
+  
+  .listItem {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .productImage {
+    width: 400px;
+    height: auto;
+  }
+  
+  .listItem button {
+    padding: 8px 12px;
+    background-color: #00aa95;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .listItem button:hover {
+    background-color: #008c7a;
+  }
+  
+  /* Product Details */
+  .productDetails {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  .productDetails h2 {
+    margin-bottom: 20px;
+  }
+  
+  .productDetails img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+  
+  /* New Product Form */
+  .newProductForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .newProductForm input,
+  .newProductForm textarea,
+  .newProductForm button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .newProductForm button {
+    background-color: #00aa95;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .newProductForm button:hover {
+    background-color: #008c7a;
+  }
+  
+  .newProductForm textarea {
+    resize: vertical;
+    height: 100px;
+  }
