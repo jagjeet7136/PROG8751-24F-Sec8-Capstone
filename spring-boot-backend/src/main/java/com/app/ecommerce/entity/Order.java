@@ -1,5 +1,6 @@
 package com.app.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +19,8 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Assuming you have a User entity
+    @JsonIgnore
+    private User user;
 
     private String firstName;
     private String lastName;
@@ -36,5 +38,5 @@ public class Order {
     private double total;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems;  // One order can have multiple order items
+    private List<OrderItem> orderItems;
 }

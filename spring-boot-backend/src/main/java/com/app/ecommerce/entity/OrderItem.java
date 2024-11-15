@@ -1,5 +1,6 @@
 package com.app.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,13 +18,14 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Order order;  // Each order item belongs to an order
+    @JsonIgnore
+    private Order order;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;  // Product details for the item
+    private Product product;
 
     private int quantity;
-    private double price;  // Price at the time of order
+    private double price;
 
 }

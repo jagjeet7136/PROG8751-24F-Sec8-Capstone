@@ -1,10 +1,12 @@
 package com.app.ecommerce.service;
 
+import com.app.ecommerce.entity.Role;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.request.UserCreateRequest;
+import com.app.ecommerce.repository.RoleRepository;
 import com.app.ecommerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -23,15 +28,23 @@ public class UserService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    RoleRepository roleRepository;
+
     public User createUser(UserCreateRequest userCreateRequest) throws ValidationException {
-        if(!userCreateRequest.getPassword().trim().equals(userCreateRequest.getConfirmPassword().trim())) {
-            throw new ValidationException("passwords do not match");
+        if (!userCreateRequest.getPassword().trim().equals(userCreateRequest.getConfirmPassword().trim())) {
+            throw new ValidationException("Passwords do not match");
         }
         usernameAlreadyExists(userCreateRequest.getEmail());
+        Role customerRole = roleRepository.findByName("CUSTOMER")
+                .orElseThrow(() -> new ValidationException("Default role CUSTOMER not found"));
         User newUser = new User();
+        Collection<Role> newUserRoles = new ArrayList<>();
+        newUser.setRoles(newUserRoles);
         newUser.setUserFullName(userCreateRequest.getUserFullName().trim());
         newUser.setUsername(userCreateRequest.getEmail());
         newUser.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
+        newUser.getRoles().add(customerRole); // Assign CUSTOMER role
         return userRepository.save(newUser);
     }
 
