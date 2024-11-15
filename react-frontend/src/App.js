@@ -15,6 +15,7 @@ import { AuthContext, AuthProvider } from "./context/AuthContext";
 import { useContext, useLayoutEffect } from "react";
 import jwt_decode from "jwt-decode"; // Fixing the import
 import Cart from "./components/layout/Cart";
+import { AdminLogin } from "./components/userManagement/AdminLogin";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);
@@ -73,6 +74,7 @@ function App() {
             <Route path="/products/:productId" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<CheckoutForm />} />
+            <Route path="/admin" element={<AdminLogin />} />
           </Routes>
         </div>
       </Router>

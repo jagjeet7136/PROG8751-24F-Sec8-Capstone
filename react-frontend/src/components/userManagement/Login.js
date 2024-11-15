@@ -20,10 +20,20 @@ export const Login = () => {
       setIsFormValid(true);
     }
     e.preventDefault();
+
+    // Clear admin session if logged in
+    if (localStorage.getItem("adminToken")) {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminLoggedIn");
+      localStorage.removeItem("adminUsername");
+      localStorage.removeItem("admin");
+    }
+
     const loginObject = {
       username: username.current.value,
       password: password.current.value,
     };
+
     axios
       .post("http://localhost:9898/user/login", loginObject)
       .then((res) => {
@@ -37,12 +47,12 @@ export const Login = () => {
             }
           )
           .then((innerRes) => {
-            //Following three lines of localStorage can be deleted if API hitting components use authContext istead of localstorage for token
-            user = innerRes.data;
+            const user = innerRes.data;
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("loggedIn", "true");
             localStorage.setItem("username", username.current.value);
             localStorage.setItem("user", JSON.stringify(user));
+
             authContext.login(res.data.token, username.current.value, user);
             navigate("/");
           })
@@ -52,17 +62,12 @@ export const Login = () => {
       })
       .catch((error) => {
         console.log(error);
-        setErrorMsg("Some error occured");
+        setErrorMsg("Some error occurred");
         if (error.response) {
           if (error.response.status === 401) {
             setErrorMsg("Wrong email or password");
           } else if (
-            error.response.data.errors != null &&
-            error.response.data.errors.length > 0
-          ) {
-            setErrorMsg(error.response.data.errors[0]);
-          } else if (
-            error.response.data.message != null &&
+            error.response.data.message &&
             error.response.data.message.trim().length > 0
           ) {
             setErrorMsg(error.response.data.message);
