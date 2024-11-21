@@ -44,7 +44,7 @@ public class UserService {
         newUser.setUserFullName(userCreateRequest.getUserFullName().trim());
         newUser.setUsername(userCreateRequest.getEmail());
         newUser.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
-        newUser.getRoles().add(customerRole); // Assign CUSTOMER role
+        newUser.getRoles().add(customerRole);
         return userRepository.save(newUser);
     }
 

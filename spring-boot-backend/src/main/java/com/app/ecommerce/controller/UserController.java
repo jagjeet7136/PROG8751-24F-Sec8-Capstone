@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.security.Principal;
+import java.util.ArrayList;
 
 @Slf4j
 @RestController
@@ -65,13 +66,15 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> createAdmin(@Valid @RequestBody UserCreateRequest userCreateRequest) throws ValidationException {
         log.info("Request received for new admin creation {}", userCreateRequest);
-        Role adminRole = roleRepository.findByName("ADMIN")
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                 .orElseThrow(() -> new ValidationException("Admin role not found"));
 
         User admin = new User();
+        ArrayList<Role> roles = new ArrayList<>();
         admin.setUserFullName(userCreateRequest.getUserFullName().trim());
         admin.setUsername(userCreateRequest.getEmail());
         admin.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
+        admin.setRoles(roles);
         admin.getRoles().add(adminRole);
 
         userRepository.save(admin);
