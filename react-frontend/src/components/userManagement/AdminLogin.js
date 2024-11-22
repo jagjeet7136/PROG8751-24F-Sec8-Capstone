@@ -50,7 +50,7 @@ export const AdminLogin = () => {
                         const admin = innerRes.data;
                         console.log(admin);
                         // Step 3: Check role
-                        if (admin.roles && admin.roles.some((role) => role.name === "ADMIN")) {
+                        if (admin.roles && admin.roles.some((role) => role.name === "ROLE_ADMIN")) {
                             localStorage.setItem("adminToken", res.data.token);
                             localStorage.setItem("adminLoggedIn", "true");
                             localStorage.setItem("adminUsername", username.current.value);

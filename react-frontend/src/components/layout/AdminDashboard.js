@@ -6,6 +6,22 @@ import Footer from "./Footer";
 import icon from "../../icons/logo-transparent-png.png";
 
 export const AdminDashboard = () => {
+    const [errors, setErrors] = useState([]);
+const [categories] = useState([
+        { id: 1, name: "Electronics" },
+        { id: 2, name: "Fashion" },
+        { id: 3, name: "Home & Kitchen" },
+        { id: 4, name: "Books" },
+        { id: 5, name: "Toys & Games" },
+        { id: 6, name: "Health & Beauty" },
+        { id: 7, name: "Sports & Outdoors" },
+        { id: 8, name: "Automotive" },
+        { id: 9, name: "Groceries" },
+        { id: 10, name: "Jewelry" },
+    ]);
+
+    const [updatedProduct, setUpdatedProduct] = useState(null);
+const [editMode, setEditMode] = useState(false);
     const [products, setProducts] = useState([]);
     const [productPage, setProductPage] = useState(1);
     const [productTotalPages, setProductTotalPages] = useState(1);
@@ -48,11 +64,9 @@ export const AdminDashboard = () => {
             .catch((err) => console.error("Error fetching product details:", err));
     };
 
-    // Handle New Product Creation
     const handleCreateProduct = (e) => {
         e.preventDefault();
 
-        // Get the admin token from localStorage (ensure it's available)
         const token = localStorage.getItem("adminToken");
 
         if (!token) {
@@ -60,12 +74,11 @@ export const AdminDashboard = () => {
             return;
         }
 
-        // Create product request
         axios
             .post("http://localhost:9898/products", newProduct, {
                 headers: {
-                    Authorization: token
-                }
+                    Authorization: token,
+                },
             })
             .then((res) => {
                 alert("Product created successfully!");
@@ -73,15 +86,50 @@ export const AdminDashboard = () => {
                     name: "",
                     description: "",
                     longDescription: "",
-                    discountedPrice: "",
-                    price: "",
+                    discountedPrice: 0,
+                    price: 0,
                     imageUrl: "",
-                    stock: "",
-                    categoryId: "",
+                    stock: 0,
+                    categoryName: "",
                 });
+                setErrors([]);
                 fetchProducts(productPage);
             })
-            .catch((err) => console.error("Error creating product:", err));
+            .catch((err) => {
+                if (err.response && err.response.data && err.response.data.errors) {
+                    setErrors(err.response.data.errors); // Set the field errors from the response
+                } else {
+                    console.error("Error creating product:", err);
+                }
+            });
+    };
+
+    const handleUpdateProduct = (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("adminToken");
+
+        if (!token) {
+            alert("You are not authorized to update products. Please log in as an admin.");
+            return;
+        }
+
+        axios
+            .put(`http://localhost:9898/products/${updatedProduct.id}`, updatedProduct, {
+                headers: {
+                    Authorization: token,
+                },
+            })
+            .then((res) => {
+                alert("Product updated successfully!");
+                setSelectedProduct(updatedProduct);
+                setEditMode(false);
+                fetchProducts(productPage);
+            })
+            .catch((err) => {
+                console.error("Error updating product:", err);
+                alert("Failed to update product.");
+            });
     };
 
     useEffect(() => {
@@ -149,17 +197,115 @@ export const AdminDashboard = () => {
                 {selectedProduct && (
                     <div className={styles.productDetails}>
                         <h2>Product Details</h2>
-                        <p><strong>Name:</strong> {selectedProduct.name}</p>
-                        <p><strong>Description:</strong> {selectedProduct.description}</p>
-                        <p><strong>Long Description:</strong> {selectedProduct.longDescription}</p>
-                        <p><strong>Discounted Price:</strong> ${selectedProduct.discountedPrice}</p>
-                        <p><strong>Price:</strong> ${selectedProduct.price}</p>
-                        <p><strong>Stock:</strong> {selectedProduct.stock}</p>
-                        <img
-                            src={selectedProduct.imageUrl}
-                            alt={selectedProduct.name}
-                            className={styles.productImage}
-                        />
+                        {!editMode ? (
+                            <>
+                                <p>
+                                    <strong>Name:</strong> {selectedProduct.name}
+                                </p>
+                                <p>
+                                    <strong>Description:</strong> {selectedProduct.description}
+                                </p>
+                                <p>
+                                    <strong>Long Description:</strong> {selectedProduct.longDescription}
+                                </p>
+                                <p>
+                                    <strong>Discounted Price:</strong> ${selectedProduct.discountedPrice}
+                                </p>
+                                <p>
+                                    <strong>Price:</strong> ${selectedProduct.price}
+                                </p>
+                                <p>
+                                    <strong>Stock:</strong> {selectedProduct.stock}
+                                </p>
+                                <img
+                                    src={selectedProduct.imageUrl}
+                                    alt={selectedProduct.name}
+                                    className={styles.productImage}
+                                />
+                                <button
+                                    onClick={() => {
+                                        setEditMode(true);
+                                        setUpdatedProduct(selectedProduct);
+                                    }}
+                                >
+                                    Edit Product
+                                </button>
+                            </>
+                        ) : (
+                            <div>
+                                <h2>Edit Product</h2>
+                                <form onSubmit={handleUpdateProduct}>
+                                    <input
+                                        type="text"
+                                        value={updatedProduct.name}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, name: e.target.value })
+                                        }
+                                    />
+                                    <input
+                                        type="text"
+                                        value={updatedProduct.description}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, description: e.target.value })
+                                        }
+                                    />
+                                    <textarea
+                                        value={updatedProduct.longDescription}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, longDescription: e.target.value })
+                                        }
+                                    />
+                                    <input
+                                        type="number"
+                                        value={updatedProduct.discountedPrice}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({
+                                                ...updatedProduct,
+                                                discountedPrice: parseFloat(e.target.value),
+                                            })
+                                        }
+                                    />
+                                    <input
+                                        type="number"
+                                        value={updatedProduct.price}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, price: parseFloat(e.target.value) })
+                                        }
+                                    />
+                                    <input
+                                        type="text"
+                                        value={updatedProduct.imageUrl}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, imageUrl: e.target.value })
+                                        }
+                                    />
+                                    <input
+                                        type="number"
+                                        value={updatedProduct.stock}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, stock: parseInt(e.target.value) })
+                                        }
+                                    />
+                                    <select
+                                        value={updatedProduct.categoryName}
+                                        onChange={(e) =>
+                                            setUpdatedProduct({ ...updatedProduct, categoryName: e.target.value })
+                                        }
+                                    >
+                                        <option value="">Select a Category</option>
+                                        {categories.map((category) => (
+                                            <option key={category.id} value={category.name}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button type="submit">Save Changes</button>
+                                    <button type="button" onClick={() => setEditMode(false)}>
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -219,15 +365,29 @@ export const AdminDashboard = () => {
                             onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
                             required
                         />
-                        <input
-                            type="number"
-                            placeholder="Category ID"
-                            value={newProduct.categoryId}
+                        <select
+                            value={newProduct.categoryName}
                             onChange={(e) =>
-                                setNewProduct({ ...newProduct, categoryId: e.target.value })
+                                setNewProduct({ ...newProduct, categoryName: e.target.value })
                             }
-                            required
-                        />
+
+                        >
+                            <option value="">Select a Category</option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.name}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.length > 0 && (
+                            <div className={styles.errorContainer}>
+                                {errors.map((error, index) => (
+                                    <p key={index} className={styles.errorText}>
+                                        {error}
+                                    </p>
+                                ))}
+                            </div>
+                        )}
                         <button type="submit">Create Product</button>
                     </form>
                 </div>
