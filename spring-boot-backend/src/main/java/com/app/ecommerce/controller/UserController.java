@@ -28,6 +28,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -62,6 +63,13 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
+
+    @GetMapping("/getUsers")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<User> getUsers(@RequestParam(name = "search", required = false) String search) {
+        return userService.getUsers(search);
+    }
+
     @PostMapping("/admin/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> createAdmin(@Valid @RequestBody UserCreateRequest userCreateRequest) throws ValidationException {
@@ -72,6 +80,7 @@ public class UserController {
         User admin = new User();
         ArrayList<Role> roles = new ArrayList<>();
         admin.setUserFullName(userCreateRequest.getUserFullName().trim());
+        userService.usernameAlreadyExists(userCreateRequest.getEmail());
         admin.setUsername(userCreateRequest.getEmail());
         admin.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
         admin.setRoles(roles);

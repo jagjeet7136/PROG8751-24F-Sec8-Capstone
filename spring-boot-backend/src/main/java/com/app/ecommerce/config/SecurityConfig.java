@@ -1,6 +1,7 @@
 package com.app.ecommerce.config;
 
 import com.app.ecommerce.constants.SecurityConstants;
+import com.app.ecommerce.exceptions.CustomAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,7 +52,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(entryPoint).and()
+        http.cors().and().csrf().disable().
+                exceptionHandling()
+                .authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -71,7 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/ping"
                 ).permitAll()
                 .antMatchers("/user/login", "/user/register", "/user/getUser", "/products/**").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/admin/**", "/user/getUsers").hasRole("ADMIN")
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
 

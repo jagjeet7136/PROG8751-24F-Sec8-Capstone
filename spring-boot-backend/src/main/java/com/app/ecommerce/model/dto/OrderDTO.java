@@ -3,7 +3,6 @@ package com.app.ecommerce.model.dto;
 import com.app.ecommerce.entity.CartItem;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.List;
 
 @Getter
@@ -19,8 +18,7 @@ public class OrderDTO {
     private String postalCode;
     private String state;
     private String paymentMethod;
-    private List<CartItem> cartItems;  // List of cart items from the frontend
-
+    private List<CartItem> cartItems;
     private double subtotal;
     private double tax;
     private double total;

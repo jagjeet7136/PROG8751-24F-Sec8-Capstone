@@ -1,6 +1,9 @@
 package com.app.ecommerce.controller;
 
 import com.app.ecommerce.entity.Product;
+import com.app.ecommerce.exceptions.ValidationException;
+import com.app.ecommerce.model.request.ProductCreateRequest;
+import com.app.ecommerce.model.request.ProductUpdateRequest;
 import com.app.ecommerce.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -43,8 +47,59 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product savedProduct = productService.createProduct(product);
-        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductCreateRequest productCreateRequest) throws
+            ValidationException {
+        Product createdProduct = productService.createProduct(productCreateRequest);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductUpdateRequest productUpdateRequest) {
+
+        // Fetch existing product
+        Product existingProduct = productService.getProductById(id);
+
+        if (existingProduct == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (productUpdateRequest.getName() != null && !productUpdateRequest.getName().trim().isEmpty()) {
+            existingProduct.setName(productUpdateRequest.getName());
+        }
+
+        if (productUpdateRequest.getDescription() != null && !productUpdateRequest.getDescription().trim().isEmpty()) {
+            existingProduct.setDescription(productUpdateRequest.getDescription());
+        }
+
+        if (productUpdateRequest.getLongDescription() != null && !productUpdateRequest.getLongDescription().trim().isEmpty()) {
+            existingProduct.setLongDescription(productUpdateRequest.getLongDescription());
+        }
+
+        if (productUpdateRequest.getPrice() != null) {
+            existingProduct.setPrice(productUpdateRequest.getPrice());
+        }
+
+        if (productUpdateRequest.getDiscountedPrice() != null) {
+            existingProduct.setDiscountedPrice(productUpdateRequest.getDiscountedPrice());
+        }
+
+        if (productUpdateRequest.getStock() != null) {
+            existingProduct.setStock(productUpdateRequest.getStock());
+        }
+
+        if (productUpdateRequest.getImageUrl() != null && !productUpdateRequest.getImageUrl().trim().isEmpty()) {
+            existingProduct.setImageUrl(productUpdateRequest.getImageUrl());
+        }
+
+        if (productUpdateRequest.getCategoryName() != null && !productUpdateRequest.getCategoryName().trim().isEmpty()) {
+            existingProduct.setCategory(productService.getCategoryByName(productUpdateRequest.getCategoryName()));
+        }
+
+        Product updatedProduct = productService.saveProduct(existingProduct);
+
+        return ResponseEntity.ok(updatedProduct);
     }
 }
