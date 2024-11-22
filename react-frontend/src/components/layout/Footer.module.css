@@ -3,26 +3,31 @@
   color: #fff;
   padding: 40px 20px;
   text-align: center;
+  font-family: 'Arial', sans-serif;
 }
 
 .footerContent {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   flex-wrap: wrap;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .companyName {
-  flex: 1;
-  min-width: 200px;
+  flex: 1 1 250px;
   margin-bottom: 20px;
 }
 
 .companyName h2 {
   font-size: 28px;
-  color: #0a74da;
+  color: #008c7a; /* Primary color */
   margin: 0 0 10px;
+  transition: color 0.3s ease;
+}
+
+.companyName h2:hover {
+  color: #e67e22; /* Hover color */
 }
 
 .companyName p {
@@ -32,20 +37,29 @@
 
 .footerSections {
   display: flex;
-  flex: 2;
-  justify-content: space-around;
+  flex: 3;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 20px;
 }
 
 .footerSection {
-  min-width: 150px;
+  flex: 1 1 220px;
+  min-width: 200px;
   margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
 }
 
 .footerSection h3 {
   font-size: 18px;
-  color: #0a74da;
+  color: #008c7a; /* Primary color */
   margin-bottom: 10px;
+  transition: color 0.3s ease;
+}
+
+.footerSection h3:hover {
+  color: #e67e22; /* Hover color */
 }
 
 .footerSection ul {
@@ -61,10 +75,12 @@
 .footerSection ul li a {
   color: #ddd;
   text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
 }
 
 .footerSection ul li a:hover {
-  color: #e67e22;
+  color: #e67e22; /* Hover color */
   text-decoration: underline;
 }
 
@@ -73,14 +89,103 @@
   flex-direction: column;
 }
 
+.socialLinks li {
+  margin-bottom: 8px;
+}
+
+.socialLinks li a {
+  color: #ddd;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.socialLinks li a:hover {
+  color: #e67e22; /* Hover color */
+  text-decoration: underline;
+}
+
 .footerBottom {
   background-color: #222;
   padding: 10px 0;
   margin-top: 20px;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
 }
 
 .footerBottom p {
   margin: 0;
   font-size: 14px;
   color: #bbb;
+}
+
+/* Hover effects for links */
+.footerSection ul li a:hover,
+.socialLinks li a:hover {
+  color: #e67e22;
+  text-decoration: underline;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .companyName h2 {
+    font-size: 24px;
+  }
+
+  .footerSections {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footerSection {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footerContent {
+    padding: 20px;
+  }
+
+  .companyName h2 {
+    font-size: 20px;
+  }
+
+  .footerSections {
+    gap: 15px;
+  }
+
+  .footerSection h3 {
+    font-size: 16px;
+  }
+
+  .footerSection ul li a {
+    font-size: 12px;
+  }
+
+  .footerBottom p {
+    font-size: 12px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

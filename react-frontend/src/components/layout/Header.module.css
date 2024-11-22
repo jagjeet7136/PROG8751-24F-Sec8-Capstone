@@ -1,21 +1,31 @@
+/* Reset styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+body {
+  font-family: Arial, sans-serif;
+}
+
+/* Header container */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 100px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f5f5f5;
+  position: relative;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
 .icon {
   height: 90px;
   width: 140px;
-  margin-left: -8px;
-}
-
-.blackText div a {
-  color: #0a74da;
-}
-
-.greenText div a {
-  color: #0a74da;
+  object-fit: contain;
 }
 
 .flex {
@@ -27,59 +37,130 @@
   flex-direction: column;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px 100px;
-  border-bottom: 0.8px solid #f5f5f5;
-  background-color: #f5f5f5;
-}
-
+/* Header links */
 .headerList div a {
-  list-style: none;
   margin-left: 20px;
   font-size: 16px;
   font-weight: bold;
   text-decoration: none;
+  color: #333;
+  transition: color 0.3s ease;
 }
 
 .headerList div a:hover {
-  text-decoration: 2px underline;
   color: #ffb400;
+  text-decoration: underline;
 }
 
+/* Profile and Authentication Links */
+.headerList .profileImage {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  margin-left: 20px;
+  display: inline-block;
+}
+
+.headerList div {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Categories dropdown */
+.categoriesDropdown select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #008c7a;
+  background-color: #ffffff;
+  color: #008c7a;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.categoriesDropdown select:hover,
+.categoriesDropdown select:focus {
+  border-color: #ffb400;
+  outline: none;
+}
+
+/* Search Bar */
+.searchBarContainer {
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.searchInput {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #008c7a;
+  border-radius: 5px 0 0 5px;
+  background-color: #f5f5f5;
+  color: #008c7a;
+  width: 300px;
+  transition: border-color 0.3s ease;
+}
+
+.searchInput:focus {
+  border-color: #ffb400;
+  outline: none;
+}
+
+.searchButton {
+  padding: 8px 16px;
+  font-size: 16px;
+  background-color: #008c7a;
+  color: #ffffff;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  height: 37px;
+  transition: background-color 0.3s ease;
+}
+
+.searchButton:hover {
+  background-color: #ffb400;
+}
+
+/* Toggle Menu for smaller screens */
 .toggleMenu {
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  display: none;
   z-index: 2;
+  display: none;
 }
 
 .toggleMenu span {
   width: 35px;
   height: 4px;
-  background-color: #0a74da;
+  background-color: #008c7a;
 }
 
 .toggleMenuOne {
   margin-bottom: 5px;
 }
 
+/* Mobile navbar */
 .navbarMenu {
   position: absolute;
   background-color: #2d2d2d;
-  height: 50vh;
+  height: 100%;
   width: 100vw;
   z-index: 1;
-  right: 0px;
-  top: 0px;
+  right: 0;
+  top: 0;
   display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .navbarMenu.active {
   display: block;
+  opacity: 1;
 }
 
 .navbar {
@@ -91,92 +172,54 @@
 .navbar div {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 
 .navbar div a {
+  margin: 15px;
+  color: #ffffff;
+  font-size: 18px;
   text-decoration: none;
-  margin: 10px;
-  color: #ffffff;
+  transition: color 0.3s ease;
 }
 
-.profileImage {
-  display: inline-block;
-  width: 55px;
-  height: 55px;
-  border-radius: 50px;
-  background-color: #f5f5f5;
+.navbar div a:hover {
+  color: #ffb400;
 }
 
-.categoriesDropdown {
-  position: relative;
-  margin-left: 20px;
-}
+/* Media Queries */
 
-.categoriesDropdown select {
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #0a74da;
-  background-color: #ffffff;
-  color: #0a74da;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.categoriesDropdown select:hover,
-.categoriesDropdown select:focus {
-  border-color: #ffb400;
-  outline: none;
-}
-
-.searchBarContainer {
-  display: flex;
-  align-items: center;
-  margin-left: 20px;
-}
-
-.searchInput {
-  padding: 8px 12px;
-  font-size: 16px;
-  border: 1px solid #0a74da;
-  border-radius: 5px 0 0 5px;
-  background-color: #f5f5f5;
-  color: #0a74da;
-  width: 300px;
-}
-
-.searchInput:focus {
-  border-color: #ffb400;
-  outline: none;
-}
-
-.searchButton {
-  padding: 8px 16px;
-  font-size: 16px;
-  background-color: #0a74da;
-  color: #ffffff;
-  border: none;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  height: 37px;
-}
-
-.searchButton:hover {
-  background-color: #ffb400;
-}
-
-@media (max-width: 500px) {
+/* Tablet and below (900px) */
+@media (max-width: 900px) {
   .header {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 15px 50px;
   }
-}
 
-@media (max-width: 450px) {
-  .displayNone {
+  .categoriesDropdown {
+    margin-top: 15px;
+  }
+
+  .searchBarContainer {
+    margin-top: 15px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .searchInput {
+    width: 80%;
+  }
+
+  .searchButton {
+    width: 100px;
+  }
+
+  .navbar {
+    font-size: 5vw;
+  }
+
+  .headerList {
     display: none;
   }
 
@@ -185,9 +228,87 @@
   }
 }
 
+/* Mobile (600px and below) */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    padding: 15px;
+    align-items: center;
+  }
+
+  .categoriesDropdown {
+    width: 100%;
+  }
+
+  .searchInput {
+    width: 70%;
+  }
+
+  .searchButton {
+    width: 90px;
+  }
+
+  .navbar {
+    font-size: 4.5vw;
+  }
+
+  .navbar div a {
+    font-size: 16px;
+  }
+
+  .navbarMenu {
+    height: auto;
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s ease;
+    transform: translateX(100%);
+  }
+
+  .navbarMenu.active {
+    opacity: 1;
+    display: block;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile (450px and below) */
+@media (max-width: 450px) {
+  .toggleMenu span {
+    width: 28px;
+    height: 3px;
+  }
+
+  .searchInput {
+    font-size: 14px;
+    width: 80%;
+  }
+
+  .searchButton {
+    width: 80px;
+  }
+
+  .navbar div a {
+    font-size: 14px;
+  }
+}
+
+/* Mobile (350px and below) */
 @media (max-width: 350px) {
   .toggleMenu span {
     width: 28px;
     height: 3px;
+  }
+
+  .searchInput {
+    font-size: 12px;
+    width: 70%;
+  }
+
+  .searchButton {
+    width: 70px;
+  }
+
+  .navbar div a {
+    font-size: 14px;
   }
 }

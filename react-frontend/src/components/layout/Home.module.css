@@ -46,11 +46,23 @@
   cursor: pointer;
   font-size: 18px;
   margin-top: 20px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .addToCartButton:hover {
   background-color: #008c7a;
+  transform: scale(1.1);
+}
+
+.added {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  transform: scale(1.1);
+}
+
+.added:hover {
+  background-color: #388e3c;
 }
 
 .bannerSlideshow {
@@ -66,104 +78,92 @@
 .bannerImage {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit:inherit;
   transition: opacity 3s ease;
   padding: 20px;
 }
 
 .section {
-  margin: 20px 0;
+  margin-bottom: 40px;
 }
 
 .sectionTitle {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
-  text-align: left;
+  font-size: 32px;
+  color: #00aa95;
+  font-weight: 700;
+  margin-bottom: 20px;
 }
 
 .productGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  margin-top: 20px;
 }
 
 .productCard {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
-  text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.productCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.productLink {
+  text-decoration: none;
+  color: inherit;
 }
 
 .productImage {
   width: 100%;
-  height: 150px;
+  height: 200px;
   object-fit: cover;
+  border-radius: 10px;
 }
 
 .productName {
   font-size: 18px;
   font-weight: bold;
-  color: #333;
+  margin-top: 15px;
 }
 
 .productDescription {
   font-size: 14px;
-  color: #777;
+  margin-top: 10px;
 }
 
 .productPrice {
   font-size: 16px;
-  color: #e67e22;
   font-weight: bold;
+  color: #00aa95;
+  margin-top: 10px;
 }
 
-@media (max-width: 1185px) {
-  .home {
-    flex-direction: column;
-    margin: 0px 40px 0 40px;
-    align-items: center;
+@media (max-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .homeWrapper {
-    width: 100%;
-    height: 60%;
-    padding-top: 40px;
-  }
-
-  .homeImage {
-    width: 80vw;
-    height: 50vw;
-    object-fit: cover;
-    object-position: center;
+  .productCard {
+    padding: 15px;
   }
 }
 
-@media (max-width: 917px) {
-  .homeHeading {
-    font-size: 7vw;
+@media (max-width: 480px) {
+  .productGrid {
+    grid-template-columns: 1fr;
   }
 
-  .homePara {
-    font-size: 4vw;
-  }
-
-  .homeImage {
-    width: 100%;
-  }
-}
-
-@media (max-width: 500px) {
-  .homePara {
-    font-size: 19px;
-  }
-
-  .home {
-    margin: 20px;
+  .bannerImage {
+    height: 300px;
   }
 }

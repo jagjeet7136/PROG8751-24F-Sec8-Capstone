@@ -16,16 +16,16 @@ const Footer = () => {
             <h3>Navigation</h3>
             <ul>
               <li>
-                <a href="#home">Home</a>
+                <Link to="/home">Home</Link>
               </li>
               <li>
-                <a href="#shop">Shop</a>
+                <Link to="/shop">Shop</Link>
               </li>
               <li>
-                <a href="#about">About Us</a>
+                <Link to="/about">About Us</Link>
               </li>
               <li>
-                <a href="#contact">Contact</a>
+                <Link to="/contact">Contact</Link>
               </li>
               <li>
                 <Link to="/admin">Admin</Link>
@@ -37,16 +37,16 @@ const Footer = () => {
             <h3>Customer Service</h3>
             <ul>
               <li>
-                <a href="#faq">FAQs</a>
+                <Link to="/faq">FAQs</Link>
               </li>
               <li>
-                <a href="#returns">Return Policy</a>
+                <Link to="/returns">Return Policy</Link>
               </li>
               <li>
-                <a href="#shipping">Shipping Info</a>
+                <Link to="/shipping">Shipping Info</Link>
               </li>
               <li>
-                <a href="#support">Support</a>
+                <Link to="/support">Support</Link>
               </li>
             </ul>
           </div>
@@ -55,21 +55,22 @@ const Footer = () => {
             <h3>Follow Us</h3>
             <ul className={styles.socialLinks}>
               <li>
-                <a href="#facebook">Facebook</a>
+                <Link to="/facebook">Facebook</Link>
               </li>
               <li>
-                <a href="#twitter">Twitter</a>
+                <Link to="/twitter">Twitter</Link>
               </li>
               <li>
-                <a href="#instagram">Instagram</a>
+                <Link to="/instagram">Instagram</Link>
               </li>
               <li>
-                <a href="#linkedin">LinkedIn</a>
+                <Link to="/linkedin">LinkedIn</Link>
               </li>
             </ul>
           </div>
         </div>
       </div>
+
       <div className={styles.footerBottom}>
         <p>
           &copy; {new Date().getFullYear()} Shopping Lane. All rights reserved.

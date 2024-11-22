@@ -66,7 +66,7 @@
 
 .loginButton {
   border: 0px;
-  background-color: #3498db;
+  background-color: #008c7a;
   height: 50px;
   color: white;
   border-radius: 5px;
@@ -79,7 +79,7 @@
 
 .loginContainer a {
   text-decoration: none;
-  color: #3498db;
+  color: #008c7a;
 }
 
 .tPContainer {
@@ -89,7 +89,7 @@
 
 .tPContainer a {
   text-decoration: none;
-  color: #3498db;
+  color: #008c7a;
 }
 
 .errorMessageContainer {
