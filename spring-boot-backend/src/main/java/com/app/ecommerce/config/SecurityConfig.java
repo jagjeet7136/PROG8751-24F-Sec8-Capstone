@@ -76,7 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/ping"
                 ).permitAll()
                 .antMatchers("/user/login", "/user/register", "/user/getUser", "/products/**").permitAll()
-                .antMatchers("/admin/**", "/user/getUsers").hasRole("ADMIN")
+                .antMatchers("/admin/**", "/user/getUsers", "/orders/userOrders/").hasRole("ADMIN")
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
 

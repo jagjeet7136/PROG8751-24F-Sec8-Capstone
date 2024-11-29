@@ -40,8 +40,10 @@ public class ProductController {
     public ResponseEntity<Page<Product>> getProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "") String search) {
-        Page<Product> products = productService.getProducts(page, size, search);
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder) {
+        Page<Product> products = productService.getProducts(page, size, search, sortBy, sortOrder);
         return ResponseEntity.ok(products);
     }
 
@@ -59,7 +61,6 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateRequest productUpdateRequest) {
 
-        // Fetch existing product
         Product existingProduct = productService.getProductById(id);
 
         if (existingProduct == null) {

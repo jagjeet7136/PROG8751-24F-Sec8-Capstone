@@ -151,4 +151,8 @@ public class OrderService {
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findAllByUser(user);
     }
+
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUserId(userId);
+    }
 }

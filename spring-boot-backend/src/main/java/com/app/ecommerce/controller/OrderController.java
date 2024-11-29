@@ -9,12 +9,14 @@ import com.app.ecommerce.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
+@CrossOrigin
 public class OrderController {
 
     @Autowired
@@ -40,4 +42,12 @@ public class OrderController {
         User user = userService.getLoggedInUser(principal);
         return new ResponseEntity<>(orderService.getOrdersByUser(user), HttpStatus.OK);
     }
+
+    @GetMapping("/userOrders/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Order>> getOrdersForUser(@PathVariable Long userId) {
+        List<Order> orders = orderService.getOrdersByUserId(userId);
+        return ResponseEntity.ok(orders);
+    }
+
 }

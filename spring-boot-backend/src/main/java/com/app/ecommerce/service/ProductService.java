@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -34,12 +36,22 @@ public class ProductService {
 
     }
 
-    public Page<Product> getProducts(int page, int size, String search) {
-        log.info("Search Keyword: {}, Page: {}, Size: {}", search, page, size);
-        if (search == null || search.trim().isEmpty()) {
-            return productRepository.findAll(PageRequest.of(page, size));
+    public Page<Product> getProducts(int page, int size, String search, String sortBy, String sortOrder) {
+        log.info("Search Keyword: {}, Page: {}, Size: {}, Sort By: {}, Sort Order: {}", search, page, size, sortBy, sortOrder);
+        Sort sort = Sort.by(sortBy);
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            sort = sort.descending();
+        } else {
+            sort = sort.ascending();
         }
-         Page<Product> products = productRepository.searchProducts(search.trim(), PageRequest.of(page, size));
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        if (search == null || search.trim().isEmpty()) {
+            return productRepository.findAll(pageable);
+        }
+
+        Page<Product> products = productRepository.searchProducts(search.trim(), pageable);
         log.info("products fetched : {}", products);
         return products;
     }
