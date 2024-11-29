@@ -12,6 +12,11 @@ export const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [orders, setOrders] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [sortOption, setSortOption] = useState("name");
+    const handleSortChange = (e) => {
+      setSortOption(e.target.value);
+      fetchProducts(1, e.target.value);
+    };
 const [categories] = useState([
         { id: 1, name: "Electronics" },
         { id: 2, name: "Fashion" },
@@ -109,37 +114,60 @@ const [editMode, setEditMode] = useState(false);
             });
     };
 const fetchUsers = (search = "") => {
-        const token = localStorage.getItem("adminToken");
-        axios
-            .get(`http://localhost:9898/user/getUsers?search=${search}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
-            .then((res) => {
-                setUsers(res.data);
-            })
-            .catch((err) => console.error("Error fetching users:", err));
-    };
+    const token = localStorage.getItem("adminToken");
+    axios
+      .get(`http://localhost:9898/user/getUsers?search=${search}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        setUsers(res.data);
+      })
+      .catch((err) => console.error("Error fetching users:", err));
+  };
 
-    const fetchUserOrders = (userId) => {
-        const token = localStorage.getItem("adminToken");
-        axios
-            .get(`http://localhost:9898/api/orders/user/${userId}`, {
-                headers: {
-                    Authorization: token,
-                },
-            })
-            .then((res) => {
-                setOrders(res.data);
-            })
-            .catch((err) => console.error("Error fetching user orders:", err));
-    };
+  const fetchUserOrders = (userId) => {
+    const token = localStorage.getItem("adminToken");
+    axios
+      .get(`http://localhost:9898/api/orders/user/${userId}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        setOrders(res.data);
+      })
+      .catch((err) => console.error("Error fetching user orders:", err));
+  };
+  const fetchOrdersForUser = (userId) => {
+    const token = localStorage.getItem("adminToken");
 
-    const handleShowOrders = (userId) => {
-        fetchUserOrders(userId);
+    if (!token) {
+      alert("You are not authorized to view orders. Please log in as an admin.");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:9898/orders/userOrders/${userId}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        setUserOrders(res.data);
         setSelectedUser(userId);
-    };
+      })
+      .catch((err) => {
+        console.error("Error fetching orders:", err);
+        alert("Failed to fetch orders for the user.");
+      });
+  };
+  const [userOrders, setUserOrders] = useState([]);
+  const handleShowOrders = (userId) => {
+    fetchUserOrders(userId);
+    setSelectedUser(userId);
+  };
     const handleUpdateProduct = (e) => {
         e.preventDefault();
 
@@ -172,6 +200,7 @@ const fetchUsers = (search = "") => {
         fetchProducts();
     }, []);
 
+    
     return (
       <div>
         <Header textColor="greenText" icon={icon} />
@@ -190,6 +219,19 @@ const fetchUsers = (search = "") => {
               />
               <button onClick={handleSearch}>Search</button>
             </div>
+            <div className={styles.sorting}>
+            <label htmlFor="sort">Sort by:</label>
+            <select
+              id="sort"
+              value={sortOption}
+              onChange={handleSortChange}
+            >
+              <option value="name">Name</option>
+              <option value="price">Price</option>
+              <option value="discountedPrice">Discounted Price</option>
+              <option value="stock">Stock</option>
+            </select>
+          </div>
             <div className={styles.pagination}>
               <button
                 disabled={productPage <= 1}
@@ -469,65 +511,64 @@ const fetchUsers = (search = "") => {
             </form>
           </div>
           {/* User Search */}
-          <div className={styles.section}>
-            <h2>Search Users</h2>
-            <div className={styles.searchBar}>
-              <input
-                type="text"
-                placeholder="Search by name or email..."
-                value={userSearchInput}
-                onChange={(e) => setUserSearchInput(e.target.value)}
-              />
-              <button onClick={() => fetchUsers(userSearchInput)}>
-                Search
-              </button>
-            </div>
+        <div className={styles.section}>
+          <h2>Search Users</h2>
+          <div className={styles.searchBar}>
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={userSearchInput}
+              onChange={(e) => setUserSearchInput(e.target.value)}
+            />
+            <button onClick={() => fetchUsers(userSearchInput)}>
+              Search
+            </button>
           </div>
+        </div>
 
-          {/* Users List */}
-          <div className={styles.list}>
-            {users.map((user) => (
-              <div key={user.id} className={styles.listItem}>
-                <div>
-                  <strong>Name:</strong> {user.userFullName} {user.lastName} |{" "}
-                  <strong>Email:</strong> {user.username}
-                </div>
-                <button onClick={() => handleShowOrders(user.id)}>
-                  Show Orders
-                </button>
+        <div className={styles.list}>
+          {users.map((user) => (
+            <div key={user.id} className={styles.listItem}>
+              <div>
+                <strong>Name:</strong> {user.userFullName} {user.lastName} |{" "}
+                <strong>Email:</strong> {user.username}
               </div>
-            ))}
-          </div>
-
-          {selectedUser && (
-            <div className={styles.ordersSection}>
-              <h2>Orders for User {selectedUser}</h2>
-              <div className={styles.list}>
-                {orders.length === 0 ? (
-                  <p>No orders found for this user.</p>
-                ) : (
-                  orders.map((order) => (
-                    <div key={order.id} className={styles.listItem}>
-                      <div>
-                        <strong>Order ID:</strong> {order.id} |{" "}
-                        <strong>Total:</strong> ${order.total}
-                      </div>
-                      <div>
-                        <strong>Payment Method:</strong> {order.paymentMethod}
-                      </div>
-                      <button
-                        onClick={() =>
-                          alert("Order details not yet implemented.")
-                        }
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
+              <button onClick={() => fetchOrdersForUser(user.id)}>Show Orders</button>
             </div>
-          )}
+          ))}
+        </div>
+
+        {selectedUser && (
+          <div className={styles.userOrders}>
+            <h2>Orders for User {selectedUser}</h2>
+            {userOrders.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td>{order.id}</td>
+                      <td>${order.total.toFixed(2)}</td>
+                      <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                      <td>{order.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className={styles.noOrdersMessage}>User does not have any orders.</p>
+            )}
+          </div>
+        )}
+            
+         
         </div>
         <Footer />
       </div>
