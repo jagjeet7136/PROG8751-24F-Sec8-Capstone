@@ -11,7 +11,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     margin: 25px 20px;
-    color: #00aa95;
+    color: #777;
     align-items: flex-start;
     justify-content: center;
     gap: 20px;
@@ -48,7 +48,7 @@
   .productTitle {
     font-size: 32px;
     font-weight: bold;
-    color: #333;
+    color: #00aa95;
     text-align: left;
   }
   

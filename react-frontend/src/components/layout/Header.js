@@ -14,6 +14,17 @@ export const Header = (props) => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [productSearchInput, setProductSearchInput] = useState("");
+
+  const handleSearchInputChange = (event) => {
+    setProductSearchInput(event.target.value);
+  };
+
+  const handleSearchSubmit = () => {
+    if (productSearchInput.trim()) {
+      navigate(`/search?query=${encodeURIComponent(productSearchInput)}`);
+    }
+  };
 
   const mainPageHandler = (event) => {
     if (authContext.loggedIn) {
@@ -52,8 +63,6 @@ export const Header = (props) => {
     };
   }, [isActive]);
 
-
-
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
   };
@@ -67,9 +76,7 @@ export const Header = (props) => {
         <Link to="/login" onClick={logoutHandler}>
           Logout
         </Link>
-        <Link to="/cart">
-                    Cart
-                </Link>
+        <Link to="/cart">Cart</Link>
       </div>
     ) : (
       <div>
@@ -113,9 +120,13 @@ export const Header = (props) => {
         <input
           type="text"
           placeholder="Search for products..."
+          value={productSearchInput}
+          onChange={handleSearchInputChange}
           className={styles.searchInput}
         />
-        <button className={styles.searchButton}>Search</button>
+        <button onClick={handleSearchSubmit} className={styles.searchButton}>
+          Search
+        </button>
       </div>
 
       <div

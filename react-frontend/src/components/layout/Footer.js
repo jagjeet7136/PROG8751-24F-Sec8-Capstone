@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
-        <div className={styles.companyName}>
+        <div className={styles.companyInfo}>
           <h2>Shopping Lane</h2>
           <p>Your one-stop shop for the latest in fashion and trends.</p>
         </div>
@@ -51,7 +51,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className={styles.footerSection}>
+          {/* <div className={styles.footerSection}>
             <h3>Follow Us</h3>
             <ul className={styles.socialLinks}>
               <li>
@@ -67,7 +67,7 @@ const Footer = () => {
                 <Link to="/linkedin">LinkedIn</Link>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
 
