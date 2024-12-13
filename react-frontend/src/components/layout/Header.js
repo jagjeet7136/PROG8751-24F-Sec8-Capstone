@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
 import { AuthContext } from "../../context/AuthContext";
@@ -75,7 +69,7 @@ export const Header = (props) => {
     return authContext.loggedIn ? (
       <div>
         <span className={styles.greeting}>
-          Hi, {authContext.user?.userFullName}
+          <Link to="/profile">{`Hi, ${authContext.user?.userFullName}`}</Link>
         </span>
         <Link to="/login" onClick={logoutHandler}>
           Logout
@@ -139,11 +133,11 @@ export const Header = (props) => {
       </div>
 
       <div
-        className={`${styles.headerList} ${styles.displayNone} ${styles[props.textColor]
-          }`}
+        className={`${styles.headerList} ${styles.displayNone} ${styles[props.textColor]}`}
       >
         {headerList}
       </div>
+
       <div
         className={`${styles.toggleMenu} ${styles[props.textColor]}`}
         onClick={toggleHandler}

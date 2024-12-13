@@ -20,6 +20,7 @@ import { AdminDashboard } from "./components/layout/AdminDashboard";
 import SearchResults from "./components/layout/SearchResults";
 import { UserDashboard } from "./components/layout/UserDashboard";
 import ContactPage from "./components/layout/ContactPage";
+import Profile from "./components/layout/Profile";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);
@@ -83,6 +84,7 @@ function App() {
             <Route path="/adminDashboard" element={<AdminDashboard />} />
             <Route path="/adminUserDashboard" element={<UserDashboard />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
       </Router>
