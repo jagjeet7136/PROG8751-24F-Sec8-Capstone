@@ -4,6 +4,7 @@ import com.app.ecommerce.entity.Cart;
 import com.app.ecommerce.entity.Order;
 import com.app.ecommerce.entity.OrderItem;
 import com.app.ecommerce.entity.User;
+import com.app.ecommerce.exceptions.OrderNotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.dto.OrderDTO;
 import com.app.ecommerce.repository.CartItemRepository;
@@ -154,5 +155,10 @@ public class OrderService {
 
     public List<Order> getOrdersByUserId(Long userId) {
         return orderRepository.findByUserId(userId);
+    }
+
+    public Order getOrderDetails(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
     }
 }

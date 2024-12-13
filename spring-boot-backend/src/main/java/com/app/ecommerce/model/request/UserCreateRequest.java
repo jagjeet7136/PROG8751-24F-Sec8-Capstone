@@ -26,4 +26,10 @@ public class UserCreateRequest {
     @Size(min = 6, max = 100, message = "password should between 6 and 100 characters.")
     private String confirmPassword;
 
+    @NotBlank(message = "Security question is required.")
+    private String securityQuestion;
+
+    @NotBlank(message = "Security answer is required.")
+    private String securityAnswer;
+
 }

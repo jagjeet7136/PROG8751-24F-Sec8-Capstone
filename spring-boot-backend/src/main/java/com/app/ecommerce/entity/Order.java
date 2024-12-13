@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -39,4 +40,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
+
+    private LocalDateTime orderDate;
+    @PrePersist protected void onCreate() { orderDate = LocalDateTime.now(); }
 }

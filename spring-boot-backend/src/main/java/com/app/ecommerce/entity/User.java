@@ -65,4 +65,11 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Column(nullable = false)
+    private String securityQuestion;
+
+    @Column(nullable = false)
+    private String securityAnswer;
+
 }

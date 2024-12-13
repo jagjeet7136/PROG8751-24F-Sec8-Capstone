@@ -53,6 +53,13 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ApiErrorDTO> handleOrderNotFoundException(HttpServletRequest req, ForbiddenException ex) {
+        ApiErrorDTO apiErrorDTO = handleAllExceptions(ex);
+        apiErrorDTO.setStatus(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiErrorDTO, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<ApiErrorDTO> handleDateTimeParseException(HttpServletRequest req, NotFoundException ex) {
         ApiErrorDTO apiErrorDTO = handleAllExceptions(ex);

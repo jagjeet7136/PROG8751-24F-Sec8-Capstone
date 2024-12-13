@@ -45,6 +45,8 @@ public class UserService {
         newUser.setRoles(newUserRoles);
         newUser.setUserFullName(userCreateRequest.getUserFullName().trim());
         newUser.setUsername(userCreateRequest.getEmail());
+        newUser.setSecurityQuestion(userCreateRequest.getSecurityQuestion().trim());
+        newUser.setSecurityAnswer(bCryptPasswordEncoder.encode(userCreateRequest.getSecurityAnswer().trim()));
         newUser.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
         newUser.getRoles().add(customerRole);
         return userRepository.save(newUser);
