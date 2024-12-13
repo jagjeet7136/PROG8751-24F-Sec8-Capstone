@@ -20,11 +20,11 @@ export const Header = (props) => {
     setProductSearchInput(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = useCallback(() => {
     if (productSearchInput.trim()) {
       navigate(`/search?query=${encodeURIComponent(productSearchInput)}`);
     }
-  };
+  }, [productSearchInput, navigate]);
 
   const mainPageHandler = (event) => {
     if (authContext.loggedIn) {
@@ -64,7 +64,11 @@ export const Header = (props) => {
   }, [isActive]);
 
   const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value);
+    const category = event.target.value;
+
+    if (category.trim()) {
+      navigate(`/search?query=${encodeURIComponent(category)}`);
+    }
   };
 
   const headerList = useMemo(() => {
@@ -110,9 +114,14 @@ export const Header = (props) => {
           <option value="">Select Category</option>
           <option value="electronics">Electronics</option>
           <option value="fashion">Fashion</option>
-          <option value="home-appliances">Home Appliances</option>
+          <option value="home & kitchen">Home Appliances</option>
           <option value="books">Books</option>
           <option value="toys">Toys</option>
+          <option value="health">Health</option>
+          <option value="sports">Sports</option>
+          <option value="automotive">Automotive</option>
+          <option value="groceries">Groceries</option>
+          <option value="jewelry">Jewelry</option>
         </select>
       </div>
 
@@ -130,9 +139,8 @@ export const Header = (props) => {
       </div>
 
       <div
-        className={`${styles.headerList} ${styles.displayNone} ${
-          styles[props.textColor]
-        }`}
+        className={`${styles.headerList} ${styles.displayNone} ${styles[props.textColor]
+          }`}
       >
         {headerList}
       </div>

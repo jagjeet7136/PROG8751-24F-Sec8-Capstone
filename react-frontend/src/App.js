@@ -13,11 +13,13 @@ import { Login } from "./components/userManagement/Login";
 import { ProductDetails } from "./components/layout/ProductDetails";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import { useContext, useLayoutEffect } from "react";
-import jwt_decode from "jwt-decode"; // Fixing the import
+import jwt_decode from "jwt-decode";
 import Cart from "./components/layout/Cart";
 import { AdminLogin } from "./components/userManagement/AdminLogin";
 import { AdminDashboard } from "./components/layout/AdminDashboard";
 import SearchResults from "./components/layout/SearchResults";
+import { UserDashboard } from "./components/layout/UserDashboard";
+import ContactPage from "./components/layout/ContactPage";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);
@@ -79,6 +81,8 @@ function App() {
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/adminDashboard" element={<AdminDashboard />} />
+            <Route path="/adminUserDashboard" element={<UserDashboard />} />
+            <Route path="/contact" element={<ContactPage />} />
           </Routes>
         </div>
       </Router>
