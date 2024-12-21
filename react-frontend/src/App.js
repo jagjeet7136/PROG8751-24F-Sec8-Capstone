@@ -21,6 +21,7 @@ import SearchResults from "./components/layout/SearchResults";
 import { UserDashboard } from "./components/layout/UserDashboard";
 import ContactPage from "./components/layout/ContactPage";
 import Profile from "./components/layout/Profile";
+import ResetPassword from "./components/layout/ResetPassword";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);
@@ -85,6 +86,7 @@ function App() {
             <Route path="/adminUserDashboard" element={<UserDashboard />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/reset" element={<ResetPassword />} />
           </Routes>
         </div>
       </Router>

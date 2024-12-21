@@ -162,3 +162,20 @@
     font-size: 8.4vw;
   }
 }
+
+.securityQuestion,
+.securityAnswer {
+  height: 50px;
+  width: 300px;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  padding-left: 20px;
+  margin-bottom: 22px;
+  transition: border 0.3s ease;
+}
+
+.securityQuestion:focus,
+.securityAnswer:focus {
+  border: 1px solid #008c7a;
+  outline: none;
+}

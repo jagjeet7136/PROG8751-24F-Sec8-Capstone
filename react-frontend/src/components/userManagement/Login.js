@@ -91,9 +91,8 @@ export const Login = () => {
           className={styles.username}
         />
         <div
-          className={`${styles.passwordContainer} ${
-            isFormValid ? styles.passwordContainerMargin : ""
-          }`}
+          className={`${styles.passwordContainer} ${isFormValid ? styles.passwordContainerMargin : ""
+            }`}
         >
           <input
             type={showPassword ? "text" : "password"}
@@ -110,11 +109,10 @@ export const Login = () => {
         </div>
         <div
           className={`${styles.errorMessageContainer} 
-                    ${
-                      !isFormValid
-                        ? styles.errorMessageContainer + " " + styles.active
-                        : ""
-                    }`}
+                    ${!isFormValid
+              ? styles.errorMessageContainer + " " + styles.active
+              : ""
+            }`}
         >
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YISfL4Lm8FJPRneGwEq8_-9Nim7YeuMJMw&usqp=CAU"
@@ -127,6 +125,7 @@ export const Login = () => {
         </button>
         <h6 className={styles.loginContainer}>
           Don't have an account?&nbsp;&nbsp;<Link to="/register">Sign Up</Link>
+          Forgot Password?&nbsp;&nbsp;<Link to="/reset">Reset</Link>
         </h6>
       </form>
       <h6 className={styles.tPContainer}>
