@@ -98,9 +98,8 @@ export const Home = () => {
                     e.stopPropagation();
                     handleAddToCart(product.id);
                   }}
-                  className={`${styles.addToCartButton} ${
-                    isProductInCart(product.id) ? styles.added : ""
-                  }`}
+                  className={`${styles.addToCartButton} ${isProductInCart(product.id) ? styles.added : ""
+                    }`}
                 >
                   {isProductInCart(product.id) ? "✔️" : "Add to Cart"}
                 </button>
@@ -137,9 +136,8 @@ export const Home = () => {
                     e.stopPropagation();
                     handleAddToCart(product.id);
                   }}
-                  className={`${styles.addToCartButton} ${
-                    isProductInCart(product.id) ? styles.added : ""
-                  }`}
+                  className={`${styles.addToCartButton} ${isProductInCart(product.id) ? styles.added : ""
+                    }`}
                 >
                   {isProductInCart(product.id) ? "✔️" : "Add to Cart"}
                 </button>
@@ -176,9 +174,8 @@ export const Home = () => {
                     e.stopPropagation();
                     handleAddToCart(product.id);
                   }}
-                  className={`${styles.addToCartButton} ${
-                    isProductInCart(product.id) ? styles.added : ""
-                  }`}
+                  className={`${styles.addToCartButton} ${isProductInCart(product.id) ? styles.added : ""
+                    }`}
                 >
                   {isProductInCart(product.id) ? "✔️" : "Add to Cart"}
                 </button>
@@ -215,9 +212,8 @@ export const Home = () => {
                     e.stopPropagation();
                     handleAddToCart(product.id);
                   }}
-                  className={`${styles.addToCartButton} ${
-                    isProductInCart(product.id) ? styles.added : ""
-                  }`}
+                  className={`${styles.addToCartButton} ${isProductInCart(product.id) ? styles.added : ""
+                    }`}
                 >
                   {isProductInCart(product.id) ? "✔️" : "Add to Cart"}
                 </button>

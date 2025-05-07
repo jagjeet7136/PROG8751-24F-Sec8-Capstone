@@ -1,0 +1,64 @@
+.menuOverlay {
+  position: fixed;
+  top: 60px; /* Adjust based on header height */
+  left: 0;
+  width: 300px;
+  height: 100%;
+  background: #fff;
+  z-index: 1001;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.multiMenuUl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.multiMenuLi {
+}
+
+.multiMenuItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+}
+
+.multiMenuLabel {
+  cursor: pointer;
+  flex: 1;
+}
+
+.multiMenuArrow {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+}
+
+.multiMenuArrow::after {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #000;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.multiMenuArrow.toggle::after {
+  transform: rotate(180deg);
+}
