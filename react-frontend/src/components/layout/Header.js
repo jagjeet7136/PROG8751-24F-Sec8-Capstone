@@ -1,7 +1,6 @@
 import React, {
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,13 +12,7 @@ import {
   faCartShopping,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import styled from "styled-components";
 import { MultiMenus } from "./MultiMenu";
-
-const Wrapper = styled.aside`
-  background: #ccc;
-  width: 300px;
-`;
 
 export const Header = (props) => {
   const authContext = useContext(AuthContext);
@@ -28,84 +21,60 @@ export const Header = (props) => {
 
   const menus = [
     {
-      label: "Menu",
+      label: "Shop",
       submenu: [
         {
-          label: "Menu 1",
-        },
-        {
-          label: "Menu 2",
+          label: "Clothing",
           submenu: [
-            {
-              label: "Sub Menu 1",
-            },
-            {
-              label: "Sub Menu 2",
-            },
+            { label: "Men" },
+            { label: "Women" },
+            { label: "Kids" },
           ],
         },
         {
-          label: "Menu 3",
+          label: "Electronics",
           submenu: [
-            {
-              label: "Sub Menu 1",
-              submenu: [
-                {
-                  label: "Boom 1",
-                },
-                {
-                  label: "Boom 2",
-                },
-              ],
-            },
-            {
-              label: "Sub Menu 2",
-              submenu: [
-                {
-                  label: "Deep 1",
-                },
-                {
-                  label: "Deep 2",
-                  submenu: [
-                    {
-                      label: "Lorem 1",
-                    },
-                    {
-                      label: "Lorem 2",
-                      submenu: [
-                        {
-                          label: "Super Deep",
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              label: "Sub Menu 3",
-            },
-            {
-              label: "Sub Menu 4",
-              submenu: [
-                {
-                  label: "Last 1",
-                },
-                {
-                  label: "Last 2",
-                },
-                {
-                  label: "Last 3",
-                },
-              ],
-            },
+            { label: "Mobiles" },
+            { label: "Laptops" },
+            { label: "Headphones" },
           ],
         },
         {
-          label: "Menu 4",
-        },]
-    }
+          label: "Home & Kitchen",
+          submenu: [
+            { label: "Furniture" },
+            { label: "Appliances" },
+            { label: "Decor" },
+          ],
+        },
+        {
+          label: "Beauty & Health",
+          submenu: [
+            { label: "Skincare" },
+            { label: "Makeup" },
+            { label: "Hair Care" },
+          ],
+        },
+        {
+          label: "Sports & Outdoors",
+          submenu: [
+            { label: "Fitness Equipment" },
+            { label: "Outdoor Gear" },
+            { label: "Bicycles" },
+          ],
+        },
+      ],
+    },
   ];
+
+
+  const stopBodyScrolling = (isScrollable) => {
+    if (!isScrollable) {
+      document.body.classList.add('menuOpen');
+    } else {
+      document.body.classList.remove('menuOpen');
+    }
+  }
 
   const handleSearchInputChange = (event) => {
     setProductSearchInput(event.target.value);
@@ -121,7 +90,7 @@ export const Header = (props) => {
     authContext.logout();
   }, [authContext]);
 
-  const headerList = authContext.loggedIn ? (
+  const navbarList = authContext.loggedIn ? (
     <div className={styles.navbar}>
       <div className={styles.navLink}>
         <FontAwesomeIcon
@@ -133,7 +102,7 @@ export const Header = (props) => {
           {`Hi, ${authContext.user ? authContext.user.name : ""}`}
         </Link>
       </div>
-      <Link to="/login" onClick={logoutHandler}>
+      <Link to="/login" onClick={logoutHandler}> {/*Change it to navLink */}
         Logout
       </Link>
       <div className={styles.navLink}>
@@ -170,21 +139,19 @@ export const Header = (props) => {
 
   return (
     <div className={`${styles.header} ${styles[props.textColor] || ""}`}>
-      <div className={styles.logoNavlinksContainer}>
+      <div className={styles.logoNavbarContainer}>
         <Link to="/" className={styles.logo}>
           SHOPEE
         </Link>
-        {headerList}
+        {navbarList}
       </div>
 
-      <div className={styles.categorySearchContainer}>
-        <Wrapper>
-          <MultiMenus menus={menus} />
-        </Wrapper>
+      <div className={styles.menuSearchContainer}>
+        <MultiMenus menus={menus} scrollable={stopBodyScrolling} />
         <div className={styles.search}>
           <input
             type="text"
-            placeholder="Search for products..."
+            placeholder="Search products..."
             value={productSearchInput}
             onChange={handleSearchInputChange}
           />

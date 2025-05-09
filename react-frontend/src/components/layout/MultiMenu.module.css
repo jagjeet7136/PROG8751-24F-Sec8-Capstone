@@ -1,13 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Outfit&family=Source+Code+Pro&display=swap");
+
+.menuHeading {
+  background-color: maroon;
+  display: block;
+  padding: 10px;
+  font-family: "Outfit";
+  font-optical-sizing: auto;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 20px;
+  color: white;
+}
+
 .menuOverlay {
+  font-family: "Source Code Pro";
   position: fixed;
-  top: 60px; /* Adjust based on header height */
+  top: 0;
   left: 0;
   width: 300px;
-  height: 100%;
+  height: 100vh;
   background: #fff;
   z-index: 1001;
   overflow-y: auto;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  will-change: transform;
+}
+
+.menuButton {
+  cursor: pointer;
+  color: white;
+  margin: 0 5px;
+  font-weight: bold;
+  font-size: 15px;
 }
 
 .backdrop {
@@ -52,13 +76,19 @@
   content: "";
   width: 0;
   height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 4px solid #000;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #000;
   transform: rotate(0deg);
   transition: transform 0.2s ease-in-out;
 }
 
 .multiMenuArrow.toggle::after {
   transform: rotate(180deg);
+}
+
+@media (max-width: 600px) {
+  .menuOverlay {
+    width: 75vw;
+  }
 }

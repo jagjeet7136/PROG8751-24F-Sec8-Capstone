@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./MultiMenu.module.css";
 
-export const MultiMenus = ({ menus }) => {
+export const MultiMenus = ({ menus, scrollable }) => {
     const [activeMenus, setActiveMenus] = useState([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    useEffect(() => {
+        if (isMenuOpen) {
+            scrollable(false);
+        } else {
+            scrollable(true);
+        }
+    }, [isMenuOpen, scrollable]);
 
     const handleMenuClick = (data) => {
         console.log("Menu clicked:", data);
@@ -71,14 +79,14 @@ export const MultiMenus = ({ menus }) => {
     };
 
     return (
-        <div>
-            <button onClick={() => setIsMenuOpen(true)}>Open Menu</button>
-
+        <div className={styles.menu}>
+            <span className={styles.menuButton} onClick={() => setIsMenuOpen(true)}>Menu</span>
             {isMenuOpen && (
                 <div>
                     <div className={styles.backdrop} onClick={() => setIsMenuOpen(false)} />
                     <div className={styles.menuOverlay}>
                         <ul className={styles.multiMenuUl}>
+                            <span className={styles.menuHeading}>Menu</span>
                             {menus[0].submenu.map((menu, index) => {
                                 const dept = 1;
                                 const menuName = `menu-${dept}-${index}`;
