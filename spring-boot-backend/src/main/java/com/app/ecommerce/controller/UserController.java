@@ -14,11 +14,8 @@ import com.app.ecommerce.repository.UserRepository;
 import com.app.ecommerce.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
 
@@ -56,18 +54,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    private final JavaMailSender mailSender;
-
-//    @Value("${spring.mail.username}")
-    private String fromEmail = "jagjeet7136@gmail.com"; // From email address
-
-    public UserController(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
-
     @PostMapping("/register")
     public ResponseEntity<User> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest) throws
-            ValidationException {
+            ValidationException, IOException {
         log.info("Request received for new user creation {}", userCreateRequest);
         User user = userService.createUser(userCreateRequest);
         log.info("User created successfully {}", user);

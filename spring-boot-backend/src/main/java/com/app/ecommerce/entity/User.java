@@ -1,5 +1,6 @@
 package com.app.ecommerce.entity;
 
+import com.app.ecommerce.enums.AccountStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,6 +42,10 @@ public class User implements UserDetails {
     )
     private Collection<Role> roles;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountStatus accountStatus = AccountStatus.PENDING_VERIFICATION;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -63,7 +68,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.accountStatus == AccountStatus.ACTIVE;
     }
 
     @Column(nullable = false)
