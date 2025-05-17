@@ -4,7 +4,7 @@ import styles from "./Profile.module.css";  // Import the CSS module
 import axios from "axios";
 import { Header } from "./Header";
 import Footer from "./Footer";
-import icon from "../../icons/logo-transparent-png.png";
+import icon from "../../assets/icons/logo-transparent-png.png";
 
 const Profile = () => {
     const [user, setUser] = useState(null); // Store user details

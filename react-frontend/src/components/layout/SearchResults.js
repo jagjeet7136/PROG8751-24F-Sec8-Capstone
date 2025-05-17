@@ -4,7 +4,7 @@ import axios from "axios";
 import styles from "./SearchResults.module.css";
 import { Header } from "./Header";
 import Footer from "./Footer";
-import icon from "../../icons/logo-transparent-png.png";
+import icon from "../../assets/icons/logo-transparent-png.png";
 
 const SearchResults = () => {
   const { search } = useLocation();

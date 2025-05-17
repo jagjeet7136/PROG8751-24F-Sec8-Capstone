@@ -3,7 +3,7 @@ import axios from "axios";
 import styles from "./AdminDashboard.module.css";
 import { Header } from "./Header";
 import { useNavigate } from "react-router-dom";
-import icon from "../../icons/logo-transparent-png.png";
+import icon from "../../assets/icons/logo-transparent-png.png";
 
 export const UserDashboard = () => {
     const [userSearchInput, setUserSearchInput] = useState("");

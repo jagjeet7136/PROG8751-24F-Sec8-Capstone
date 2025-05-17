@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "./ResetPassword.module.css";
-import todoSmallIcon from "../../icons/logo-transparent-png.png";
+import todoSmallIcon from "../../assets/icons/logo-transparent-png.png";
 
 const ResetPassword = () => {
     const emailRef = useRef("");

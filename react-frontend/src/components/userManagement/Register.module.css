@@ -38,7 +38,7 @@
 }
 
 .registerForm > input,
-.password {
+.passwordContainer {
   margin-bottom: 22px;
 }
 
@@ -51,17 +51,16 @@
   width: 300px;
   font-weight: bold;
   cursor: pointer;
+  /* margin-top: 20px; */
 }
 
-.passwordContainer,
-.confirmPasswordContainer {
+.passwordContainer {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.password,
-.confirmPassword {
+.password {
   height: 50px;
   width: 300px;
   border: 1px solid #bdc3c7;
@@ -71,30 +70,10 @@
   transition: border 0.3s ease;
 }
 
-.passwordToggle,
-.confirmPasswordToggle {
+.passwordToggle {
   position: absolute;
   right: 10px;
-  transform: translateY(-50%);
   cursor: pointer;
-  color: #008c7a;
-}
-
-.confirmPasswordMargin {
-  margin-bottom: 22px;
-}
-
-.confirmPasswordNoMargin {
-  margin-bottom: 0px;
-}
-
-.tPContainer {
-  margin-bottom: -7px;
-  color: #7f8c8d;
-}
-
-.tPContainer a {
-  text-decoration: none;
   color: #008c7a;
 }
 
@@ -110,34 +89,21 @@
 .errorMessageContainer,
 .successMsgContainer {
   width: 100%;
-  justify-content: start;
-  margin: 10px 0 30px 0;
-  display: none;
-}
-
-.errorMessageContainer {
-  color: #e74c3c;
-}
-
-.successMsgContainer {
-  color: #2ecc71;
-}
-
-.errorMessageContainer.active,
-.successMsgContainer.active {
   display: flex;
+  justify-content: start;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 15px;
+  border: solid rgb(191, 8, 8) 2px;
+  padding: 5px;
+  border-radius: 5px;
+  border-left: solid rgb(191, 8, 8) 10px;
 }
 
-.errorMessageContainer h6,
-.successMsgContainer h6 {
-  font-size: 13px;
-}
-
-.errorMessageContainer img,
-.successMsgContainer img {
-  width: 15px;
-  height: 15px;
-  margin-right: 8px;
+.errorMessageContainer span,
+.successMsgContainer span {
+  color: #e74c3c;
+  margin: 0 10px;
 }
 
 @media (max-width: 400px) {

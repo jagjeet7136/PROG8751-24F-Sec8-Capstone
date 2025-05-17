@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import styles from "./Login.module.css";
-import todoSmallIcon from "../../icons/logo-transparent-png.png";
+import todoSmallIcon from "../../assets/icons/logo-transparent-png.png";
 
 export const Login = () => {
   const authContext = useContext(AuthContext);

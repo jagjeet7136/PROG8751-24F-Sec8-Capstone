@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import styles from "./Home.module.css";
-import icon from "../../icons/logo-transparent-png.png";
-import banner1 from "../../images/banner1.jpg";
-import banner2 from "../../images/banner2.webp";
+import icon from "../../assets/icons/logo-transparent-png.png";
+import banner1 from "../../assets/images/banner1.jpg";
+import banner2 from "../../assets/images/banner2.webp";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import axios from "axios";

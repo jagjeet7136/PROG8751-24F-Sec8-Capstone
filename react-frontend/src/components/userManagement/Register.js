@@ -1,21 +1,18 @@
 import { useRef, useState } from "react";
 import styles from "./Register.module.css";
-import todoSmallIcon from "../../icons/logo-transparent-png.png";
+import todoSmallIcon from "../../assets/icons/logo-transparent-png.png";
 import { Link } from "react-router-dom";
+import HomeIcon from '@mui/icons-material/Warning';
 
 export const Register = () => {
     const userFullName = useRef();
     const email = useRef();
     const password = useRef();
-    const confirmPassword = useRef();
-    const securityAnswer = useRef();
-    const [securityQuestion, setSecurityQuestion] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [isFormValid, setIsFormValid] = useState(true);
     const [userCreated, setUserCreated] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const validateForm = () => {
         if (!userFullName.current.value.trim()) {
@@ -30,24 +27,14 @@ export const Register = () => {
             setErrorMsg("Password must be at least 6 characters");
             return false;
         }
-        if (password.current.value !== confirmPassword.current.value) {
-            setErrorMsg("Passwords do not match");
-            return false;
-        }
-        if (!securityQuestion) {
-            setErrorMsg("Please select a security question");
-            return false;
-        }
-        if (!securityAnswer.current.value.trim()) {
-            setErrorMsg("Security answer is required");
-            return false;
-        }
         setErrorMsg(""); // Clear errors
         return true;
     };
 
     const onSubmit = async (event) => {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
+        setErrorMsg("");
+        setSuccessMsg("");
         if (!validateForm()) {
             setIsFormValid(false);
             return;
@@ -56,10 +43,7 @@ export const Register = () => {
         const newUser = {
             userFullName: userFullName.current.value,
             email: email.current.value,
-            password: password.current.value,
-            confirmPassword: confirmPassword.current.value,
-            securityQuestion,
-            securityAnswer: securityAnswer.current.value,
+            password: password.current.value
         };
 
         try {
@@ -73,6 +57,7 @@ export const Register = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.log(errorData);
                 let caughtErrorMessage = "Some error occurred!";
                 if (errorData.errors && errorData.errors.length > 0) {
                     caughtErrorMessage = errorData.errors[0];
@@ -82,29 +67,17 @@ export const Register = () => {
                 throw new Error(caughtErrorMessage);
             }
 
-            // Clear the form fields
             userFullName.current.value = "";
             email.current.value = "";
             password.current.value = "";
-            confirmPassword.current.value = "";
-            setSecurityQuestion("");
-            securityAnswer.current.value = "";
-
+            const responseMessage = await response.text() + ", Please verify your email.";
             setUserCreated(true);
-            setSuccessMsg("User created successfully!");
+            setSuccessMsg(responseMessage);
         } catch (error) {
             setErrorMsg(error.message);
             setIsFormValid(false);
         }
     };
-
-    const securityQuestions = [
-        "What was the name of your first pet?",
-        "What is your mother's maiden name?",
-        "What was the name of your elementary school?",
-        "What is your favorite food?",
-        "What city were you born in?",
-    ];
 
     return (
         <div className={styles.register}>
@@ -118,35 +91,15 @@ export const Register = () => {
                     <span className={styles.passwordToggle} onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? "Hide" : "Show"}
                     </span>
+
                 </div>
-                <div className={styles.confirmPasswordContainer}>
-                    <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm Password" ref={confirmPassword} />
-                    <span className={styles.confirmPasswordToggle} onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                        {showConfirmPassword ? "Hide" : "Show"}
-                    </span>
-                </div>
-                <select
-                    value={securityQuestion}
-                    onChange={(e) => setSecurityQuestion(e.target.value)}
-                    className={styles.securityQuestion}
-                >
-                    <option value="">Select a Security Question</option>
-                    {securityQuestions.map((question, index) => (
-                        <option key={index} value={question}>{question}</option>
-                    ))}
-                </select>
-                <input
-                    type="text"
-                    placeholder="Answer"
-                    ref={securityAnswer}
-                    className={styles.securityAnswer}
-                />
-                <div className={`${styles.successMsgContainer} ${userCreated ? styles.active : ""}`}>
-                    <h6 className={styles.successMsg}>{successMsg}</h6>
-                </div>
-                <div className={`${styles.errorMessageContainer} ${!isFormValid ? styles.active : ""}`}>
-                    <h6 className={styles.errorMessage}>{errorMsg}</h6>
-                </div>
+                {successMsg && <div className={`${styles.successMsgContainer} ${userCreated ? styles.active : ""}`}>
+                    <span className={styles.successMsg}>{successMsg}</span>
+                </div>}
+                {errorMsg && <div className={styles.errorMessageContainer}>
+                    <HomeIcon fontSize="large" color="error" />
+                    <span className={styles.errorMessage}>{errorMsg}</span>
+                </div>}
                 <button type="submit" className={styles.registerButton}>Sign Up</button>
                 <h6 className={styles.loginContainer}>Already have an account?&nbsp;&nbsp;<Link to="/login">Log in</Link></h6>
             </form>

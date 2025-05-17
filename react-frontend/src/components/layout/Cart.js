@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Cart.module.css";
 import { Header } from "./Header";
 import Footer from "./Footer";
-import icon from "../../icons/logo-transparent-png.png";
+import icon from "../../assets/icons/logo-transparent-png.png";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);

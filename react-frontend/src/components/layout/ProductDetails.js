@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import styles from "./ProductDetails.module.css";
 import { Header } from "./Header";
 import Footer from "./Footer";
-import icon from "../../icons/logo-transparent-png.png";
+import icon from "../../assets/icons/logo-transparent-png.png";
 import axios from "axios";
 
 export const ProductDetails = () => {
