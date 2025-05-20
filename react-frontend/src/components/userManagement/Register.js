@@ -3,6 +3,7 @@ import styles from "./Register.module.css";
 import todoSmallIcon from "../../assets/icons/logo-transparent-png.png";
 import { Link } from "react-router-dom";
 import HomeIcon from '@mui/icons-material/Warning';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export const Register = () => {
     const userFullName = useRef();
@@ -27,7 +28,7 @@ export const Register = () => {
             setErrorMsg("Password must be at least 6 characters");
             return false;
         }
-        setErrorMsg(""); // Clear errors
+        setErrorMsg("");
         return true;
     };
 
@@ -70,7 +71,7 @@ export const Register = () => {
             userFullName.current.value = "";
             email.current.value = "";
             password.current.value = "";
-            const responseMessage = await response.text() + ", Please verify your email.";
+            const responseMessage = await response.text();
             setUserCreated(true);
             setSuccessMsg(responseMessage);
         } catch (error) {
@@ -94,6 +95,7 @@ export const Register = () => {
 
                 </div>
                 {successMsg && <div className={`${styles.successMsgContainer} ${userCreated ? styles.active : ""}`}>
+                    <CheckCircleIcon fontSize="large" color="success" />
                     <span className={styles.successMsg}>{successMsg}</span>
                 </div>}
                 {errorMsg && <div className={styles.errorMessageContainer}>

@@ -88,21 +88,33 @@
 
 .errorMessageContainer,
 .successMsgContainer {
-  width: 100%;
   display: flex;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
   margin-bottom: 20px;
   font-size: 15px;
-  border: solid rgb(191, 8, 8) 2px;
   padding: 5px;
   border-radius: 5px;
-  border-left: solid rgb(191, 8, 8) 10px;
+  width: 300px;
 }
 
-.errorMessageContainer span,
-.successMsgContainer span {
+.errorMessageContainer {
+  border: solid rgb(191, 8, 8) 2px;
+  border-left: solid 3px rgb(191, 8, 8) 10px;
+}
+
+.successMsgContainer {
+  border: solid green;
+  border-left: solid 4px rgb(4, 80, 4);
+}
+
+.errorMessageContainer span {
   color: #e74c3c;
+  margin: 0 10px;
+}
+
+.successMsgContainer span {
+  color: green;
   margin: 0 10px;
 }
 
