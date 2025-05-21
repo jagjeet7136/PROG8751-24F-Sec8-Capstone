@@ -71,10 +71,4 @@ public class User implements UserDetails {
         return this.accountStatus == AccountStatus.ACTIVE;
     }
 
-    @Column(nullable = false)
-    private String securityQuestion;
-
-    @Column(nullable = false)
-    private String securityAnswer;
-
 }

@@ -3,6 +3,7 @@ package com.app.ecommerce.service;
 import com.app.ecommerce.entity.Role;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
+import com.app.ecommerce.enums.AccountStatus;
 import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -45,36 +45,37 @@ public class UserService {
     @Autowired
     SendGridEmailService sendGridEmailService;
 
-    public User createUser(UserCreateRequest userCreateRequest) throws ValidationException, IOException {
-        if (!userCreateRequest.getPassword().trim().equals(userCreateRequest.getConfirmPassword().trim())) {
-            throw new ValidationException("Passwords do not match");
+    public String createUser(UserCreateRequest userCreateRequest) throws ValidationException, IOException {
+        Boolean isUserExists = usernameAlreadyExists(userCreateRequest.getEmail());
+        String userResponse = "Some Error Occur";
+        User user = null;
+        if(isUserExists) {
+            user = userRepository.findByUsername(userCreateRequest.getEmail());
+            if(user.getAccountStatus() != AccountStatus.ACTIVE) {
+
+                sendGridEmailService.sendUserVerificationEmail(user);
+                throw new ValidationException(user.getUsername() + " already exists, Please verify your email");
+            }
+            else {
+                throw new ValidationException(user.getUsername() + " already exists");
+            }
         }
-        usernameAlreadyExists(userCreateRequest.getEmail());
-        Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
-                .orElseThrow(() -> new ValidationException("Default role CUSTOMER not found"));
-        User newUser = new User();
-        Collection<Role> newUserRoles = new ArrayList<>();
-        newUser.setRoles(newUserRoles);
-        newUser.setUserFullName(userCreateRequest.getUserFullName().trim());
-        newUser.setUsername(userCreateRequest.getEmail());
-        newUser.setSecurityQuestion(userCreateRequest.getSecurityQuestion().trim());
-        newUser.setSecurityAnswer(bCryptPasswordEncoder.encode(userCreateRequest.getSecurityAnswer().trim()));
-        newUser.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
-        newUser.getRoles().add(customerRole);
-        User user = userRepository.save(newUser);
+        else {
+            Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
+                    .orElseThrow(() -> new ValidationException("Default role CUSTOMER not found"));
+            user = new User();
+            Collection<Role> newUserRoles = new ArrayList<>();
+            user.setRoles(newUserRoles);
+            user.setUserFullName(userCreateRequest.getUserFullName().trim());
+            user.setUsername(userCreateRequest.getEmail());
+            user.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
+            user.getRoles().add(customerRole);
+            user = userRepository.save(user);
+            sendGridEmailService.sendUserVerificationEmail(user);
+            userResponse = "User successfully created, Please verify your email";
+        }
 
-        String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken();
-        verificationToken.setToken(token);
-        verificationToken.setUser(newUser);
-        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24)); // 24-hour validity
-        verificationTokenRepository.save(verificationToken);
-
-        String verificationLink = "http://localhost:3000/verify-email?token=" + token;
-        String emailBody = "Click to verify your email: " + verificationLink;
-        sendGridEmailService.sendEmail(newUser.getUsername(), "Email Verification", emailBody);
-
-        return newUser;
+        return userResponse;
     }
 
     public User getUser(String username, String savedUser) throws NotFoundException {
@@ -88,11 +89,12 @@ public class UserService {
         return user;
     }
 
-    public void usernameAlreadyExists(String username) throws ValidationException {
+    public Boolean usernameAlreadyExists(String username) throws ValidationException {
         if (username!=null && !username.isBlank() && userRepository.existsByUsername(username)) {
             log.error("Username already exists {}", username);
-            throw new ValidationException(username.concat(" already exist"));
+            return Boolean.TRUE;
         }
+        return Boolean.FALSE;
     }
 
     public User getLoggedInUser(Principal principal) {

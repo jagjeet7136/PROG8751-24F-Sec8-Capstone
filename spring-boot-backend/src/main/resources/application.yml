@@ -15,6 +15,7 @@ spring:
     properties:
       hibernate:
         format-sql: true
+        ddl-auto: update
   mail:
     host: smtp.gmail.com
     port: 587
