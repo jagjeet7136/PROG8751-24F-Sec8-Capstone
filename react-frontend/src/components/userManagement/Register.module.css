@@ -1,11 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Outfit&family=Source+Code+Pro&display=swap");
+
+.logo {
+  font-family: "Bangers";
+  font-size: 50px;
+  color: maroon;
+  text-decoration: none;
+}
+
 .register {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 35px;
-  justify-content: space-between;
   height: 100vh;
-  background-color: #f7f7f7;
 }
 
 .registerIcon {
@@ -17,15 +25,14 @@
   padding: 20px;
   font-size: 32px;
   font-weight: 650;
-  margin: 0 auto;
   color: #2c3e50;
+  text-align: center;
 }
 
 .registerForm {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 120px;
 }
 
 .registerForm input {
@@ -34,24 +41,23 @@
   border: 1px solid #bdc3c7;
   border-radius: 5px;
   padding-left: 20px;
+  margin-bottom: 22px;
   transition: border 0.3s ease;
 }
 
-.registerForm > input,
-.passwordContainer {
-  margin-bottom: 22px;
-}
-
 .registerButton {
-  border: 0px;
-  background-color: #008c7a;
+  border: none;
+  background-color: maroon;
   height: 50px;
   color: white;
   border-radius: 5px;
   width: 300px;
   font-weight: bold;
   cursor: pointer;
-  /* margin-top: 20px; */
+}
+
+.registerButton:hover {
+  background-color: rgb(145, 54, 54);
 }
 
 .passwordContainer {
@@ -60,30 +66,21 @@
   align-items: center;
 }
 
-.password {
-  height: 50px;
-  width: 300px;
-  border: 1px solid #bdc3c7;
-  border-radius: 5px;
-  padding-left: 20px;
-  padding-right: 50px;
-  transition: border 0.3s ease;
-}
-
 .passwordToggle {
   position: absolute;
   right: 10px;
+  bottom: 50%;
   cursor: pointer;
-  color: #008c7a;
+  color: maroon;
 }
 
 .loginContainer {
-  margin: 25px 0px;
+  margin: 25px 0;
 }
 
 .loginContainer a {
   text-decoration: none;
-  color: #008c7a;
+  color: maroon;
 }
 
 .errorMessageContainer,
@@ -99,37 +96,35 @@
 }
 
 .errorMessageContainer {
-  border: solid rgb(191, 8, 8) 2px;
-  border-left: solid 3px rgb(191, 8, 8) 10px;
+  border: 2px solid rgb(191, 8, 8);
+  border-left: 10px solid rgb(191, 8, 8);
 }
 
 .successMsgContainer {
-  border: solid green;
-  border-left: solid 4px rgb(4, 80, 4);
+  border: 2px solid green;
+  border-left: 4px solid rgb(4, 80, 4);
 }
 
 .errorMessageContainer span {
   color: #e74c3c;
-  margin: 0 10px;
+  margin-left: 10px;
 }
 
 .successMsgContainer span {
   color: green;
-  margin: 0 10px;
+  margin-left: 10px;
 }
 
 @media (max-width: 400px) {
   .registerForm,
   .registerForm input,
   .passwordContainer,
-  .confirmPasswordContainer,
   .registerButton {
     width: 100%;
   }
 
-  .loginContainer,
-  .tPContainer {
-    font-size: 14px;
+  .loginContainer {
+    font-size: 12px;
   }
 
   .registerForm {
@@ -139,21 +134,4 @@
   .registerHeading {
     font-size: 8.4vw;
   }
-}
-
-.securityQuestion,
-.securityAnswer {
-  height: 50px;
-  width: 300px;
-  border: 1px solid #bdc3c7;
-  border-radius: 5px;
-  padding-left: 20px;
-  margin-bottom: 22px;
-  transition: border 0.3s ease;
-}
-
-.securityQuestion:focus,
-.securityAnswer:focus {
-  border: 1px solid #008c7a;
-  outline: none;
 }

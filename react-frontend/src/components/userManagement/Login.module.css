@@ -1,9 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Outfit&family=Source+Code+Pro&display=swap");
+
+.logo {
+  font-family: "Bangers";
+  font-size: 50px;
+  color: maroon;
+  text-decoration: none;
+}
+
 .login {
   display: flex;
   flex-direction: column;
   padding: 35px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   height: 100vh;
 }
 
@@ -22,7 +31,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 120px;
+  /* margin-bottom: 120px; */
+  width: 300px;
 }
 
 .loginForm input {
@@ -66,32 +76,31 @@
 
 .loginButton {
   border: 0px;
-  background-color: #008c7a;
+  background-color: maroon;
   height: 50px;
   color: white;
   border-radius: 5px;
   width: 100%;
 }
 
+.loginButton:hover {
+  background-color: rgb(145, 54, 54);
+}
+
 .loginContainer {
   display: flex;
   flex-direction: column;
   margin: 25px 0px;
+  font-size: 15px;
+}
+
+.loginContainer > span {
+  padding-bottom: 10px;
 }
 
 .loginContainer a {
   text-decoration: none;
-  color: #008c7a;
-}
-
-.tPContainer {
-  margin-bottom: -7px;
-  color: grey;
-}
-
-.tPContainer a {
-  text-decoration: none;
-  color: #008c7a;
+  color: maroon;
 }
 
 .errorMessageContainer {

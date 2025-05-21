@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
 import styles from "./Register.module.css";
-import todoSmallIcon from "../../assets/icons/logo-transparent-png.png";
 import { Link } from "react-router-dom";
-import HomeIcon from '@mui/icons-material/Warning';
+import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export const Register = () => {
@@ -11,7 +10,6 @@ export const Register = () => {
     const password = useRef();
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-    const [isFormValid, setIsFormValid] = useState(true);
     const [userCreated, setUserCreated] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -36,10 +34,7 @@ export const Register = () => {
         event.preventDefault();
         setErrorMsg("");
         setSuccessMsg("");
-        if (!validateForm()) {
-            setIsFormValid(false);
-            return;
-        }
+        if (!validateForm()) return;
 
         const newUser = {
             userFullName: userFullName.current.value,
@@ -58,31 +53,27 @@ export const Register = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.log(errorData);
-                let caughtErrorMessage = "Some error occurred!";
-                if (errorData.errors && errorData.errors.length > 0) {
-                    caughtErrorMessage = errorData.errors[0];
-                } else if (errorData.message && errorData.message.trim().length > 0) {
-                    caughtErrorMessage = errorData.message;
-                }
+                let caughtErrorMessage = errorData?.errors?.[0] || errorData?.message || "Some error occurred!";
                 throw new Error(caughtErrorMessage);
             }
 
             userFullName.current.value = "";
             email.current.value = "";
             password.current.value = "";
+
             const responseMessage = await response.text();
             setUserCreated(true);
             setSuccessMsg(responseMessage);
         } catch (error) {
             setErrorMsg(error.message);
-            setIsFormValid(false);
         }
     };
 
     return (
         <div className={styles.register}>
-            <Link to="/"><img src={todoSmallIcon} alt="" className={styles.registerIcon}></img></Link>
+            <Link to="/" className={styles.logo}>
+                SHOPEE
+            </Link>
             <form onSubmit={onSubmit} className={styles.registerForm}>
                 <h1 className={styles.registerHeading}>Create Account</h1>
                 <input type="text" placeholder="Full Name" ref={userFullName} />
@@ -92,18 +83,23 @@ export const Register = () => {
                     <span className={styles.passwordToggle} onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? "Hide" : "Show"}
                     </span>
-
                 </div>
-                {successMsg && <div className={`${styles.successMsgContainer} ${userCreated ? styles.active : ""}`}>
-                    <CheckCircleIcon fontSize="large" color="success" />
-                    <span className={styles.successMsg}>{successMsg}</span>
-                </div>}
-                {errorMsg && <div className={styles.errorMessageContainer}>
-                    <HomeIcon fontSize="large" color="error" />
-                    <span className={styles.errorMessage}>{errorMsg}</span>
-                </div>}
+                {successMsg && (
+                    <div className={`${styles.successMsgContainer} ${userCreated ? styles.active : ""}`}>
+                        <CheckCircleIcon fontSize="large" color="success" />
+                        <span className={styles.successMsg}>{successMsg}</span>
+                    </div>
+                )}
+                {errorMsg && (
+                    <div className={styles.errorMessageContainer}>
+                        <WarningIcon fontSize="large" color="error" />
+                        <span className={styles.errorMessage}>{errorMsg}</span>
+                    </div>
+                )}
                 <button type="submit" className={styles.registerButton}>Sign Up</button>
-                <h6 className={styles.loginContainer}>Already have an account?&nbsp;&nbsp;<Link to="/login">Log in</Link></h6>
+                <span className={styles.loginContainer}>
+                    Already have an account?&nbsp;&nbsp;<Link to="/login">Log in</Link>
+                </span>
             </form>
         </div>
     );

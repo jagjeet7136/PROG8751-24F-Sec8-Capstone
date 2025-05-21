@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import styles from "./Login.module.css";
-import todoSmallIcon from "../../assets/icons/logo-transparent-png.png";
 
 export const Login = () => {
   const authContext = useContext(AuthContext);
@@ -13,7 +12,6 @@ export const Login = () => {
   const [errorMessage, setErrorMsg] = useState("");
   const [isFormValid, setIsFormValid] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  let user = null;
 
   const handleLogin = (e) => {
     if (!isFormValid) {
@@ -21,7 +19,6 @@ export const Login = () => {
     }
     e.preventDefault();
 
-    // Clear admin session if logged in
     if (localStorage.getItem("adminToken")) {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminLoggedIn");
@@ -66,7 +63,11 @@ export const Login = () => {
         if (error.response) {
           if (error.response.status === 401) {
             setErrorMsg("Wrong email or password");
-          } else if (
+          }
+          else if (error.response.data && error.response.data.errors.length > 0) {
+            setErrorMsg(error.response.data.errors[0]);
+          }
+          else if (
             error.response.data.message &&
             error.response.data.message.trim().length > 0
           ) {
@@ -79,13 +80,12 @@ export const Login = () => {
 
   return (
     <div className={styles.login}>
-      <Link to="/">
-        <img src={todoSmallIcon} alt="" className={styles.loginIcon}></img>
+      <Link to="/" className={styles.logo}>
+        SHOPEE
       </Link>
       <form onSubmit={handleLogin} className={styles.loginForm}>
         <h1 className={styles.loginHeading}>Login</h1>
         <input
-          type="email"
           placeholder="Email"
           ref={username}
           className={styles.username}
@@ -123,14 +123,11 @@ export const Login = () => {
         <button type="submit" className={styles.loginButton}>
           Login
         </button>
-        <h6 className={styles.loginContainer}>
-          Don't have an account?&nbsp;&nbsp;<Link to="/register">Sign Up</Link>
-          Forgot Password?&nbsp;&nbsp;<Link to="/reset">Reset</Link>
-        </h6>
+        <div className={styles.loginContainer}>
+          <span>Don't have an account?&nbsp;&nbsp;<Link to="/register">Sign Up</Link></span>
+          <span>Forgot Password?&nbsp;&nbsp;<Link to="/reset">Reset</Link></span>
+        </div>
       </form>
-      <h6 className={styles.tPContainer}>
-        <Link to="/about">About and Information</Link>
-      </h6>
     </div>
   );
 };
