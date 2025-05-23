@@ -55,6 +55,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  margin-bottom: 30px;
 }
 
 .password {
@@ -105,36 +106,35 @@
 }
 
 .errorMessageContainer {
-  width: 100%;
-  justify-content: start;
-  color: red;
-  margin: 10px 0 30px 0;
-  display: none;
-}
-
-.errorMessageContainer.active {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 15px;
+  padding: 5px;
+  border-radius: 5px;
+  width: 300px;
 }
 
-.errorMessageContainer h6 {
-  font-size: 13px;
+.errorMessageContainer {
+  border: 2px solid rgb(191, 8, 8);
+  border-left: 10px solid rgb(191, 8, 8);
 }
 
-.errorMessageContainer img {
-  width: 15px;
-  height: 15px;
-  margin-right: 8px;
+.errorMessageContainer span {
+  color: #e74c3c;
+  margin-left: 10px;
 }
 
 @media (max-width: 400px) {
   .loginForm,
   .loginForm input,
-  .passwordContainer {
+  .passwordContainer,
+  .errorMessageContainer {
     width: 100%;
   }
 
-  .loginContainer,
-  .tPContainer {
+  .loginContainer {
     font-size: 14px;
   }
 

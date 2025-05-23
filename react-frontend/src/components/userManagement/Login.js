@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import styles from "./Login.module.css";
+import WarningIcon from '@mui/icons-material/Warning';
 
 export const Login = () => {
   const authContext = useContext(AuthContext);
@@ -107,19 +108,12 @@ export const Login = () => {
             {showPassword ? "Hide" : "Show"}
           </span>
         </div>
-        <div
-          className={`${styles.errorMessageContainer} 
-                    ${!isFormValid
-              ? styles.errorMessageContainer + " " + styles.active
-              : ""
-            }`}
-        >
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YISfL4Lm8FJPRneGwEq8_-9Nim7YeuMJMw&usqp=CAU"
-            alt=""
-          ></img>
-          <h6 className={styles.errorMessage}>{errorMessage}</h6>
-        </div>
+        {errorMessage && (
+          <div className={styles.errorMessageContainer}>
+            <WarningIcon fontSize="large" color="error" />
+            <span className={styles.errorMessage}>{errorMessage}</span>
+          </div>
+        )}
         <button type="submit" className={styles.loginButton}>
           Login
         </button>
