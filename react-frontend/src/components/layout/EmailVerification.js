@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import styles from './EmailVerification.module.css';
+import WarningIcon from '@mui/icons-material/Warning';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export const EmailVerification = () => {
     const [searchParams] = useSearchParams();
     const [message, setMessage] = useState('Verifying your email...');
+    const [validEmailVerification, setValidEmailVerification] = useState(false);
 
     useEffect(() => {
         console.log("Called once");
@@ -15,23 +18,50 @@ export const EmailVerification = () => {
                 .get("http://localhost:9898/user/verify?token=" + token)
                 .then((response) => {
                     setMessage(response.data);
+                    setValidEmailVerification(true);
                 })
                 .catch((error) => {
-                    if (error.response && error.response.data) {
-                        setMessage(error.response.data);
-                    } else {
-                        setMessage('Verification failed due to network error or unexpected response.');
+                    if (error.response && error.response.data.errors.length > 0) {
+                        setMessage(error.response.data.errors[0]);
+                    } else if (
+                        error.response.data.message &&
+                        error.response.data.message.trim().length > 0
+                    ) {
+                        setMessage(error.response.data.message);
                     }
+                    setValidEmailVerification(false);
                 });
         } else {
-            setMessage('No token found in URL.');
+            setMessage('Invalid Token.');
+            setValidEmailVerification(false);
         }
-    }, []);
+    }, [searchParams]);
 
     return (
-        <div className="email-verification">
-            <h2>Email Verification</h2>
-            <p>{message}</p>
+        <div className={styles.emailVerification}>
+            <Link to="/" className={styles.logo}>
+                SHOPEE
+            </Link>
+
+            <span className={styles.heading}>SHOPEE Account Verification Status</span>
+            {!validEmailVerification ?
+                <div className={styles.messageAndButtonContainer}>
+                    <div className={styles.errorMessageContainer}>
+                        <WarningIcon fontSize="large" color="error" />
+                        <span className={styles.errorMessage}>{message}</span>
+                    </div>
+                    <Link to="/register" className={styles.tryButton}>Try Sign Up Again</Link>
+                </div>
+                :
+                <div className={styles.messageAndButtonContainer}>
+                    <div className={styles.successMsgContainer}>
+                        <CheckCircleIcon fontSize="large" color="success" />
+                        <span className={styles.successMsg}>{message}</span>
+                    </div>
+                    <Link to="/login" className={styles.tryButton}>Try Logging In</Link>
+                </div>
+            }
+
         </div>
     );
 };

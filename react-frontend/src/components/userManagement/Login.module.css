@@ -72,6 +72,7 @@
   right: 10px;
   transform: translateY(-50%);
   cursor: pointer;
+  color: maroon;
 }
 
 .loginButton {
