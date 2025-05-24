@@ -51,10 +51,13 @@ public class UserService {
         User user = null;
         if(isUserExists) {
             user = userRepository.findByUsername(userCreateRequest.getEmail());
-            if(user.getAccountStatus() != AccountStatus.ACTIVE) {
+            if(user.getAccountStatus() != AccountStatus.ACTIVE && user.getAccountStatus()!=AccountStatus.DISABLED_BY_ADMIN) {
 
                 sendGridEmailService.sendUserVerificationEmail(user);
                 throw new ValidationException(user.getUsername() + " already exists, Please verify your email");
+            }
+            else if(user.getAccountStatus() == AccountStatus.DISABLED_BY_ADMIN) {
+                throw new ValidationException("Account disabled, Please contact customer service team");
             }
             else {
                 throw new ValidationException(user.getUsername() + " already exists");

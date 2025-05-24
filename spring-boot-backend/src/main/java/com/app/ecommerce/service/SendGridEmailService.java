@@ -2,6 +2,7 @@ package com.app.ecommerce.service;
 
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
+import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.repository.VerificationTokenRepository;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
@@ -26,12 +27,31 @@ public class SendGridEmailService {
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
 
-    public void sendUserVerificationEmail(User user) throws IOException {
+    public void sendPasswordResetEmail(User user) throws ValidationException {
+
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken();
         verificationToken.setToken(token);
         verificationToken.setUser(user);
-        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24)); // 24-hour validity
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(1));
+        verificationTokenRepository.save(verificationToken);
+
+        String passwordResetLink = "http://localhost:3000/password-reset?token=" + token;
+        String emailBody = "Click to Reset your password " + passwordResetLink;
+        Content content = new Content("text/plain", emailBody);
+        Email from = new Email("jagjeet7136@gmail.com");
+        Email to = new Email(user.getUsername());
+        Mail mail = new Mail(from, "Password Reset", to, content);
+
+        sendEmail(user, mail);
+    }
+
+    public void sendUserVerificationEmail(User user) throws ValidationException {
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUser(user);
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
         verificationTokenRepository.save(verificationToken);
 
         String verificationLink = "http://localhost:3000/verify-email?token=" + token;
@@ -41,15 +61,24 @@ public class SendGridEmailService {
         Email to = new Email(user.getUsername());
         Mail mail = new Mail(from, "Email Verification", to, content);
 
-        SendGrid sg = new SendGrid(sendGridApiKey);
-        Request request = new Request();
+        sendEmail(user, mail);
+    }
 
-        request.setMethod(Method.POST);
-        request.setEndpoint("mail/send");
-        request.setBody(mail.build());
+    public void sendEmail(User user, Mail mail) throws ValidationException {
+        try {
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            Request request = new Request();
 
-        Response response = sg.api(request);
-        System.out.println(response.getBody());
-        System.out.println("Email sent: " + response.getStatusCode());
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sg.api(request);
+            System.out.println(response.getBody());
+            System.out.println("Email sent: " + response.getStatusCode());
+        }
+        catch (Exception exc) {
+            throw new ValidationException("Some Error Occur while sending email");
+        }
     }
 }

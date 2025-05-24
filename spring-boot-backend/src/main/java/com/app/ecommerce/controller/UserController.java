@@ -14,6 +14,7 @@ import com.app.ecommerce.model.response.JWTLoginSuccessResponse;
 import com.app.ecommerce.repository.RoleRepository;
 import com.app.ecommerce.repository.UserRepository;
 import com.app.ecommerce.repository.VerificationTokenRepository;
+import com.app.ecommerce.service.SendGridEmailService;
 import com.app.ecommerce.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,10 @@ public class UserController {
 
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
+
+    @Autowired
+    private SendGridEmailService sendGridEmailService;
+
 
     @PostMapping("/register")
     public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest) throws
@@ -135,66 +140,66 @@ public class UserController {
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
-//    @PostMapping("/verify-email/{email}")
-//    public ResponseEntity<Map<String, String>> verifyEmail(
-//            @PathVariable String email) {
-//
-//        User user = userRepository.findByUsername(email);
-//
-//        // Assuming user has the securityQuestion field
-//        String securityQuestion = user.getSecurityQuestion();
-//
-//        Map<String, String> response = new HashMap<>();
-//        response.put("securityQuestion", securityQuestion);
-//        return ResponseEntity.ok(response);
-//    }
+    @PostMapping("/passwordResetEmailVerification")
+    public void passwordResetEmailVerification(
+            @RequestParam String email) throws ValidationException {
 
-//    @PostMapping("/reset-password")
-//    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws NotFoundException {
-//        String email = resetPasswordRequest.getEmail();
-//        User user = userRepository.findByUsername(email);
-//        if(!Objects.equals(email, user.getUsername())) {
-//            throw new ForbiddenException("Not Authorised");
-//        }
-//        String securityAnswer = resetPasswordRequest.getSecurityAnswer();
-//        String newPassword = resetPasswordRequest.getNewPassword();
-//
-//        User userOptional = userRepository.findByUsername(email);
-//
-//        if (userOptional==null) {
-//            throw new NotFoundException("User not Found");
-//        }
-//
-//        if (!bCryptPasswordEncoder.matches(securityAnswer, user.getSecurityAnswer())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect security answer");
-//        }
-//
-//        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
-//        userRepository.save(user);
-//
-//        return ResponseEntity.ok("Password reset successful");
-//    }
+        User user = userRepository.findByUsername(email);
+        if(user==null) {
+            throw new ValidationException("Invalid Email Address");
+        }
+        else if(user.getAccountStatus()!=AccountStatus.ACTIVE) {
+            throw new ValidationException(user.getAccountStatus().toString());
+        }
+        sendGridEmailService.sendPasswordResetEmail(user);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam("token") String token, @RequestBody String newPassword) throws ValidationException {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
+
+        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            return new ResponseEntity<>("Token is invalid or expired.", HttpStatus.BAD_REQUEST);
+        }
+
+        VerificationToken verificationToken = optionalToken.get();
+        User user = verificationToken.getUser();
+
+        if (bCryptPasswordEncoder.matches(newPassword, user.getPassword())) {
+            throw new ValidationException("New password should not match with old password");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword)); // Ensure you encode passwords
+        userRepository.save(user);
+        try {
+            verificationTokenRepository.deleteById(verificationToken.getId());
+        } catch (Exception e) {
+            System.out.println("Token was already deleted by another thread.");
+        }
+
+        return new ResponseEntity<>("Password updated successfully.", HttpStatus.OK);
+    }
 
     @GetMapping("/verify")
-    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) throws ValidationException {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
 
         if (optionalToken.isEmpty()) {
-            return new ResponseEntity<>("Invalid Verification Attempt", HttpStatus.OK);
+            throw new ValidationException("Invalid Verification Attempt");
         }
 
         VerificationToken verificationToken = optionalToken.get();
         User user = verificationToken.getUser();
 
         if (user.getAccountStatus() == AccountStatus.ACTIVE) {
-            return new ResponseEntity<>("Account already verified.", HttpStatus.OK);
+            throw new ValidationException("Account already verified.");
         }
         if(user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
             user.setAccountStatus(AccountStatus.ACTIVE);
             userRepository.save(user);
         }
         else {
-            return new ResponseEntity<>("Account disabled, Please contact Customer Service", HttpStatus.OK);
+            throw new ValidationException("Account disabled, Please contact Customer Service");
         }
 
         try {
@@ -205,6 +210,5 @@ public class UserController {
 
         return new ResponseEntity<>("Account verified successfully.", HttpStatus.OK);
     }
-
 
 }
