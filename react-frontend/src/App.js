@@ -23,6 +23,7 @@ import ContactPage from "./components/layout/ContactPage";
 import Profile from "./components/layout/Profile";
 import ResetPassword from "./components/layout/ResetPassword";
 import { EmailVerification } from "./components/layout/EmailVerification";
+import NewPassword from "./components/layout/NewPassword";
 
 const PrivateRoute = () => {
   const authContext = useContext(AuthContext);
@@ -88,6 +89,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/reset" element={<ResetPassword />} />
+            <Route path="/password-reset" element={<NewPassword />} />
             <Route path="/verify-email" element={<EmailVerification />} />
           </Routes>
         </div>
