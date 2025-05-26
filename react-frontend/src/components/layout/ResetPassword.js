@@ -12,6 +12,8 @@ const ResetPassword = () => {
 
     const handleSubmitEmail = (e) => {
         e.preventDefault();
+        setErrorMsg("");
+        setSuccessMsg("");
         const email = emailRef.current.value;
         console.log(email);
         axios
