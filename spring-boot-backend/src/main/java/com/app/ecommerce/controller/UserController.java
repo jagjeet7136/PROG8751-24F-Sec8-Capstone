@@ -2,11 +2,9 @@ package com.app.ecommerce.controller;
 
 import com.app.ecommerce.config.JwtTokenProvider;
 import com.app.ecommerce.constants.SecurityConstants;
-import com.app.ecommerce.entity.Role;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
 import com.app.ecommerce.enums.AccountStatus;
-import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.request.*;
@@ -122,24 +120,6 @@ public class UserController {
         return ResponseEntity.ok(new JWTLoginSuccessResponse(true, token));
     }
 
-    @PostMapping("/changePassword")
-    public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest, Principal principal) throws ValidationException {
-        String username = principal.getName(); // Get the username from the Principal object
-        User user = userRepository.findByUsername(username);
-
-        // Check if the old password is correct
-        if (!bCryptPasswordEncoder.matches(passwordChangeRequest.getOldPassword(), user.getPassword())) {
-            throw new ValidationException("Old password is incorrect");
-        }
-
-        // Encode the new password and save it
-        String encodedNewPassword = bCryptPasswordEncoder.encode(passwordChangeRequest.getNewPassword());
-        user.setPassword(encodedNewPassword);
-        userRepository.save(user);
-
-        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
-    }
-
     @PostMapping("/passwordResetEmailVerification")
     public void passwordResetEmailVerification(
             @RequestParam String email) throws ValidationException {
@@ -154,12 +134,32 @@ public class UserController {
         sendGridEmailService.sendPasswordResetEmail(user);
     }
 
+    @GetMapping("/validate-reset-token")
+    public ResponseEntity<String> validateResetToken(@RequestParam("token") String token) throws ValidationException {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
+
+        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Invalid or Expired link");
+        }
+
+        return ResponseEntity.ok("Token is valid.");
+    }
+
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam("token") String token, @RequestBody String newPassword) throws ValidationException {
+    public ResponseEntity<String> resetPassword(@RequestParam("token") String token,
+                                                @RequestParam("password") String newPassword) throws ValidationException {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
 
         if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
             return new ResponseEntity<>("Token is invalid or expired.", HttpStatus.BAD_REQUEST);
+        }
+
+        if(newPassword.isBlank()) {
+            throw new ValidationException("Password cannot be blank");
+        }
+
+        if(newPassword.length()<6) {
+            throw new ValidationException("Password should be at least 6 characters long!");
         }
 
         VerificationToken verificationToken = optionalToken.get();
@@ -169,7 +169,7 @@ public class UserController {
             throw new ValidationException("New password should not match with old password");
         }
 
-        user.setPassword(bCryptPasswordEncoder.encode(newPassword)); // Ensure you encode passwords
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
         try {
             verificationTokenRepository.deleteById(verificationToken.getId());
