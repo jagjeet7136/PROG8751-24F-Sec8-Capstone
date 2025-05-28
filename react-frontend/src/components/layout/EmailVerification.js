@@ -21,14 +21,25 @@ export const EmailVerification = () => {
                     setValidEmailVerification(true);
                 })
                 .catch((error) => {
-                    if (error.response && error.response.data.errors.length > 0) {
-                        setMessage(error.response.data.errors[0]);
-                    } else if (
-                        error.response.data.message &&
-                        error.response.data.message.trim().length > 0
-                    ) {
-                        setMessage(error.response.data.message);
+                    console.log(error);
+
+                    if (error.response) {
+                        if (error.response.data?.errors?.length > 0) {
+                            setMessage(error.response.data.errors[0]);
+                        } else if (
+                            error.response.data?.message &&
+                            error.response.data.message.trim().length > 0
+                        ) {
+                            setMessage(error.response.data.message);
+                        } else {
+                            setMessage("An unknown error occurred.");
+                        }
+                    } else if (error.message === "Network Error") {
+                        setMessage("Server is unreachable. Please try again later.");
+                    } else {
+                        setMessage("Something went wrong.");
                     }
+
                     setValidEmailVerification(false);
                 });
         } else {
