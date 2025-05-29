@@ -58,7 +58,7 @@ export const EmailVerification = () => {
             </Link>
 
             <span className={styles.heading}>SHOPEE Account Verification Status</span>
-            {loading ? <p className={styles.loadingMessage}>Loading, Please Wait!...</p>
+            {loading ? <p className={styles.loadingMessage}>Verifying, Please Wait!...</p>
                 : !validEmailVerification ?
                     <div className={styles.messageAndButtonContainer}>
                         <div className={styles.errorMessageContainer}>

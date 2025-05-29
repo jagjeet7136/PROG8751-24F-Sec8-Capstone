@@ -99,7 +99,7 @@ export const Header = (props) => {
           onClick={handleSearchSubmit}
         />
         <Link to="/profile">
-          {`Hi, ${authContext.user ? authContext.user.name : ""}`}
+          {`Hi, ${authContext.user ? authContext.user.userFullName : ""}`}
         </Link>
       </div>
       <Link to="/login" onClick={logoutHandler}> {/*Change it to navLink */}

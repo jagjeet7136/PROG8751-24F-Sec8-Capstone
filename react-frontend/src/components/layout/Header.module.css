@@ -32,13 +32,15 @@
 .navbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   font-family: "Outfit";
+  /* width: 300px; */
 }
 
 .navLink {
   margin-left: 20px;
   display: flex;
-  align-items: end;
+  align-items: center;
 }
 
 .navbar a {
