@@ -7,8 +7,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export const EmailVerification = () => {
     const [searchParams] = useSearchParams();
-    const [message, setMessage] = useState('Verifying your email...');
+    const [message, setMessage] = useState("");
     const [validEmailVerification, setValidEmailVerification] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         console.log("Called once");
@@ -41,6 +42,8 @@ export const EmailVerification = () => {
                     }
 
                     setValidEmailVerification(false);
+                }).finally(() => {
+                    setLoading(false);
                 });
         } else {
             setMessage('Invalid Token.');
@@ -55,24 +58,24 @@ export const EmailVerification = () => {
             </Link>
 
             <span className={styles.heading}>SHOPEE Account Verification Status</span>
-            {!validEmailVerification ?
-                <div className={styles.messageAndButtonContainer}>
-                    <div className={styles.errorMessageContainer}>
-                        <WarningIcon fontSize="large" color="error" />
-                        <span className={styles.errorMessage}>{message}</span>
+            {loading ? <p className={styles.loadingMessage}>Loading, Please Wait!...</p>
+                : !validEmailVerification ?
+                    <div className={styles.messageAndButtonContainer}>
+                        <div className={styles.errorMessageContainer}>
+                            <WarningIcon fontSize="large" color="error" />
+                            <span className={styles.errorMessage}>{message}</span>
+                        </div>
+                        <Link to="/register" className={styles.tryButton}>Try Sign Up Again</Link>
                     </div>
-                    <Link to="/register" className={styles.tryButton}>Try Sign Up Again</Link>
-                </div>
-                :
-                <div className={styles.messageAndButtonContainer}>
-                    <div className={styles.successMsgContainer}>
-                        <CheckCircleIcon fontSize="large" color="success" />
-                        <span className={styles.successMsg}>{message}</span>
+                    :
+                    <div className={styles.messageAndButtonContainer}>
+                        <div className={styles.successMsgContainer}>
+                            <CheckCircleIcon fontSize="large" color="success" />
+                            <span className={styles.successMsg}>{message}</span>
+                        </div>
+                        <Link to="/login" className={styles.tryButton}>Try Logging In</Link>
                     </div>
-                    <Link to="/login" className={styles.tryButton}>Try Logging In</Link>
-                </div>
             }
-
         </div>
     );
 };
