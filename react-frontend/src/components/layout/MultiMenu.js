@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./MultiMenu.module.css";
 
 export const MultiMenus = ({ menus, scrollable }) => {

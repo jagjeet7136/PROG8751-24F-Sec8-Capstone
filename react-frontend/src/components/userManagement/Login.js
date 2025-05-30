@@ -15,6 +15,7 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (e) => {
+    setErrorMsg("");
     if (!isFormValid) {
       setIsFormValid(true);
     }

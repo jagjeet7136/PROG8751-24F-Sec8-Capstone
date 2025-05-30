@@ -1,4 +1,4 @@
-import React, {
+import {
   useCallback,
   useContext,
   useState,
@@ -14,7 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { MultiMenus } from "./MultiMenu";
 
-export const Header = (props) => {
+export const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const [productSearchInput, setProductSearchInput] = useState("");
@@ -92,53 +92,53 @@ export const Header = (props) => {
 
   const navbarList = authContext.loggedIn ? (
     <div className={styles.navbar}>
-      <div className={styles.navLink}>
+
+      <Link to="/profile" className={styles.navLink}>
         <FontAwesomeIcon
           icon={faUser}
           className={styles.accountIcon}
-          onClick={handleSearchSubmit}
         />
-        <Link to="/profile">
+        <span>
           {`Hi, ${authContext.user ? authContext.user.userFullName : ""}`}
-        </Link>
-      </div>
-      <Link to="/login" onClick={logoutHandler}> {/*Change it to navLink */}
+        </span>
+      </Link>
+      <Link to="/login" onClick={logoutHandler} className={styles.navLink}> {/*Change it to navLink */}
         Logout
       </Link>
-      <div className={styles.navLink}>
+      <Link to="/cart" className={styles.navLink}>
         <FontAwesomeIcon
           icon={faCartShopping}
           className={styles.cartIcon}
           onClick={handleSearchSubmit}
         />
         <span className={styles.cartQuantity}></span>
-        <Link to="/cart">Cart</Link>
-      </div>
+        <span>Cart</span>
+      </Link>
     </div>
   ) : (
     <div className={styles.navbar}>
-      <div className={styles.navLink}>
+      <Link to="/login" className={styles.navLink}>
         <FontAwesomeIcon
           icon={faUser}
           className={styles.accountIcon}
           onClick={handleSearchSubmit}
         />
-        <Link to="/login">Account</Link>
-      </div>
-      <div className={styles.navLink}>
+        <span>Account</span>
+      </Link>
+      <Link className={styles.navLink}>
         <FontAwesomeIcon
           icon={faCartShopping}
           className={styles.cartIcon}
           onClick={handleSearchSubmit}
         />
         <span className={styles.cartQuantity}></span>
-        <Link to="/cart">Cart</Link>
-      </div>
+        <span>Cart</span>
+      </Link>
     </div>
   );
 
   return (
-    <div className={`${styles.header} ${styles[props.textColor] || ""}`}>
+    <div className={styles.header}>
       <div className={styles.logoNavbarContainer}>
         <Link to="/" className={styles.logo}>
           SHOPEE
