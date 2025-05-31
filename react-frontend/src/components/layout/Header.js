@@ -18,6 +18,9 @@ export const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const [productSearchInput, setProductSearchInput] = useState("");
+  const handleCategoryClick = useCallback((categoryName) => {
+    navigate(`/search?query=${encodeURIComponent(categoryName)}`);
+  }, [navigate]);
 
   const menus = [
     {
@@ -34,7 +37,7 @@ export const Header = () => {
         {
           label: "Electronics",
           submenu: [
-            { label: "Mobiles" },
+            { label: "Phone" },
             { label: "Laptops" },
             { label: "Headphones" },
           ],
@@ -102,7 +105,7 @@ export const Header = () => {
           {`Hi, ${authContext.user ? authContext.user.userFullName : ""}`}
         </span>
       </Link>
-      <Link to="/login" onClick={logoutHandler} className={styles.navLink}> {/*Change it to navLink */}
+      <Link to="/login" onClick={logoutHandler} className={styles.navLink}>
         Logout
       </Link>
       <Link to="/cart" className={styles.navLink}>
@@ -125,7 +128,7 @@ export const Header = () => {
         />
         <span>Account</span>
       </Link>
-      <Link className={styles.navLink}>
+      <Link to="/cart" className={styles.navLink}>
         <FontAwesomeIcon
           icon={faCartShopping}
           className={styles.cartIcon}
@@ -147,7 +150,7 @@ export const Header = () => {
       </div>
 
       <div className={styles.menuSearchContainer}>
-        <MultiMenus menus={menus} scrollable={stopBodyScrolling} />
+        <MultiMenus menus={menus} scrollable={stopBodyScrolling} onCategoryClick={handleCategoryClick} />
         <div className={styles.search}>
           <input
             type="text"

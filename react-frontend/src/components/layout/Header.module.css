@@ -41,6 +41,15 @@
   align-items: center;
 }
 
+.navLink:hover {
+  color: rgb(220, 220, 220);
+}
+
+.navLink:hover .cartIcon,
+.navLink:hover .accountIcon {
+  color: rgb(220, 220, 220);
+}
+
 .cartQuantity {
   display: none;
 }

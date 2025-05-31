@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./MultiMenu.module.css";
 
-export const MultiMenus = ({ menus, scrollable }) => {
+export const MultiMenus = ({ menus, scrollable, onCategoryClick }) => {
     const [activeMenus, setActiveMenus] = useState([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -10,11 +10,14 @@ export const MultiMenus = ({ menus, scrollable }) => {
             scrollable(false);
         } else {
             scrollable(true);
+            setActiveMenus([]);
         }
     }, [isMenuOpen, scrollable]);
 
     const handleMenuClick = (data) => {
-        console.log("Menu clicked:", data);
+        if (data?.label) {
+            onCategoryClick(data.label);
+        }
     };
 
     const handleArrowClick = (menuName) => {
