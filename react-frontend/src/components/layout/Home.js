@@ -2,26 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import styles from "./Home.module.css";
 import icon from "../../assets/icons/logo-transparent-png.png";
-import banner1 from "../../assets/images/banner1.jpg";
-import banner2 from "../../assets/images/banner2.webp";
+import bannerSmall from "../../assets/images/banner1-400w.avif";
+import bannerMedium from "../../assets/images/banner-medium.avif";
+import bannerLarge from "../../assets/images/banner-large.avif";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
 export const Home = () => {
-  const [currentBanner, setCurrentBanner] = useState(0);
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
   const [addedProducts, setAddedProducts] = useState([]);
-  const banners = [banner1, banner2];
   const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentBanner((prevBanner) => (prevBanner + 1) % banners.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     fetch("http://localhost:9898/products")
@@ -63,11 +55,11 @@ export const Home = () => {
     <div className={styles.homeComp}>
       <Header textColor="greenText" icon={icon} />
       <div className={styles.bannerSlideshow}>
-        <img
-          src={banners[currentBanner]}
-          alt="Banner"
-          className={styles.bannerImage}
-        />
+        <picture>
+          <source media="(max-width: 400px)" srcSet={bannerMedium} />
+          <source media="(max-width: 1024px)" srcSet={bannerMedium} />
+          <img src={bannerLarge} alt="Promotional Banner" className={styles.bannerImage} />
+        </picture>
       </div>
       <div className={styles.home}>
         {/* Newly Released */}

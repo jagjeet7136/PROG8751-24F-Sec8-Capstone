@@ -65,7 +65,7 @@
   background-color: #008c7a;
 }
 
-.bannerSlideshow {
+/* .bannerSlideshow {
   width: 100%;
   height: 400px;
   display: flex;
@@ -81,6 +81,15 @@
   object-fit: inherit;
   transition: opacity 3s ease;
   padding: 20px;
+} */
+
+.bannerImage {
+  width: 100%;
+  height: auto; /* or any height you want for the banner */
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  margin: 20px 0;
 }
 
 .section {
@@ -157,6 +166,10 @@
   .productCard {
     padding: 15px;
   }
+
+  .bannerImage {
+    height: 300px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -165,6 +178,6 @@
   }
 
   .bannerImage {
-    height: 300px;
+    height: 150px;
   }
 }
