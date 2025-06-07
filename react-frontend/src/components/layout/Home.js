@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import styles from "./Home.module.css";
 import icon from "../../assets/icons/logo-transparent-png.png";
-import bannerSmall from "../../assets/images/banner1-400w.avif";
 import bannerMedium from "../../assets/images/banner-medium.avif";
 import bannerLarge from "../../assets/images/banner-large.avif";
 import Footer from "./Footer";
@@ -57,12 +56,11 @@ export const Home = () => {
       <div className={styles.bannerSlideshow}>
         <picture>
           <source media="(max-width: 400px)" srcSet={bannerMedium} />
-          <source media="(max-width: 1024px)" srcSet={bannerMedium} />
+          <source media="(max-width: 1024px)" srcSet={bannerLarge} />
           <img src={bannerLarge} alt="Promotional Banner" className={styles.bannerImage} />
         </picture>
       </div>
       <div className={styles.home}>
-        {/* Newly Released */}
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Newly Released</h2>
           <div className={styles.productGrid}>

@@ -1,46 +1,29 @@
-/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Footer styling */
 .footer {
+  display: flex;
+  flex-direction: column;
   background-color: #1a1a1a;
   color: #fff;
   padding: 40px 20px;
-  font-family: 'Arial', sans-serif;
-}
-
-.footerContent {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #333;
-}
-
-/* Company Info */
-.companyInfo {
-  flex: 1 1 250px;
+  font-family: "Arial", sans-serif;
 }
 
 .companyInfo h2 {
   font-size: 26px;
-  color: #f39c12;
+  color: white;
   margin-bottom: 10px;
 }
 
 .companyInfo p {
   font-size: 14px;
-  color: #ccc;
+  color: #9e9e9e;
 }
 
-/* Footer Sections */
 .footerSections {
   display: flex;
   flex-wrap: wrap;
@@ -54,7 +37,7 @@
 
 .footerSection h3 {
   font-size: 18px;
-  color: #f39c12;
+  color: white;
   margin-bottom: 10px;
 }
 
@@ -67,7 +50,7 @@
 }
 
 .footerSection ul li a {
-  color: #ccc;
+  color: #9e9e9e;
   text-decoration: none;
   font-size: 14px;
   transition: color 0.3s ease;
@@ -78,7 +61,6 @@
   text-decoration: underline;
 }
 
-/* Social Links */
 .socialLinks {
   display: flex;
   flex-direction: column;
@@ -100,7 +82,6 @@
   text-decoration: underline;
 }
 
-/* Footer Bottom */
 .footerBottom {
   margin-top: 20px;
   text-align: center;
@@ -108,14 +89,7 @@
   color: #bbb;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-  .footerContent {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
   .companyInfo {
     margin-bottom: 20px;
   }
@@ -131,10 +105,6 @@
 }
 
 @media (max-width: 480px) {
-  .footerContent {
-    padding: 20px;
-  }
-
   .footerSection h3 {
     font-size: 16px;
   }
