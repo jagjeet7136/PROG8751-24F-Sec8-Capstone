@@ -1,5 +1,9 @@
 import styles from "./Footer.module.css";
 import { Link } from "react-router-dom";
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 const Footer = () => {
   return (
@@ -46,32 +50,34 @@ const Footer = () => {
           </ul>
         </div>
 
-        {<div className={styles.footerSection}>
+        <div className={styles.footerSection}>
           <h3>Follow Us</h3>
-          <ul className={styles.socialLinks}>
-            <li>
-              <Link to="/facebook">Facebook</Link>
-            </li>
-            <li>
-              <Link to="/twitter">Twitter</Link>
-            </li>
-            <li>
-              <Link to="/instagram">Instagram</Link>
-            </li>
-            <li>
-              <Link to="/linkedin">LinkedIn</Link>
-            </li>
-          </ul>
-        </div>}
+          <div className={styles.socialLinks}>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+              <FacebookIcon fontSize="medium" color="success" />
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+              <TwitterIcon fontSize="medium" />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <InstagramIcon fontSize="medium" />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+              <LinkedInIcon fontSize="medium" />
+            </a>
+          </div>
+        </div>
       </div>
 
       <div className={styles.subscribeEmailContainer}>
-        <span>Subscribe to latest deals</span>
-        <input
-          type="text"
-          placeholder="Email Address"
-        />
-        <span>Subscribe</span>
+        <span className={styles.subscribeEmailContainerHeading}>Subscribe to latest deals</span>
+        <div className={styles.emailContainer}>
+          <input
+            type="text"
+            placeholder="Email Address"
+          />
+          <span>Subscribe</span>
+        </div>
       </div>
 
 
