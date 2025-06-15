@@ -4,6 +4,7 @@ import com.app.ecommerce.entity.Product;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.request.ProductCreateRequest;
 import com.app.ecommerce.model.request.ProductUpdateRequest;
+import com.app.ecommerce.model.response.ProductResponse;
 import com.app.ecommerce.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,13 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getHomeProducts() {
+    public ResponseEntity<List<ProductResponse>> getHomeProducts() {
         log.info("ALl product requested");
         return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProduct(@PathVariable String productId) {
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable String productId) {
         log.info("Product requested with ID: " + productId);
         return new ResponseEntity<>(productService.getProduct(productId), HttpStatus.OK);
     }
