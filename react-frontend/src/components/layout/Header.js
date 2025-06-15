@@ -18,6 +18,10 @@ export const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const [productSearchInput, setProductSearchInput] = useState("");
+  const [cartQuantity, setCartQuantity] = useState(0);
+
+
+
   const handleCategoryClick = useCallback((categoryName) => {
     navigate(`/search?query=${encodeURIComponent(categoryName)}`);
   }, [navigate]);
@@ -114,7 +118,7 @@ export const Header = () => {
           className={styles.cartIcon}
           onClick={handleSearchSubmit}
         />
-        <span className={styles.cartQuantity}></span>
+        <span className={styles.cartQuantity}>{ }</span>
         <span>Cart</span>
       </Link>
     </div>
@@ -134,7 +138,7 @@ export const Header = () => {
           className={styles.cartIcon}
           onClick={handleSearchSubmit}
         />
-        <span className={styles.cartQuantity}></span>
+        <span className={styles.cartQuantity}>{ }</span>
         <span>Cart</span>
       </Link>
     </div>

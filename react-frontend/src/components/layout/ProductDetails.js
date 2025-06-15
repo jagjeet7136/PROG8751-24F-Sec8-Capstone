@@ -20,14 +20,6 @@ export const ProductDetails = () => {
             .catch((error) => console.error("Error fetching product details:", error));
     }, [productId]);
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            month: "long",
-            year: "2-digit"
-        });
-    };
-
     const handleIncrement = () => {
         setQuantity(prevQuantity => (prevQuantity < 10 ? prevQuantity + 1 : prevQuantity));
     };
@@ -46,13 +38,25 @@ export const ProductDetails = () => {
                 quantity: quantity
             }
         })
-            .then((res) => {
+            .then(() => {
                 setMessage("Product added to cart successfully!");
             })
             .catch((error) => {
                 setMessage("Failed to add product to cart.");
                 console.error("Error adding product to cart:", error);
             });
+    };
+
+    const renderStars = (rating) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(
+                <span key={i} style={{ color: i <= Math.round(rating) ? "#facc15" : "#e5e7eb" }}>
+                    ★
+                </span>
+            );
+        }
+        return stars;
     };
 
     if (!product) {
@@ -68,14 +72,22 @@ export const ProductDetails = () => {
                 </div>
                 <div className={styles.productInfoSection}>
                     <h2 className={styles.productTitle}>{product.name}</h2>
+
+                    <div className={styles.ratingContainer}>
+                        <div className={styles.stars}>
+                            {renderStars(product.averageRating)}
+                        </div>
+                        <span className={styles.ratingText}>
+                            ({product.totalRatings} rating{product.totalRatings !== 1 ? "s" : ""})
+                        </span>
+                    </div>
+
                     <p className={styles.productPrice}>Discounted Price: ${product.discountedPrice}</p>
                     <p className={styles.originalPrice}>Original Price: ${product.price}</p>
-                    <p className={styles.productStock}>In Stock: {product.stock}</p>
+
                     <p className={styles.productDescription}>{product.description}</p>
                     <p className={styles.productLongDescription}>{product.longDescription}</p>
-                    <p className={styles.productManufacturer}>Manufacturer: {product.manufacturer}</p>
-                    <p className={styles.productRating}>Rating: {product.rating}</p>
-                    <p className={styles.productDate}>Added on: {formatDate(product.createdAt)}</p>
+
                     <div className={styles.quantitySelector}>
                         <button onClick={handleDecrement} className={styles.quantityButton}>-</button>
                         <input
