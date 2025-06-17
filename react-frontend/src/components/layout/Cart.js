@@ -59,15 +59,39 @@ const Cart = () => {
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax + SHIPPING_CHARGE;
 
-  const handleProceedToCheckout = () => {
-    navigate("/checkout", {
-      state: { cartItems, subtotal, tax, total, SHIPPING_CHARGE },
-    });
-  };
+  // const handleProceedToCheckout = () => {
+  //   navigate("/checkout", {
+  //     state: { cartItems, subtotal, tax, total, SHIPPING_CHARGE },
+  //   });
+  // };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+
+  const handleProceedToCheckout = async () => {
+    try {
+      const transformedCartItems = cartItems.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        productPrice: item.product.price,
+        productImageUrl: item.product.imageUrl,
+        quantity: item.quantity,
+      }));
+
+      const response = await axios.post("http://localhost:9898/orders/create-checkout-session", {
+        cartItems: transformedCartItems,
+        subtotal,
+        tax,
+        total,
+        shippingCharge: SHIPPING_CHARGE,
+      });
+
+      window.location.href = response.data.url; // Redirect to Stripe Checkout
+    } catch (error) {
+      console.error("Stripe checkout failed", error);
+    }
+  };
 
   return (
     <div className={styles.cart}>
