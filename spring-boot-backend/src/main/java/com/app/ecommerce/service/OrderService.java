@@ -36,50 +36,50 @@ public class OrderService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    @Transactional
-    public void createOrder(OrderDTO orderDTO, User user) throws ValidationException {
-        Map<String, String> validationErrors = validateOrderDTO(orderDTO);
-
-        if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Order validation failed");
-        }
-
-        Order order = new Order();
-        order.setUser(user);
-        order.setFirstName(orderDTO.getFirstName());
-        order.setLastName(orderDTO.getLastName());
-        order.setEmail(orderDTO.getEmail());
-        order.setPhone(orderDTO.getPhone());
-        order.setAddress(orderDTO.getAddress());
-        order.setCity(orderDTO.getCity());
-        order.setPostalCode(orderDTO.getPostalCode());
-        order.setState(orderDTO.getState());
-        order.setPaymentMethod(orderDTO.getPaymentMethod());
-        order.setSubtotal(orderDTO.getSubtotal());
-        order.setTax(orderDTO.getTax());
-        order.setShippingCharge(orderDTO.getShippingCharge());
-        order.setTotal(orderDTO.getTotal());
-
-        Order savedOrder = orderRepository.save(order);
-        List<OrderItem> orderItems = new ArrayList<>();
-        orderDTO.getCartItems().forEach(cartItem -> {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(savedOrder);
-            orderItem.setProduct(cartItem.getProduct());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPrice(cartItem.getProduct().getPrice());
-            orderItems.add(orderItem);
-        });
-
-        orderItemRepository.saveAll(orderItems);
-
-        Cart userCart = cartRepository.findByUser(user).orElse(null);
-        if (userCart != null) {
-            cartItemRepository.deleteAll(userCart.getItems());
-            userCart.getItems().clear();
-            cartRepository.save(userCart);
-        }
-    }
+//    @Transactional
+//    public void createOrder(OrderDTO orderDTO, User user) throws ValidationException {
+//        Map<String, String> validationErrors = validateOrderDTO(orderDTO);
+//
+//        if (!validationErrors.isEmpty()) {
+//            throw new ValidationException("Order validation failed");
+//        }
+//
+//        Order order = new Order();
+//        order.setUser(user);
+//        order.setFirstName(orderDTO.getFirstName());
+//        order.setLastName(orderDTO.getLastName());
+//        order.setEmail(orderDTO.getEmail());
+//        order.setPhone(orderDTO.getPhone());
+//        order.setAddress(orderDTO.getAddress());
+//        order.setCity(orderDTO.getCity());
+//        order.setPostalCode(orderDTO.getPostalCode());
+//        order.setState(orderDTO.getState());
+//        order.setPaymentMethod(orderDTO.getPaymentMethod());
+//        order.setSubtotal(orderDTO.getSubtotal());
+//        order.setTax(orderDTO.getTax());
+//        order.setShippingCharge(orderDTO.getShippingCharge());
+//        order.setTotal(orderDTO.getTotal());
+//
+//        Order savedOrder = orderRepository.save(order);
+//        List<OrderItem> orderItems = new ArrayList<>();
+//        orderDTO.getCartItems().forEach(cartItem -> {
+//            OrderItem orderItem = new OrderItem();
+//            orderItem.setOrder(savedOrder);
+//            orderItem.setProduct(cartItem.getProduct());
+//            orderItem.setQuantity(cartItem.getQuantity());
+//            orderItem.setPrice(cartItem.getProduct().getPrice());
+//            orderItems.add(orderItem);
+//        });
+//
+//        orderItemRepository.saveAll(orderItems);
+//
+//        Cart userCart = cartRepository.findByUser(user).orElse(null);
+//        if (userCart != null) {
+//            cartItemRepository.deleteAll(userCart.getItems());
+//            userCart.getItems().clear();
+//            cartRepository.save(userCart);
+//        }
+//    }
 
     private Map<String, String> validateOrderDTO(OrderDTO orderDTO) {
         Map<String, String> errors = new HashMap<>();

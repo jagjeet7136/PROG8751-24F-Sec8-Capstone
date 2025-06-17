@@ -18,7 +18,7 @@ public class OrderDTO {
     private String postalCode;
     private String state;
     private String paymentMethod;
-    private List<CartItem> cartItems;
+    private List<CartItemDTO> cartItems;
     private double subtotal;
     private double tax;
     private double total;

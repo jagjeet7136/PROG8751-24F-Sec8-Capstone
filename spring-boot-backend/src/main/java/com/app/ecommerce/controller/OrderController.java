@@ -1,14 +1,18 @@
 package com.app.ecommerce.controller;
 
+import com.app.ecommerce.entity.CartItem;
 import com.app.ecommerce.entity.Order;
 import com.app.ecommerce.entity.OrderItem;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.OrderNotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
+import com.app.ecommerce.model.dto.CartItemDTO;
 import com.app.ecommerce.model.dto.OrderDTO;
 import com.app.ecommerce.service.OrderService;
 import com.app.ecommerce.service.UserService;
+import com.stripe.exception.StripeException;
+import com.stripe.param.checkout.SessionCreateParams;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -21,12 +25,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import com.stripe.model.checkout.Session;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 
 @RestController
 @RequestMapping("/orders")
@@ -39,17 +47,17 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<String> createOrder(
-            @RequestBody OrderDTO orderDTO,
-            Principal principal) throws ValidationException {
-        User user = userService.getLoggedInUser(principal);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token or user not found");
-        }
-        orderService.createOrder(orderDTO, user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
-    }
+//    @PostMapping
+//    public ResponseEntity<String> createOrder(
+//            @RequestBody OrderDTO orderDTO,
+//            Principal principal) throws ValidationException {
+//        User user = userService.getLoggedInUser(principal);
+//        if (user == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token or user not found");
+//        }
+//        orderService.createOrder(orderDTO, user);
+//        return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
+//    }
 
     @GetMapping()
     public ResponseEntity<List<Order>> getOrdersForUser(Principal principal) {
@@ -230,10 +238,74 @@ public class OrderController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "invoice_" + orderId + ".pdf");
-
-        // Return the PDF as a byte array
         return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
     }
 
+    @PostMapping("/create-checkout-session")
+    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody OrderDTO orderRequest) throws StripeException {
+        List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
+        for (CartItemDTO item : orderRequest.getCartItems()) {
+            SessionCreateParams.LineItem lineItem = SessionCreateParams.LineItem.builder()
+                    .setQuantity((long) item.getQuantity())
+                    .setPriceData(
+                            SessionCreateParams.LineItem.PriceData.builder()
+                                    .setCurrency("cad")
+                                    .setUnitAmount((long) (item.getProductPrice() * 100)) // base price only
+                                    .setProductData(
+                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                    .setName(item.getProductName())
+                                                    .build()
+                                    )
+                                    .build()
+                    ).build();
+
+            lineItems.add(lineItem);
+        }
+
+        lineItems.add(
+                SessionCreateParams.LineItem.builder()
+                        .setQuantity(1L)
+                        .setPriceData(
+                                SessionCreateParams.LineItem.PriceData.builder()
+                                        .setCurrency("cad")
+                                        .setUnitAmount(500L) // $5 shipping
+                                        .setProductData(
+                                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                        .setName("Shipping")
+                                                        .build()
+                                        )
+                                        .build()
+                        ).build()
+        );
+
+        lineItems.add(
+                SessionCreateParams.LineItem.builder()
+                        .setQuantity(1L)
+                        .setPriceData(
+                                SessionCreateParams.LineItem.PriceData.builder()
+                                        .setCurrency("cad")
+                                        .setUnitAmount(1300L) // $13 tax for example
+                                        .setProductData(
+                                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                        .setName("Tax (13%)")
+                                                        .build()
+                                        )
+                                        .build()
+                        ).build()
+        );
+
+        SessionCreateParams params = SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl("http://localhost:3000/success")
+                .setCancelUrl("http://localhost:3000/cancel")
+                .addAllPaymentMethodType(List.of(SessionCreateParams.PaymentMethodType.CARD)) // only card
+                .addAllLineItem(lineItems)
+                .build();
+
+        Session session = Session.create(params);
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("url", session.getUrl());
+        return ResponseEntity.ok(responseData);
+    }
 }
