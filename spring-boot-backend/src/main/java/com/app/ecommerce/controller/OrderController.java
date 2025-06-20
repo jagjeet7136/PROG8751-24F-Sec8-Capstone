@@ -11,6 +11,8 @@ import com.app.ecommerce.model.dto.CartItemDTO;
 import com.app.ecommerce.model.dto.OrderDTO;
 import com.app.ecommerce.service.OrderService;
 import com.app.ecommerce.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -242,9 +244,12 @@ public class OrderController {
     }
 
     @PostMapping("/create-checkout-session")
-    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody OrderDTO orderRequest) throws StripeException {
+    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody OrderDTO orderRequest, Principal principal) throws StripeException, JsonProcessingException {
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
-
+        User user = userService.getLoggedInUser(principal);
+        if (!user.getId().equals(orderRequest.getUserId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "User ID mismatch"));
+        }
         for (CartItemDTO item : orderRequest.getCartItems()) {
             SessionCreateParams.LineItem lineItem = SessionCreateParams.LineItem.builder()
                     .setQuantity((long) item.getQuantity())
@@ -295,10 +300,18 @@ public class OrderController {
                         ).build()
         );
 
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("userId", String.valueOf(orderRequest.getUserId()));
+        metadata.put("subtotal", String.valueOf(orderRequest.getSubtotal()));
+        metadata.put("tax", String.valueOf(orderRequest.getTax()));
+        metadata.put("shipping", String.valueOf(orderRequest.getShippingCharge()));
+        metadata.put("products", new ObjectMapper().writeValueAsString(orderRequest.getCartItems()));
+
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:3000/success")
                 .setCancelUrl("http://localhost:3000/cancel")
+                .putAllMetadata(metadata)
                 .addAllPaymentMethodType(List.of(SessionCreateParams.PaymentMethodType.CARD)) // only card
                 .addAllLineItem(lineItems)
                 .build();

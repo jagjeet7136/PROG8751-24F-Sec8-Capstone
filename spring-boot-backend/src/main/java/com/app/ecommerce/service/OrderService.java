@@ -1,16 +1,13 @@
 package com.app.ecommerce.service;
 
-import com.app.ecommerce.entity.Cart;
-import com.app.ecommerce.entity.Order;
-import com.app.ecommerce.entity.OrderItem;
-import com.app.ecommerce.entity.User;
+import com.app.ecommerce.entity.*;
 import com.app.ecommerce.exceptions.OrderNotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.dto.OrderDTO;
-import com.app.ecommerce.repository.CartItemRepository;
-import com.app.ecommerce.repository.CartRepository;
-import com.app.ecommerce.repository.OrderRepository;
-import com.app.ecommerce.repository.OrderItemRepository;
+import com.app.ecommerce.repository.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stripe.model.checkout.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +32,12 @@ public class OrderService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
 //    @Transactional
 //    public void createOrder(OrderDTO orderDTO, User user) throws ValidationException {
@@ -161,4 +164,72 @@ public class OrderService {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
     }
+
+    public void saveOrder(Session session) {
+        String email = session.getCustomerDetails() != null ? session.getCustomerDetails().getEmail() : null;
+        String name = session.getCustomerDetails() != null ? session.getCustomerDetails().getName() : null;
+
+        String firstName = null;
+        String lastName = null;
+        if (name != null && name.contains(" ")) {
+            String[] nameParts = name.split(" ", 2); // split into two parts max
+            firstName = nameParts[0];
+            lastName = nameParts.length > 1 ? nameParts[1] : "";
+        } else {
+            firstName = name != null ? name : "Unknown";
+            lastName = "";
+        }
+
+        Long userId = Long.parseLong(session.getMetadata().get("userId"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setFirstName(firstName);
+        order.setLastName(lastName);
+        order.setEmail(email);
+        order.setPaymentMethod("card");
+
+        // These are from session metadata
+        double subtotal = Double.parseDouble(session.getMetadata().get("subtotal"));
+        double tax = Double.parseDouble(session.getMetadata().get("tax"));
+        double shipping = Double.parseDouble(session.getMetadata().get("shipping"));
+        double total = session.getAmountTotal() / 100.0;
+
+        order.setSubtotal(subtotal);
+        order.setTax(tax);
+        order.setShippingCharge(shipping);
+        order.setTotal(total);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        String productsJson = session.getMetadata().get("products");
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, Object>> productList = mapper.readValue(productsJson, new TypeReference<>() {});
+            for (Map<String, Object> p : productList) {
+                Long productId = Long.valueOf(p.get("productId").toString());
+                int quantity = Integer.parseInt(p.get("quantity").toString());
+                double price = Double.parseDouble(p.get("productPrice").toString());
+
+                Product product = productRepository.findById(productId)
+                        .orElseThrow(() -> new RuntimeException("Product not found"));
+
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(quantity);
+                orderItem.setPrice(price);
+
+                orderItems.add(orderItem);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing product metadata", e);
+        }
+
+        order.setOrderItems(orderItems);
+        orderRepository.save(order);
+    }
+
 }

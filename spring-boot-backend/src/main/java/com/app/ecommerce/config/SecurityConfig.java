@@ -77,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 ).permitAll()
                 .antMatchers("/user/login", "/user/register", "/user/getUser", "/products/**", "/user/passwordResetEmailVerification/**",
                         "/user/reset-password/**", "/user/verify/**", "/user/validate-reset-token/**", "/reviews/product/**",
-                        "/orders/create-checkout-session/**/").permitAll()
+                        "/stripe/save-order-webhook").permitAll()
                 .antMatchers("/admin/**", "/user/getUsers", "/orders/userOrders/").hasRole("ADMIN")
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
