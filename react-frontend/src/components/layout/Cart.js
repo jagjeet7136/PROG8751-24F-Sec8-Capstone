@@ -79,12 +79,18 @@ const Cart = () => {
         quantity: item.quantity,
       }));
 
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user?.id;
+
       const response = await axios.post("http://localhost:9898/orders/create-checkout-session", {
+        userId: userId,
         cartItems: transformedCartItems,
         subtotal,
         tax,
         total,
         shippingCharge: SHIPPING_CHARGE,
+      }, {
+        headers: { Authorization: token },
       });
 
       window.location.href = response.data.url; // Redirect to Stripe Checkout
