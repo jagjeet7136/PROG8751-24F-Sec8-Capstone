@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "./CheckoutForm.module.css";
@@ -21,11 +21,9 @@ const CheckoutForm = () => {
     city: "",
     postalCode: "",
     state: "",
-    paymentMethod: "credit",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
+    paymentMethod: "card",
   });
+
   const [errors, setErrors] = useState({});
 
   const provinces = [
@@ -43,72 +41,55 @@ const CheckoutForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const validateForm = () => {
-    let newErrors = {};
-
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (
-      !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formData.email)
-    )
-      newErrors.email = "Invalid email";
-    if (!/^\d{10}$/.test(formData.phone))
-      newErrors.phone = "Phone must be 10 digits";
-    if (!formData.address.trim())
-      newErrors.address = "Street address is required";
+    const newErrors = {};
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.email.trim() || !/^[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(formData.email))
+      newErrors.email = "Valid email is required";
+    if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = "Phone must be 10 digits";
+    if (!formData.address.trim()) newErrors.address = "Street address is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
     if (!/^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/.test(formData.postalCode))
-      newErrors.postalCode = "Invalid postal code format";
-    if (!/^\d{16}$/.test(formData.cardNumber))
-      newErrors.cardNumber = "Card number must be 16 digits";
-    if (!/^\d{3}$/.test(formData.cvv)) newErrors.cvv = "CVV must be 3 digits";
-
-    const expiryDateMatch = formData.expiryDate.match(
-      /^(0[1-9]|1[0-2])\/?([0-9]{2})$/
-    );
-    if (!expiryDateMatch) {
-      newErrors.expiryDate = "Invalid expiry date format";
-    } else {
-      const [_, month, year] = expiryDateMatch;
-      const expiryYear = parseInt(`20${year}`, 10);
-      const expiryMonth = parseInt(month, 10) - 1;
-      const today = new Date();
-      const expiry = new Date(expiryYear, expiryMonth + 1, 0);
-      if (expiry < today)
-        newErrors.expiryDate = "Expiry date must be in the future";
-    }
-
+      newErrors.postalCode = "Invalid Canadian postal code";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  useEffect(() => {
+    console.log("Received cartItems in checkout:", cartItems);
+  }, [cartItems]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      try {
-        await axios.post(
-          "http://localhost:9898/orders",
-          {
-            ...formData,
-            cartItems,
-            subtotal,
-            tax,
-            shippingCharge: SHIPPING_CHARGE,
-            total,
-          },
-          {
-            headers: { Authorization: token },
-          }
-        );
-        alert("Order placed successfully!");
-        navigate("/");
-      } catch (error) {
-        console.error("Error placing order:", error);
-        alert("Order placement failed.");
-      }
+    if (!validateForm()) return;
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user?.id;
+
+      const response = await axios.post(
+        "http://localhost:9898/orders/create-checkout-session",
+        {
+          userId,
+          ...formData,
+          cartItems,
+          subtotal,
+          tax,
+          shippingCharge: SHIPPING_CHARGE,
+          total,
+        },
+        {
+          headers: { Authorization: token },
+        }
+      );
+
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      alert("Could not proceed to payment.");
     }
   };
 
@@ -116,10 +97,9 @@ const CheckoutForm = () => {
     <div>
       <Header textColor="greenText" icon={icon} />
       <form className={styles.checkoutForm} onSubmit={handleSubmit}>
-        <h2>Checkout</h2>
+        <h2>Delivery Information</h2>
 
         <div className={styles.section}>
-          <h3>Personal Information</h3>
           <label>
             First Name:
             <input
@@ -128,10 +108,9 @@ const CheckoutForm = () => {
               value={formData.firstName}
               onChange={handleChange}
             />
-            {errors.firstName && (
-              <span className={styles.error}>{errors.firstName}</span>
-            )}
+            {errors.firstName && <span className={styles.error}>{errors.firstName}</span>}
           </label>
+
           <label>
             Last Name:
             <input
@@ -141,6 +120,7 @@ const CheckoutForm = () => {
               onChange={handleChange}
             />
           </label>
+
           <label>
             Email:
             <input
@@ -149,10 +129,9 @@ const CheckoutForm = () => {
               value={formData.email}
               onChange={handleChange}
             />
-            {errors.email && (
-              <span className={styles.error}>{errors.email}</span>
-            )}
+            {errors.email && <span className={styles.error}>{errors.email}</span>}
           </label>
+
           <label>
             Phone:
             <input
@@ -161,9 +140,7 @@ const CheckoutForm = () => {
               value={formData.phone}
               onChange={handleChange}
             />
-            {errors.phone && (
-              <span className={styles.error}>{errors.phone}</span>
-            )}
+            {errors.phone && <span className={styles.error}>{errors.phone}</span>}
           </label>
         </div>
 
@@ -177,10 +154,9 @@ const CheckoutForm = () => {
               value={formData.address}
               onChange={handleChange}
             />
-            {errors.address && (
-              <span className={styles.error}>{errors.address}</span>
-            )}
+            {errors.address && <span className={styles.error}>{errors.address}</span>}
           </label>
+
           <label>
             City:
             <input
@@ -191,6 +167,7 @@ const CheckoutForm = () => {
             />
             {errors.city && <span className={styles.error}>{errors.city}</span>}
           </label>
+
           <label>
             Postal Code:
             <input
@@ -199,12 +176,11 @@ const CheckoutForm = () => {
               value={formData.postalCode}
               onChange={handleChange}
             />
-            {errors.postalCode && (
-              <span className={styles.error}>{errors.postalCode}</span>
-            )}
+            {errors.postalCode && <span className={styles.error}>{errors.postalCode}</span>}
           </label>
+
           <label>
-            State:
+            Province:
             <select name="state" value={formData.state} onChange={handleChange}>
               <option value="">Select Province</option>
               {provinces.map((province) => (
@@ -216,69 +192,9 @@ const CheckoutForm = () => {
           </label>
         </div>
 
-        <div className={styles.section}>
-          <h3>Payment</h3>
-          <div className={styles.radioContainer}>
-            <label>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="credit"
-                checked={formData.paymentMethod === "credit"}
-                onChange={handleChange}
-              />
-              Credit Card
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="debit"
-                checked={formData.paymentMethod === "debit"}
-                onChange={handleChange}
-              />
-              Debit Card
-            </label>
-          </div>
-          <label>
-            Card Number:
-            <input
-              type="text"
-              name="cardNumber"
-              value={formData.cardNumber}
-              onChange={handleChange}
-            />
-            {errors.cardNumber && (
-              <span className={styles.error}>{errors.cardNumber}</span>
-            )}
-          </label>
-          <label>
-            Expiry Date:
-            <input
-              type="text"
-              name="expiryDate"
-              value={formData.expiryDate}
-              onChange={handleChange}
-              placeholder="MM/YY"
-            />
-            {errors.expiryDate && (
-              <span className={styles.error}>{errors.expiryDate}</span>
-            )}
-          </label>
-          <label>
-            CVV:
-            <input
-              type="text"
-              name="cvv"
-              value={formData.cvv}
-              onChange={handleChange}
-            />
-            {errors.cvv && <span className={styles.error}>{errors.cvv}</span>}
-          </label>
-          <button type="submit" className={styles.submitButton}>
-            Submit
-          </button>
-        </div>
+        <button type="submit" className={styles.submitButton}>
+          Proceed to Payment
+        </button>
       </form>
       <Footer />
     </div>

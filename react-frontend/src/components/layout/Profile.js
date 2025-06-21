@@ -7,7 +7,7 @@ import Footer from "./Footer";
 import icon from "../../assets/icons/logo-transparent-png.png";
 
 const Profile = () => {
-    const [user, setUser] = useState(null); // Store user details
+    const [user, setUser] = useState(null);
     const [newPassword, setNewPassword] = useState("");
     const [oldPassword, setOldPassword] = useState("");
     const [error, setError] = useState(null);
@@ -113,6 +113,12 @@ const Profile = () => {
         }
     };
 
+    const getFormattedOrderDate = (orderDateArray) => {
+        if (!Array.isArray(orderDateArray) || orderDateArray.length < 3) return "Invalid Date";
+        const [year, month, day, hour = 0, minute = 0, second = 0] = orderDateArray;
+        return new Date(year, month - 1, day, hour, minute, second).toLocaleDateString();
+    };
+
     const handleToggleOrder = (orderId) => {
         setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
     };
@@ -163,14 +169,16 @@ const Profile = () => {
                         <p className={styles.noOrders}>No orders found</p>
                     ) : (
                         orders.map((order) => (
+
                             <div key={order.id} className={styles.orderItem}>
                                 <div className={styles.orderSummary} onClick={() => handleToggleOrder(order.id)}>
                                     <div className={styles.orderSummaryText}>
                                         <p className={styles.orderId}>Order ID: {order.id}</p>
                                         <p className={styles.orderTotal}>Total: ${order.total}</p>
-                                        <p className={styles.orderDate}>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                                        <p className={styles.orderDate}>Date: {getFormattedOrderDate(order.orderDate)}</p>
                                     </div>
                                     <span className={styles.toggleDetails}>{expandedOrderId === order.id ? 'Hide' : 'Show'} Details</span>
+
                                 </div>
 
                                 {expandedOrderId === order.id && (

@@ -59,16 +59,6 @@ const Cart = () => {
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax + SHIPPING_CHARGE;
 
-  // const handleProceedToCheckout = () => {
-  //   navigate("/checkout", {
-  //     state: { cartItems, subtotal, tax, total, SHIPPING_CHARGE },
-  //   });
-  // };
-
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-
   const handleProceedToCheckout = async () => {
     try {
       const transformedCartItems = cartItems.map((item) => ({
@@ -81,21 +71,19 @@ const Cart = () => {
 
       const user = JSON.parse(localStorage.getItem("user"));
       const userId = user?.id;
-
-      const response = await axios.post("http://localhost:9898/orders/create-checkout-session", {
-        userId: userId,
-        cartItems: transformedCartItems,
-        subtotal,
-        tax,
-        total,
-        shippingCharge: SHIPPING_CHARGE,
-      }, {
-        headers: { Authorization: token },
+      console.log("Navigating with transformed cart items:", transformedCartItems);
+      navigate("/checkout", {
+        state: {
+          cartItems: transformedCartItems,
+          subtotal,
+          tax,
+          SHIPPING_CHARGE,
+          total,
+          userId,
+        },
       });
-
-      window.location.href = response.data.url; // Redirect to Stripe Checkout
     } catch (error) {
-      console.error("Stripe checkout failed", error);
+      console.error("Failed to proceed to checkout", error);
     }
   };
 
