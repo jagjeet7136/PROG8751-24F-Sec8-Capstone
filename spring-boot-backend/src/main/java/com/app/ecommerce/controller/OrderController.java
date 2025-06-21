@@ -244,7 +244,9 @@ public class OrderController {
     }
 
     @PostMapping("/create-checkout-session")
-    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody OrderDTO orderRequest, Principal principal) throws StripeException, JsonProcessingException {
+    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody OrderDTO orderRequest,
+                                                                     Principal principal) throws StripeException,
+            JsonProcessingException {
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
         User user = userService.getLoggedInUser(principal);
         if (!user.getId().equals(orderRequest.getUserId())) {
@@ -256,7 +258,7 @@ public class OrderController {
                     .setPriceData(
                             SessionCreateParams.LineItem.PriceData.builder()
                                     .setCurrency("cad")
-                                    .setUnitAmount((long) (item.getProductPrice() * 100)) // base price only
+                                    .setUnitAmount((long) (item.getProductPrice() * 100))
                                     .setProductData(
                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                     .setName(item.getProductName())
@@ -264,7 +266,7 @@ public class OrderController {
                                     )
                                     .build()
                     ).build();
-
+            System.out.println("Creating line item for: " + item.getProductName());
             lineItems.add(lineItem);
         }
 
@@ -274,7 +276,7 @@ public class OrderController {
                         .setPriceData(
                                 SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("cad")
-                                        .setUnitAmount(500L) // $5 shipping
+                                        .setUnitAmount(500L)
                                         .setProductData(
                                                 SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                         .setName("Shipping")
@@ -290,7 +292,7 @@ public class OrderController {
                         .setPriceData(
                                 SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("cad")
-                                        .setUnitAmount(1300L) // $13 tax for example
+                                        .setUnitAmount(1300L)
                                         .setProductData(
                                                 SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                         .setName("Tax (13%)")
@@ -301,6 +303,13 @@ public class OrderController {
         );
 
         Map<String, String> metadata = new HashMap<>();
+        metadata.put("firstName", orderRequest.getFirstName());
+        metadata.put("lastName", orderRequest.getLastName());
+        metadata.put("phone", orderRequest.getPhone());
+        metadata.put("address", orderRequest.getAddress());
+        metadata.put("city", orderRequest.getCity());
+        metadata.put("postalCode", orderRequest.getPostalCode());
+        metadata.put("state", orderRequest.getState());
         metadata.put("userId", String.valueOf(orderRequest.getUserId()));
         metadata.put("subtotal", String.valueOf(orderRequest.getSubtotal()));
         metadata.put("tax", String.valueOf(orderRequest.getTax()));
@@ -312,7 +321,7 @@ public class OrderController {
                 .setSuccessUrl("http://localhost:3000/success")
                 .setCancelUrl("http://localhost:3000/cancel")
                 .putAllMetadata(metadata)
-                .addAllPaymentMethodType(List.of(SessionCreateParams.PaymentMethodType.CARD)) // only card
+                .addAllPaymentMethodType(List.of(SessionCreateParams.PaymentMethodType.CARD))
                 .addAllLineItem(lineItems)
                 .build();
 

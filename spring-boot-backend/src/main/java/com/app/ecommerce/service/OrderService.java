@@ -172,7 +172,7 @@ public class OrderService {
         String firstName = null;
         String lastName = null;
         if (name != null && name.contains(" ")) {
-            String[] nameParts = name.split(" ", 2); // split into two parts max
+            String[] nameParts = name.split(" ", 2);
             firstName = nameParts[0];
             lastName = nameParts.length > 1 ? nameParts[1] : "";
         } else {
@@ -186,12 +186,16 @@ public class OrderService {
 
         Order order = new Order();
         order.setUser(user);
-        order.setFirstName(firstName);
-        order.setLastName(lastName);
+        order.setFirstName(session.getMetadata().getOrDefault("firstName", firstName));
+        order.setLastName(session.getMetadata().getOrDefault("lastName", lastName));
         order.setEmail(email);
+        order.setPhone(session.getMetadata().get("phone"));
+        order.setAddress(session.getMetadata().get("address"));
+        order.setCity(session.getMetadata().get("city"));
+        order.setPostalCode(session.getMetadata().get("postalCode"));
+        order.setState(session.getMetadata().get("state"));
         order.setPaymentMethod("card");
 
-        // These are from session metadata
         double subtotal = Double.parseDouble(session.getMetadata().get("subtotal"));
         double tax = Double.parseDouble(session.getMetadata().get("tax"));
         double shipping = Double.parseDouble(session.getMetadata().get("shipping"));
@@ -231,5 +235,6 @@ public class OrderService {
         order.setOrderItems(orderItems);
         orderRepository.save(order);
     }
+
 
 }
