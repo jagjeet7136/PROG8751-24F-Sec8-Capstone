@@ -73,7 +73,6 @@ public class UserController {
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 
-
     @GetMapping("/getUsers")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(@RequestParam(name = "search", required = false) String search) {

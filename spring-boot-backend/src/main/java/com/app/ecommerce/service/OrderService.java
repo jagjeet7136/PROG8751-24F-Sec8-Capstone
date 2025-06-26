@@ -1,8 +1,7 @@
 package com.app.ecommerce.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.app.ecommerce.entity.*;
-import com.app.ecommerce.exceptions.OrderNotFoundException;
-import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.dto.OrderDTO;
 import com.app.ecommerce.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.checkout.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -162,7 +160,7 @@ public class OrderService {
 
     public Order getOrderDetails(Long orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + orderId));
     }
 
     public void saveOrder(Session session) {

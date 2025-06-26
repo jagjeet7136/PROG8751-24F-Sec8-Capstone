@@ -17,6 +17,7 @@ public class ApiErrorDTO {
     private HttpStatus status;
     private String message;
     private List<String> errors;
+    private String path;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private LocalDateTime time;
 }
