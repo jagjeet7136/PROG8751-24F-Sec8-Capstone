@@ -1,6 +1,5 @@
 package com.app.ecommerce.controller;
 
-import com.app.ecommerce.config.StripeConfig;
 import com.app.ecommerce.service.OrderService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
@@ -10,6 +9,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("stripe")
 public class StripeController {
 
-    private final String endpointSecret = StripeConfig.getWebhookSecret();
+    @Value("${STRIPE_WEBHOOK_KEY}")
+    private String stripeWebhookSecret;
 
     @Autowired
     private OrderService orderService;
@@ -29,7 +30,7 @@ public class StripeController {
         Event event;
 
         try {
-            event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
+            event = Webhook.constructEvent(payload, sigHeader, stripeWebhookSecret);
             System.out.println("Received event type: " + event.getType());
             System.out.println("Raw payload: " + payload);
         } catch (SignatureVerificationException e) {
