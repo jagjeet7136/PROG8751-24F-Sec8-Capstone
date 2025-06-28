@@ -16,19 +16,6 @@ spring:
       hibernate:
         format-sql: true
         ddl-auto: update
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GMAIL_APP_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          ssl:
-            trust: smtp.gmail.com
 
 application:
   title: ecommerce-backend

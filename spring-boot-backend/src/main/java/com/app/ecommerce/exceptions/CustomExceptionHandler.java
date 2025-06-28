@@ -1,6 +1,7 @@
 package com.app.ecommerce.exceptions;
 
 import com.app.ecommerce.model.dto.ApiErrorDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
+@Slf4j
 public class CustomExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -33,8 +35,8 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiErrorDTO> handleValidationException(HttpServletRequest req, ValidationException ex) {
+    @ExceptionHandler({ValidationException.class, BadRequestException.class})
+    public ResponseEntity<ApiErrorDTO> handleValidationException(HttpServletRequest req, Exception ex) {
         ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
         apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.BAD_REQUEST);
@@ -89,6 +91,7 @@ public class CustomExceptionHandler {
         apiErrorDTO.setMessage("An unexpected error occurred.");
         apiErrorDTO.setPath(req.getRequestURI());
         apiErrorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Unexpected error at {}: {}", req.getRequestURI(), ex.getMessage(), ex);
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

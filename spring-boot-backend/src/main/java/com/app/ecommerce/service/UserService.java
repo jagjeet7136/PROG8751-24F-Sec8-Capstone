@@ -4,6 +4,7 @@ import com.app.ecommerce.entity.Role;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
 import com.app.ecommerce.enums.AccountStatus;
+import com.app.ecommerce.exceptions.BadRequestException;
 import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.exceptions.ValidationException;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -114,5 +115,61 @@ public class UserService {
         }
     }
 
+    public void resetPassword(String token, String newPassword) throws ValidationException, BadRequestException {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
+        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Token is invalid or expired.");
+        }
+        if(newPassword.isBlank()) {
+            throw new ValidationException("Password cannot be blank");
+        }
+
+        if(newPassword.length()<6) {
+            throw new ValidationException("Password should be at least 6 characters long!");
+        }
+
+        VerificationToken verificationToken = optionalToken.get();
+        User user = verificationToken.getUser();
+
+        if (bCryptPasswordEncoder.matches(newPassword, user.getPassword())) {
+            throw new ValidationException("New password should not match with old password");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        userRepository.save(user);
+        try {
+            verificationTokenRepository.deleteById(verificationToken.getId());
+        } catch (Exception e) {
+            System.out.println("Token was already deleted by another thread.");
+        }
+    }
+
+    public void verifyEmail(String token) throws BadRequestException {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
+
+        if (optionalToken.isEmpty()) {
+            throw new BadRequestException("Invalid Verification Attempt");
+        }
+
+        VerificationToken verificationToken = optionalToken.get();
+        User user = verificationToken.getUser();
+
+        if (user.getAccountStatus() == AccountStatus.ACTIVE) {
+            throw new BadRequestException("Account already verified.");
+        }
+        if(user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
+            user.setAccountStatus(AccountStatus.ACTIVE);
+            userRepository.save(user);
+        }
+        else {
+            throw new BadRequestException("Account disabled, Please contact Customer Service");
+        }
+
+        try {
+            verificationTokenRepository.deleteById(verificationToken.getId());
+        } catch (Exception e) {
+            System.out.println("Token was already deleted by another thread.");
+        }
+    }
 }
 
