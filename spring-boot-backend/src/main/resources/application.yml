@@ -17,6 +17,14 @@ spring:
         format-sql: true
         ddl-auto: update
 
+logging:
+  level:
+    root: INFO
+    com.app.ecommerce: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
 application:
   title: ecommerce-backend
   version: 1.0.0

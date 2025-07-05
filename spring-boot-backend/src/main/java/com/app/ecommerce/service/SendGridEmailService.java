@@ -20,7 +20,7 @@ import java.util.UUID;
 @Service
 public class SendGridEmailService {
 
-    @Value("${sendgrid.api.key}")
+    @Value("${SENDGRID_API_KEY}")
     private String sendGridApiKey;
 
     @Autowired

@@ -19,11 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,59 +44,53 @@ public class UserService {
     @Autowired
     SendGridEmailService sendGridEmailService;
 
-    public String createUser(UserCreateRequest userCreateRequest) throws ValidationException, IOException {
-        Boolean isUserExists = usernameAlreadyExists(userCreateRequest.getEmail());
-        String userResponse = "Some Error Occur";
-        User user = null;
-        if(isUserExists) {
-            user = userRepository.findByUsername(userCreateRequest.getEmail());
-            if(user.getAccountStatus() != AccountStatus.ACTIVE && user.getAccountStatus()!=AccountStatus.DISABLED_BY_ADMIN) {
-
+    public String createUser(UserCreateRequest request) throws ValidationException, BadRequestException, NotFoundException {
+        log.debug("Creating user for email: {}", request.getEmail());
+        Boolean exists = usernameAlreadyExists(request.getEmail());
+        User user;
+        if (exists) {
+            user = userRepository.findByUsername(request.getEmail());
+            if (user.getAccountStatus() != AccountStatus.ACTIVE &&
+                    user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
                 sendGridEmailService.sendUserVerificationEmail(user);
-                throw new ValidationException(user.getUsername() + " already exists, Please verify your email");
+                throw new BadRequestException(user.getUsername() + " already exists, Please verify your email");
             }
-            else if(user.getAccountStatus() == AccountStatus.DISABLED_BY_ADMIN) {
-                throw new ValidationException("Account disabled, Please contact customer service team");
+            else if (user.getAccountStatus() == AccountStatus.DISABLED_BY_ADMIN) {
+                throw new BadRequestException("Account disabled, Please contact customer service team");
             }
             else {
-                throw new ValidationException(user.getUsername() + " already exists");
+                throw new BadRequestException(user.getUsername() + " already exists");
             }
-        }
-        else {
-            Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
-                    .orElseThrow(() -> new ValidationException("Default role CUSTOMER not found"));
+        } else {
+            Role role = roleRepository.findByName("ROLE_CUSTOMER")
+                    .orElseThrow(() -> new NotFoundException("Default role CUSTOMER not found"));
             user = new User();
-            Collection<Role> newUserRoles = new ArrayList<>();
-            user.setRoles(newUserRoles);
-            user.setUserFullName(userCreateRequest.getUserFullName().trim());
-            user.setUsername(userCreateRequest.getEmail());
-            user.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
-            user.getRoles().add(customerRole);
+            user.setUserFullName(request.getUserFullName().trim());
+            user.setUsername(request.getEmail());
+            user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+            user.setRoles(new ArrayList<>(List.of(role)));
             user = userRepository.save(user);
             sendGridEmailService.sendUserVerificationEmail(user);
-            userResponse = "User successfully created, Please verify your email";
+            log.info("New user created: {}", user.getUsername());
+            return "User successfully created, Please verify your email";
         }
-
-        return userResponse;
     }
 
     public User getUser(String username, String savedUser) throws NotFoundException {
-        if(!username.equals(savedUser)) {
-            throw new ForbiddenException("Cannot get the user : " + username);
+        if (!username.equals(savedUser)) {
+            log.warn("User {} tried to access data of {}", savedUser, username);
+            throw new ForbiddenException("Cannot get the user: " + username);
         }
         User user = userRepository.findByUsername(username);
-        if(user==null) {
-            throw new NotFoundException("User not found with username : " + username);
+        if (user == null) {
+            log.warn("User not found: {}", username);
+            throw new NotFoundException("User not found with username: " + username);
         }
         return user;
     }
 
-    public Boolean usernameAlreadyExists(String username) throws ValidationException {
-        if (username!=null && !username.isBlank() && userRepository.existsByUsername(username)) {
-            log.error("Username already exists {}", username);
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+    public Boolean usernameAlreadyExists(String username) {
+        return username != null && !username.isBlank() && userRepository.existsByUsername(username);
     }
 
     public User getLoggedInUser(Principal principal) {
@@ -107,24 +99,22 @@ public class UserService {
 
     public List<User> getUsers(String search) {
         Pageable pageable = PageRequest.of(0, 20);
-
-        if (search != null && !search.isEmpty()) {
-            return userRepository.findByUserFullNameContainingOrUsernameContaining(search, search);
-        } else {
-            return userRepository.findAll(pageable).getContent();
-        }
+        return (search != null && !search.isEmpty())
+                ? userRepository.findByUserFullNameContainingOrUsernameContaining(search, search)
+                : userRepository.findAll(pageable).getContent();
     }
 
-    public void resetPassword(String token, String newPassword) throws ValidationException, BadRequestException {
+    public void resetPassword(String token, String newPassword)
+            throws ValidationException, BadRequestException {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
         if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            log.warn("Invalid/expired reset token: {}", token);
             throw new BadRequestException("Token is invalid or expired.");
         }
-        if(newPassword.isBlank()) {
+        if (newPassword.isBlank()){
             throw new ValidationException("Password cannot be blank");
         }
-
-        if(newPassword.length()<6) {
+        if (newPassword.length() < 6) {
             throw new ValidationException("Password should be at least 6 characters long!");
         }
 
@@ -132,7 +122,7 @@ public class UserService {
         User user = verificationToken.getUser();
 
         if (bCryptPasswordEncoder.matches(newPassword, user.getPassword())) {
-            throw new ValidationException("New password should not match with old password");
+            throw new BadRequestException("New password should not match with old password");
         }
 
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
@@ -140,14 +130,14 @@ public class UserService {
         try {
             verificationTokenRepository.deleteById(verificationToken.getId());
         } catch (Exception e) {
-            System.out.println("Token was already deleted by another thread.");
+            log.warn("Token already deleted by other thread: {}", token);
         }
     }
 
     public void verifyEmail(String token) throws BadRequestException {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
-
         if (optionalToken.isEmpty()) {
+            log.warn("Verification token not found: {}", token);
             throw new BadRequestException("Invalid Verification Attempt");
         }
 
@@ -157,18 +147,18 @@ public class UserService {
         if (user.getAccountStatus() == AccountStatus.ACTIVE) {
             throw new BadRequestException("Account already verified.");
         }
-        if(user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
+
+        if (user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
             user.setAccountStatus(AccountStatus.ACTIVE);
             userRepository.save(user);
-        }
-        else {
+        } else {
             throw new BadRequestException("Account disabled, Please contact Customer Service");
         }
 
         try {
             verificationTokenRepository.deleteById(verificationToken.getId());
         } catch (Exception e) {
-            System.out.println("Token was already deleted by another thread.");
+            log.warn("Token already deleted: {}", token);
         }
     }
 }

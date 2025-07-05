@@ -29,7 +29,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -64,99 +63,84 @@ public class UserController {
     @Autowired
     private SendGridEmailService sendGridEmailService;
 
-
     @PostMapping("/register")
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest) throws
-            ValidationException, IOException {
-        log.info("Request received for new user creation {}", userCreateRequest);
+    public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest)
+            throws ValidationException, BadRequestException, NotFoundException {
+        log.info("POST /user/register - Attempt to register user with email: {}", userCreateRequest.getEmail());
         String userResponse = userService.createUser(userCreateRequest);
-        log.info("User created successfully {}", userResponse);
+        log.info("User registration successful for email: {}", userCreateRequest.getEmail());
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/getUsers")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getUsers(@RequestParam(name = "search", required = false) String search) {
+        log.debug("GET /user/getUsers - Search: {}", search);
         return new ResponseEntity<>(userService.getUsers(search), HttpStatus.OK);
     }
 
-//    @PostMapping("/admin/create")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public ResponseEntity<User> createAdmin(@Valid @RequestBody UserCreateRequest userCreateRequest) throws ValidationException {
-//        log.info("Request received for new admin creation {}", userCreateRequest);
-//        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-//                .orElseThrow(() -> new ValidationException("Admin role not found"));
-//
-//        User admin = new User();
-//        ArrayList<Role> roles = new ArrayList<>();
-//        admin.setUserFullName(userCreateRequest.getUserFullName().trim());
-//        userService.usernameAlreadyExists(userCreateRequest.getEmail());
-//        admin.setUsername(userCreateRequest.getEmail());
-//        admin.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
-//        admin.setRoles(roles);
-//        admin.getRoles().add(adminRole);
-//
-//        userRepository.save(admin);
-//        log.info("Admin created successfully {}", admin);
-//        return new ResponseEntity<>(admin, HttpStatus.CREATED);
-//    }
-
     @GetMapping("/getUser")
-    public ResponseEntity<User> getUser(@NotBlank @RequestParam String username, Principal principal) throws
-            NotFoundException {
-        log.info("Request received for fetching a user : {}", username);
+    public ResponseEntity<User> getUser(@NotBlank @RequestParam String username, Principal principal)
+            throws NotFoundException {
+        log.info("GET /user/getUser - Request for username: {}", username);
         User user = userService.getUser(username, principal.getName());
-        log.info("User fetched successfully {}", user);
+        log.info("User fetched successfully for: {}", username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getUsername(), loginRequest.getPassword()));
+        log.info("POST /user/login - Login attempt for: {}", loginRequest.getUsername());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.helperGenerateToken(authentication);
-        log.info("Token generated: {}", token);
+        log.info("Login successful - JWT generated for: {}", loginRequest.getUsername());
         return new ResponseEntity<>(new JWTLoginSuccessResponse(true, token), HttpStatus.OK);
     }
 
     @PostMapping("/passwordResetEmailVerification")
-    public void passwordResetEmailVerification(
-            @RequestParam String email) throws ValidationException {
-
+    public void passwordResetEmailVerification(@RequestParam String email) throws ValidationException {
+        log.info("POST /user/passwordResetEmailVerification - Request for email: {}", email);
         User user = userRepository.findByUsername(email);
-        if(user==null) {
+        if (user == null) {
+            log.warn("Password reset requested for non-existent user: {}", email);
             throw new ValidationException("Invalid Email Address");
         }
-        else if(user.getAccountStatus()!=AccountStatus.ACTIVE) {
-            throw new ValidationException("User account is not active: " + user.getAccountStatus().toString());
+        if (user.getAccountStatus() != AccountStatus.ACTIVE) {
+            log.warn("Password reset attempted on inactive account: {} - Status: {}", email, user.getAccountStatus());
+            throw new ValidationException("User account is not active: " + user.getAccountStatus());
         }
         sendGridEmailService.sendPasswordResetEmail(user);
+        log.info("Password reset email sent to: {}", email);
     }
 
     @GetMapping("/validate-reset-token")
     public ResponseEntity<String> validateResetToken(@RequestParam("token") String token) throws ValidationException {
+        log.info("GET /user/validate-reset-token - Token: {}", token);
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
-
         if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            log.warn("Reset token is invalid or expired: {}", token);
             throw new ValidationException("Invalid or Expired link");
         }
-
         return new ResponseEntity<>("Token is valid.", HttpStatus.OK);
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token,
-                                                @RequestParam("password") String newPassword) throws ValidationException,
-            BadRequestException {
+                                                @RequestParam("password") String newPassword)
+            throws ValidationException, BadRequestException {
+        log.info("POST /user/reset-password - Attempt reset for token: {}", token);
         userService.resetPassword(token, newPassword);
+        log.info("Password reset successful for token: {}", token);
         return new ResponseEntity<>("Password updated successfully.", HttpStatus.OK);
     }
 
     @GetMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) throws BadRequestException {
+        log.info("GET /user/verify - Token: {}", token);
         userService.verifyEmail(token);
+        log.info("Account verified successfully for token: {}", token);
         return new ResponseEntity<>("Account verified successfully.", HttpStatus.OK);
     }
-
 }
