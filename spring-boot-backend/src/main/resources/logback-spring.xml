@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOG_DIR" value="D:/Spring-Logs/ecommerce"/>
+    <property name="LOG_FILE_NAME" value="ecommerce.log"/>
+
+    <property name="CUSTOM_LOG_PATTERN" value="%clr([%d{yyyy-MM-dd HH:mm:ss.SSSXXX, Asia/Kolkata}]){blue} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(%X{sessionId}){faint} %clr([%-15.15t]){cyan} %clr(%-50([%logger{0}::%method::%line])){green} %clr(%m){yellow}%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CUSTOM_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${LOG_FILE_NAME}</file>
+        <encoder>
+            <pattern>${CUSTOM_LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ROLLING-FILE"/>
+    </root>
+</configuration>
