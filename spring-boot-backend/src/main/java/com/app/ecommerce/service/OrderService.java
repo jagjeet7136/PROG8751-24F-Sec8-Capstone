@@ -2,21 +2,30 @@ package com.app.ecommerce.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.app.ecommerce.entity.*;
+import com.app.ecommerce.exceptions.ForbiddenException;
+import com.app.ecommerce.model.dto.CartItemDTO;
 import com.app.ecommerce.model.dto.OrderDTO;
 import com.app.ecommerce.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 @Service
+@Slf4j
 public class OrderService {
 
     @Autowired
@@ -37,133 +46,25 @@ public class OrderService {
     @Autowired
     private ProductRepository productRepository;
 
-//    @Transactional
-//    public void createOrder(OrderDTO orderDTO, User user) throws ValidationException {
-//        Map<String, String> validationErrors = validateOrderDTO(orderDTO);
-//
-//        if (!validationErrors.isEmpty()) {
-//            throw new ValidationException("Order validation failed");
-//        }
-//
-//        Order order = new Order();
-//        order.setUser(user);
-//        order.setFirstName(orderDTO.getFirstName());
-//        order.setLastName(orderDTO.getLastName());
-//        order.setEmail(orderDTO.getEmail());
-//        order.setPhone(orderDTO.getPhone());
-//        order.setAddress(orderDTO.getAddress());
-//        order.setCity(orderDTO.getCity());
-//        order.setPostalCode(orderDTO.getPostalCode());
-//        order.setState(orderDTO.getState());
-//        order.setPaymentMethod(orderDTO.getPaymentMethod());
-//        order.setSubtotal(orderDTO.getSubtotal());
-//        order.setTax(orderDTO.getTax());
-//        order.setShippingCharge(orderDTO.getShippingCharge());
-//        order.setTotal(orderDTO.getTotal());
-//
-//        Order savedOrder = orderRepository.save(order);
-//        List<OrderItem> orderItems = new ArrayList<>();
-//        orderDTO.getCartItems().forEach(cartItem -> {
-//            OrderItem orderItem = new OrderItem();
-//            orderItem.setOrder(savedOrder);
-//            orderItem.setProduct(cartItem.getProduct());
-//            orderItem.setQuantity(cartItem.getQuantity());
-//            orderItem.setPrice(cartItem.getProduct().getPrice());
-//            orderItems.add(orderItem);
-//        });
-//
-//        orderItemRepository.saveAll(orderItems);
-//
-//        Cart userCart = cartRepository.findByUser(user).orElse(null);
-//        if (userCart != null) {
-//            cartItemRepository.deleteAll(userCart.getItems());
-//            userCart.getItems().clear();
-//            cartRepository.save(userCart);
-//        }
-//    }
-
-    private Map<String, String> validateOrderDTO(OrderDTO orderDTO) {
-        Map<String, String> errors = new HashMap<>();
-
-        if (!StringUtils.hasText(orderDTO.getFirstName())) {
-            errors.put("firstName", "First name is required");
-        }
-
-        if (!isValidEmail(orderDTO.getEmail())) {
-            errors.put("email", "Invalid email");
-        }
-
-        if (!isValidPhone(orderDTO.getPhone())) {
-            errors.put("phone", "Phone must be 10 digits");
-        }
-
-        if (!StringUtils.hasText(orderDTO.getAddress())) {
-            errors.put("address", "Street address is required");
-        }
-
-        if (!StringUtils.hasText(orderDTO.getCity())) {
-            errors.put("city", "City is required");
-        }
-
-        if (!isValidPostalCode(orderDTO.getPostalCode())) {
-            errors.put("postalCode", "Invalid postal code format");
-        }
-
-        return errors;
-    }
-
-    private boolean isValidEmail(String email) {
-        return Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", email);
-    }
-
-    private boolean isValidPhone(String phone) {
-        return Pattern.matches("^\\d{10}$", phone);
-    }
-
-    private boolean isValidPostalCode(String postalCode) {
-        return Pattern.matches("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$", postalCode);
-    }
-
-    private boolean isValidCardNumber(String cardNumber) {
-        return Pattern.matches("^\\d{16}$", cardNumber);
-    }
-
-    private boolean isValidCVV(String cvv) {
-        return Pattern.matches("^\\d{3}$", cvv);
-    }
-
-    private boolean isFutureExpiryDate(String expiryDate) {
-        Pattern pattern = Pattern.compile("^(0[1-9]|1[0-2])/?([0-9]{2})$");
-        java.util.regex.Matcher matcher = pattern.matcher(expiryDate);
-        if (!matcher.matches()) {
-            return false;
-        }
-        int month = Integer.parseInt(matcher.group(1));
-        int year = Integer.parseInt("20" + matcher.group(2));
-
-        java.util.Calendar today = java.util.Calendar.getInstance();
-        java.util.Calendar expiry = java.util.Calendar.getInstance();
-        expiry.set(java.util.Calendar.YEAR, year);
-        expiry.set(java.util.Calendar.MONTH, month - 1);
-        expiry.set(java.util.Calendar.DAY_OF_MONTH, expiry.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
-
-        return expiry.after(today);
-    }
-
     public List<Order> getOrdersByUser(User user) {
+        log.info("Fetching orders for user id={}", user.getId());
         return orderRepository.findAllByUser(user);
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
+        log.info("Fetching orders for user id={}", userId);
         return orderRepository.findByUserId(userId);
     }
 
     public Order getOrderDetails(Long orderId) {
+        log.info("Fetching order details for order id={}", orderId);
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + orderId));
     }
 
     public void saveOrder(Session session) {
+        log.info("Saving order from Stripe session id={}", session.getId());
+
         String email = session.getCustomerDetails() != null ? session.getCustomerDetails().getEmail() : null;
         String name = session.getCustomerDetails() != null ? session.getCustomerDetails().getName() : null;
 
@@ -180,7 +81,7 @@ public class OrderService {
 
         Long userId = Long.parseLong(session.getMetadata().get("userId"));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         Order order = new Order();
         order.setUser(user);
@@ -216,7 +117,7 @@ public class OrderService {
                 double price = Double.parseDouble(p.get("productPrice").toString());
 
                 Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> new RuntimeException("Product not found"));
+                        .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
 
                 OrderItem orderItem = new OrderItem();
                 orderItem.setOrder(order);
@@ -227,12 +128,142 @@ public class OrderService {
                 orderItems.add(orderItem);
             }
         } catch (Exception e) {
+            log.error("Error parsing product metadata from Stripe session", e);
             throw new RuntimeException("Error parsing product metadata", e);
         }
 
         order.setOrderItems(orderItems);
         orderRepository.save(order);
+        log.info("Order saved successfully with id={}", order.getId());
     }
 
+    public byte[] createOrderInvoice(User user, Order order) throws IOException {
+        log.info("Generating invoice PDF for order id={} for user id={}", order.getId(), user.getId());
 
+        if (!Objects.equals(order.getUser().getId(), user.getId())) {
+            log.warn("User id={} unauthorized to generate invoice for order id={}", user.getId(), order.getId());
+            throw new ForbiddenException("You are not authorized");
+        }
+
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+        String logoPath = "src/main/resources/static/images/company-logo.png";
+        PDImageXObject logoImage = PDImageXObject.createFromFile(logoPath, document);
+        contentStream.drawImage(logoImage, 50, 740, 100, 75);
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+        contentStream.setNonStrokingColor(105, 105, 105);
+        contentStream.newLineAtOffset(420, 740);
+        contentStream.showText("XYZ Corporation");
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("1234 Main St, City, Country");
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Phone: +1-800-123-4567");
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Email: support@xyzcorp.com");
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        contentStream.setNonStrokingColor(0, 0, 0);
+        contentStream.newLineAtOffset(50, 670);
+        contentStream.showText("Customer Information");
+        contentStream.newLineAtOffset(0, -20);
+        contentStream.setFont(PDType1Font.HELVETICA, 10);
+        contentStream.showText("Name: " + order.getFirstName() + " " + order.getLastName());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Email: " + order.getEmail());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Address: " + order.getAddress() + " ," + order.getPostalCode() + " ," + order.getCity());
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        contentStream.setNonStrokingColor(0, 0, 0); // Black
+        contentStream.newLineAtOffset(320, 670);
+        contentStream.showText("Order Details");
+        contentStream.newLineAtOffset(0, -20);
+        contentStream.setFont(PDType1Font.HELVETICA, 10);
+        contentStream.showText("Order ID: " + order.getId());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Order Date: " + order.getOrderDate());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Invoice ID: " + "ECOM" + order.getId());
+        contentStream.endText();
+
+        contentStream.setLineWidth(1f);
+        contentStream.moveTo(50, 630);
+        contentStream.lineTo(550, 630);
+        contentStream.stroke();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        contentStream.setNonStrokingColor(0, 0, 0);
+        contentStream.newLineAtOffset(50, 600);
+        contentStream.showText("Ordered Products");
+        contentStream.endText();
+
+        float yStart = 580;
+        float yPosition = yStart;
+        float rowHeight = 20f;
+        String[] header = {"Product", "Quantity", "Price"};
+
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+        float[] columnWidths = {200f, 100f, 100f};
+        for (int i = 0; i < header.length; i++) {
+            contentStream.moveTo(50 + (i * columnWidths[i]), yPosition);
+            contentStream.lineTo(50 + (i * columnWidths[i]) + columnWidths[i], yPosition);
+            contentStream.stroke();
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            yPosition -= rowHeight;
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA, 10);
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText(item.getProduct().getName());
+            contentStream.newLineAtOffset(200, 0);
+            contentStream.showText(String.valueOf(item.getQuantity()));
+            contentStream.newLineAtOffset(100, 0);
+            contentStream.showText("$" + item.getPrice());
+            contentStream.endText();
+        }
+
+        yPosition -= rowHeight + 20;
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        contentStream.newLineAtOffset(50, yPosition);
+        contentStream.showText("Sub Total: $" + order.getSubtotal());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Tax: $" + order.getTax());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Shipping: $" + order.getShippingCharge());
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("Grand Total: $" + order.getTotal());
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA, 10);
+        contentStream.setNonStrokingColor(105, 105, 105);
+        contentStream.newLineAtOffset(420, 100);
+        contentStream.showText("1. Item cannot be refunded after 30 days.");
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("2. Shipping charges are non-refundable.");
+        contentStream.newLineAtOffset(0, -15);
+        contentStream.showText("3. Warranty does not cover misuse or damage.");
+        contentStream.endText();
+
+        contentStream.close();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        document.save(byteArrayOutputStream);
+        document.close();
+
+        log.info("Invoice PDF generated successfully for order id={}", order.getId());
+        return byteArrayOutputStream.toByteArray();
+    }
 }

@@ -4,24 +4,22 @@ import com.app.ecommerce.entity.Product;
 import com.app.ecommerce.entity.Review;
 import com.app.ecommerce.entity.ReviewImage;
 import com.app.ecommerce.entity.User;
-import com.app.ecommerce.model.request.ReviewRequest;
+import com.app.ecommerce.model.dto.ReviewDTO;
 import com.app.ecommerce.model.response.ReviewResponse;
 import com.app.ecommerce.repository.ProductRepository;
 import com.app.ecommerce.repository.ReviewImageRepository;
 import com.app.ecommerce.repository.ReviewRepository;
 import com.app.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -31,20 +29,21 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public Review createReview(String username, ReviewRequest request) throws IOException {
-        User user = userRepository.findByUsername(username);
-        Product product = productRepository.findById(request.getProductId()).orElseThrow();
+    public ReviewDTO createReview(User user, Long productId, String heading, Integer rating,
+                                  String comment, List<MultipartFile> images) throws IOException {
 
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
         Review review = new Review();
-        review.setHeading(request.getHeading());
-        review.setContent(request.getContent());
-        review.setRating(request.getRating());
+        review.setHeading(heading);
+        review.setContent(comment);
+        review.setRating(rating);
         review.setUser(user);
         review.setProduct(product);
 
         List<ReviewImage> savedImages = new ArrayList<>();
-        if (request.getImages() != null) {
-            for (MultipartFile file : request.getImages()) {
+        if (images != null) {
+            for (MultipartFile file : images) {
                 String imageUrl = saveFileAndGetUrl(file);
                 ReviewImage reviewImage = new ReviewImage();
                 reviewImage.setImageUrl(imageUrl);
@@ -54,23 +53,35 @@ public class ReviewService {
         }
 
         review.setImages(savedImages);
-        return reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        log.info("Review saved with id={} for productId={} by user={}", savedReview.getId(), productId, user.getUsername());
+        ReviewDTO dto = new ReviewDTO();
+        dto.setId(savedReview.getId());
+        dto.setRating(savedReview.getRating());
+        dto.setComment(savedReview.getContent());
+        dto.setUsername(user.getUsername());
+        dto.setImageUrls(
+                savedReview.getImages().stream().map(ReviewImage::getImageUrl).collect(Collectors.toList())
+        );
+        return dto;
     }
 
     private String saveFileAndGetUrl(MultipartFile file) throws IOException {
-        // For demo: Save to local file system
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path path = Paths.get("uploads/" + filename);
         Files.createDirectories(path.getParent());
         Files.write(path, file.getBytes());
+        log.info("Saved review image to path={}", path.toAbsolutePath());
         return "/uploads/" + filename;
     }
 
     public List<ReviewResponse> getReviewsByProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        log.info("Fetching reviews for productId={}", productId);
 
-        return reviewRepository.findByProduct(product).stream()
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+
+        List<ReviewResponse> responses = reviewRepository.findByProduct(product).stream()
                 .map(r -> new ReviewResponse(
                         r.getUser().getUserFullName(),
                         r.getContent(),
@@ -78,5 +89,8 @@ public class ReviewService {
                         r.getCreatedAt()
                 ))
                 .collect(Collectors.toList());
+
+        log.info("Fetched {} reviews for productId={}", responses.size(), productId);
+        return responses;
     }
 }

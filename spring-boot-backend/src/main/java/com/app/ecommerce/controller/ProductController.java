@@ -27,14 +27,14 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getHomeProducts() {
-        log.info("ALl product requested");
-        return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
+        log.info("GET /products - Fetching all products for home");
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable String productId) {
-        log.info("Product requested with ID: " + productId);
-        return new ResponseEntity<>(productService.getProduct(productId), HttpStatus.OK);
+        log.info("GET /products/{} - Fetching product", productId);
+        return ResponseEntity.ok(productService.getProduct(productId));
     }
 
     @GetMapping("/getProducts")
@@ -44,16 +44,16 @@ public class ProductController {
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortOrder) {
-        Page<Product> products = productService.getProducts(page, size, search, sortBy, sortOrder);
-        return ResponseEntity.ok(products);
+        log.info("GET /products/getProducts - Page: {}, Size: {}, Search: '{}'", page, size, search);
+        return ResponseEntity.ok(productService.getProducts(page, size, search, sortBy, sortOrder));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductCreateRequest productCreateRequest) throws
-            ValidationException {
-        Product createdProduct = productService.createProduct(productCreateRequest);
-        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductCreateRequest productCreateRequest)
+            throws ValidationException {
+        log.info("POST /products - Creating product: {}", productCreateRequest.getName());
+        return new ResponseEntity<>(productService.createProduct(productCreateRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -61,47 +61,8 @@ public class ProductController {
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateRequest productUpdateRequest) {
-
-        Product existingProduct = productService.getProductById(id);
-
-        if (existingProduct == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (productUpdateRequest.getName() != null && !productUpdateRequest.getName().trim().isEmpty()) {
-            existingProduct.setName(productUpdateRequest.getName());
-        }
-
-        if (productUpdateRequest.getDescription() != null && !productUpdateRequest.getDescription().trim().isEmpty()) {
-            existingProduct.setDescription(productUpdateRequest.getDescription());
-        }
-
-        if (productUpdateRequest.getLongDescription() != null && !productUpdateRequest.getLongDescription().trim().isEmpty()) {
-            existingProduct.setLongDescription(productUpdateRequest.getLongDescription());
-        }
-
-        if (productUpdateRequest.getPrice() != null) {
-            existingProduct.setPrice(productUpdateRequest.getPrice());
-        }
-
-        if (productUpdateRequest.getDiscountedPrice() != null) {
-            existingProduct.setDiscountedPrice(productUpdateRequest.getDiscountedPrice());
-        }
-
-        if (productUpdateRequest.getStock() != null) {
-            existingProduct.setStock(productUpdateRequest.getStock());
-        }
-
-        if (productUpdateRequest.getImageUrl() != null && !productUpdateRequest.getImageUrl().trim().isEmpty()) {
-            existingProduct.setImageUrl(productUpdateRequest.getImageUrl());
-        }
-
-        if (productUpdateRequest.getCategoryName() != null && !productUpdateRequest.getCategoryName().trim().isEmpty()) {
-            existingProduct.setCategory(productService.getCategoryByName(productUpdateRequest.getCategoryName()));
-        }
-
-        Product updatedProduct = productService.saveProduct(existingProduct);
-
-        return ResponseEntity.ok(updatedProduct);
+        log.info("PUT /products/{} - Updating product", id);
+        Product updatedProduct = productService.updateProduct(id, productUpdateRequest);
+        return updatedProduct != null ? ResponseEntity.ok(updatedProduct) : ResponseEntity.notFound().build();
     }
 }
