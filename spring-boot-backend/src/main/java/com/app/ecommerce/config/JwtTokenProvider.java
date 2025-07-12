@@ -3,32 +3,33 @@ package com.app.ecommerce.config;
 import com.app.ecommerce.constants.SecurityConstants;
 import com.app.ecommerce.entity.User;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
-    public String generateToken(Long id, String name, String email, Authentication... authentication) {
+    public String generateToken(Long id, String fullName, String email, Authentication... authentication) {
         String userId;
         String username;
-        String fullName;
-        if(authentication.length>0) {
+
+        if (authentication.length > 0) {
             User user = (User) authentication[0].getPrincipal();
-            userId = Long.toString(user.getId());
+            userId = String.valueOf(user.getId());
             username = user.getUsername();
             fullName = user.getUserFullName();
-        }
-        else {
-            userId = Long.toString(id);
+        } else {
+            userId = String.valueOf(id);
             username = email;
-            fullName = name;
         }
-        Date now = new Date(System.currentTimeMillis());
-        Date expiryDate = new Date(System.currentTimeMillis()+ SecurityConstants.EXPIRATION_TIME);
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + SecurityConstants.EXPIRATION_TIME);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", userId);
@@ -44,7 +45,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String helperGenerateToken(Authentication authentication) {
+    public String generateTokenFromAuth(Authentication authentication) {
         return generateToken(null, null, null, authentication);
     }
 
@@ -52,25 +53,25 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().setSigningKey(SecurityConstants.SECRET).parseClaimsJws(token);
             return true;
-        }
-        catch (SignatureException ex) {
-            System.out.println("Invalid JWT Signature");
-        }
-        catch (MalformedJwtException ex) {
-            System.out.println("Invalid JWT Token");
-        }
-        catch (ExpiredJwtException ex) {
-            System.out.println("Expired JWT Token");
-        }
-        catch (IllegalArgumentException ex) {
-            System.out.println("Jwt claims string is empty");
+        } catch (SignatureException ex) {
+            log.warn("Invalid JWT signature");
+        } catch (MalformedJwtException ex) {
+            log.warn("Malformed JWT token");
+        } catch (ExpiredJwtException ex) {
+            log.warn("Expired JWT token");
+        } catch (UnsupportedJwtException ex) {
+            log.warn("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            log.warn("JWT claims string is empty");
         }
         return false;
     }
 
     public Long getUserIdFromJWT(String token) {
-        Claims claims = Jwts.parser().setSigningKey(SecurityConstants.SECRET).parseClaimsJws(token).getBody();
-        String id = (String)claims.get("id");
-        return Long.parseLong(id);
+        Claims claims = Jwts.parser()
+                .setSigningKey(SecurityConstants.SECRET)
+                .parseClaimsJws(token)
+                .getBody();
+        return Long.parseLong((String) claims.get("id"));
     }
 }

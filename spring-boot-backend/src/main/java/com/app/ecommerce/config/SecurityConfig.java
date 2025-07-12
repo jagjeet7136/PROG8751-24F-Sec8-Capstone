@@ -26,18 +26,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private com.app.ecommerce.config.JwtAuthenticationEntryPoint entryPoint;
+    private JwtAuthenticationEntryPoint entryPoint;
 
     @Autowired
-    private com.app.ecommerce.config.CustomUserDetailsService customUserDetailService;
+    private CustomUserDetailsService customUserDetailService;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Bean
-    public com.app.ecommerce.config.JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new com.app.ecommerce.config.JwtAuthenticationFilter();
-    }
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
@@ -82,6 +80,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
 
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

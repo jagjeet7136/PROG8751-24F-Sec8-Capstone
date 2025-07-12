@@ -110,7 +110,7 @@ public class StripeService {
                         .setPriceData(
                                 SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("cad")
-                                        .setUnitAmount(1300L)  // $13.00 tax fee
+                                        .setUnitAmount(1300L)
                                         .setProductData(
                                                 SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                         .setName("Tax (13%)")

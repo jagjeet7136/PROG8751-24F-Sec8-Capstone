@@ -19,21 +19,22 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("Loading user by username: {}", username);
         User user = userRepository.findByUsername(username);
         if(user==null) {
             log.error("Username not found {}", username);
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
         return user;
     }
 
     @Transactional
     public User loadUserById(Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if(user==null) {
-            log.error("User not found {}", id);
-            throw new UsernameNotFoundException("User not found");
-        }
-        return user;
+        log.info("Loading user by ID: {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("User not found with ID: {}", id);
+                    return new UsernameNotFoundException("User not found with ID: " + id);
+                });
     }
 }

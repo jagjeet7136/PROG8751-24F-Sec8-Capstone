@@ -28,3 +28,6 @@ logging:
 application:
   title: ecommerce-backend
   version: 1.0.0
+
+frontend:
+  origin: http://localhost:3000

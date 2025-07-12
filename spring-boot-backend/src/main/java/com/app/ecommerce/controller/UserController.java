@@ -94,7 +94,7 @@ public class UserController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.helperGenerateToken(authentication);
+        String token = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.generateTokenFromAuth(authentication);
         log.info("Login successful - JWT generated for: {}", loginRequest.getUsername());
         return new ResponseEntity<>(new JWTLoginSuccessResponse(true, token), HttpStatus.OK);
     }
