@@ -1,0 +1,111 @@
+2025-07-18 16:40:40 INFO  [restartedMain] c.app.ecommerce.EcommerceApplication - Starting EcommerceApplication using Java 17.0.6 on jagjeet-lp with PID 44288 (E:\Conestoga_Assignements\Semester_4\Capstone Ecommerce\spring-boot-backend\target\classes started by lenovo pc in E:\Conestoga_Assignements\Semester_4\Capstone Ecommerce\spring-boot-backend)
+2025-07-18 16:40:40 DEBUG [restartedMain] c.app.ecommerce.EcommerceApplication - Running with Spring Boot v2.7.5, Spring v5.3.23
+2025-07-18 16:40:40 INFO  [restartedMain] c.app.ecommerce.EcommerceApplication - No active profile set, falling back to 1 default profile: "default"
+2025-07-18 16:40:40 INFO  [restartedMain] o.s.b.d.restart.ChangeableUrls - The Class-Path manifest attribute in C:\Users\jagjeet\.m2\repository\io\github\cdimascio\java-dotenv\5.2.2\java-dotenv-5.2.2.jar referenced one or more files that do not exist: file:/C:/Users/jagjeet/.m2/repository/io/github/cdimascio/java-dotenv/5.2.2/kotlin-stdlib-1.4.0.jar,file:/C:/Users/jagjeet/.m2/repository/io/github/cdimascio/java-dotenv/5.2.2/kotlin-stdlib-common-1.4.0.jar,file:/C:/Users/jagjeet/.m2/repository/io/github/cdimascio/java-dotenv/5.2.2/annotations-13.0.jar
+2025-07-18 16:40:40 INFO  [restartedMain] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-07-18 16:40:40 INFO  [restartedMain] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-07-18 16:40:41 INFO  [restartedMain] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-18 16:40:41 INFO  [restartedMain] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 166 ms. Found 11 JPA repository interfaces.
+2025-07-18 16:40:43 INFO  [restartedMain] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 9898 (http)
+2025-07-18 16:40:43 INFO  [restartedMain] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-18 16:40:43 INFO  [restartedMain] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.68]
+2025-07-18 16:40:43 INFO  [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-18 16:40:43 INFO  [restartedMain] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3078 ms
+2025-07-18 16:40:43 INFO  [restartedMain] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-18 16:40:43 INFO  [restartedMain] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.12.Final
+2025-07-18 16:40:43 INFO  [restartedMain] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2025-07-18 16:40:44 INFO  [restartedMain] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-07-18 16:40:44 INFO  [restartedMain] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-07-18 16:40:44 INFO  [restartedMain] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table cart 
+       add constraint FKl70asp4l4w0jmbm1tqyofho4o 
+       foreign key (user_id) 
+       references user (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table cart_item 
+       add constraint FK1uobyhgl1wvgt1jpccia8xxs3 
+       foreign key (cart_id) 
+       references cart (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table cart_item 
+       add constraint FKjcyd5wv4igqnw413rgxbfu4nv 
+       foreign key (product_id) 
+       references product (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table order_items 
+       add constraint FKbioxgbv59vetrxe0ejfubep1w 
+       foreign key (order_id) 
+       references orders (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table order_items 
+       add constraint FKlf6f9q956mt144wiv6p1yko16 
+       foreign key (product_id) 
+       references product (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table orders 
+       add constraint FKel9kyl84ego2otj2accfd8mr7 
+       foreign key (user_id) 
+       references user (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table product 
+       add constraint FK1mtsbur82frn64de7balymq9s 
+       foreign key (category_id) 
+       references category (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table review 
+       add constraint FKiyof1sindb9qiqr9o8npj8klt 
+       foreign key (product_id) 
+       references product (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table review 
+       add constraint FKiyf57dy48lyiftdrf7y87rnxi 
+       foreign key (user_id) 
+       references user (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table review_image 
+       add constraint FK16wp089tx9nm0obc217gvdd6l 
+       foreign key (review_id) 
+       references review (id)
+2025-07-18 16:40:46 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table user_roles 
+       add constraint FKrhfovtciq1l558cw6udg0h0d3 
+       foreign key (role_id) 
+       references role (id)
+2025-07-18 16:40:47 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table user_roles 
+       add constraint FK55itppkw3i07do3h7qoclqd4k 
+       foreign key (user_id) 
+       references user (id)
+2025-07-18 16:40:47 DEBUG [restartedMain] org.hibernate.SQL - 
+    
+    alter table verification_token 
+       add constraint FKrdn0mss276m9jdobfhhn2qogw 
+       foreign key (user_id) 
+       references user (id)
+2025-07-18 16:40:47 INFO  [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2025-07-18 16:40:47 INFO  [restartedMain] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-18 16:40:47 DEBUG [restartedMain] c.a.e.config.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-07-18 16:40:47 WARN  [restartedMain] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-07-18 16:40:48 DEBUG [restartedMain] o.s.w.s.m.m.a.RequestMappingHandlerMapping - 27 mappings in 'requestMappingHandlerMapping'
+2025-07-18 16:40:48 DEBUG [restartedMain] o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-07-18 16:40:48 DEBUG [restartedMain] o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-07-18 16:40:49 INFO  [restartedMain] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@720f5506, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@9f4324e, org.springframework.security.web.context.SecurityContextPersistenceFilter@2f4da494, org.springframework.security.web.header.HeaderWriterFilter@1ce38e8e, org.springframework.web.filter.CorsFilter@2d5a0f52, org.springframework.security.web.authentication.logout.LogoutFilter@20150e, com.app.ecommerce.config.JwtAuthenticationFilter@11d4f05, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@264a47c2, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1052bc37, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4cdc9ce3, org.springframework.security.web.session.SessionManagementFilter@18efcc12, org.springframework.security.web.access.ExceptionTranslationFilter@729b90ef, org.springframework.security.web.access.intercept.AuthorizationFilter@59a3b8b]
+2025-07-18 16:40:49 INFO  [restartedMain] o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-07-18 16:40:49 INFO  [restartedMain] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 9898 (http) with context path ''
+2025-07-18 16:40:49 INFO  [restartedMain] c.app.ecommerce.EcommerceApplication - Started EcommerceApplication in 10.149 seconds (JVM running for 11.245)
+2025-07-18 16:41:21 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-18 16:41:21 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-07-18 16:41:22 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
