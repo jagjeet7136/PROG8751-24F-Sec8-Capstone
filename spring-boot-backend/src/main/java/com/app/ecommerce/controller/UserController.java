@@ -13,7 +13,7 @@ import com.app.ecommerce.model.response.JWTLoginSuccessResponse;
 import com.app.ecommerce.repository.RoleRepository;
 import com.app.ecommerce.repository.UserRepository;
 import com.app.ecommerce.repository.VerificationTokenRepository;
-import com.app.ecommerce.service.SendGridEmailService;
+import com.app.ecommerce.service.MailjetService;
 import com.app.ecommerce.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class UserController {
     private VerificationTokenRepository verificationTokenRepository;
 
     @Autowired
-    private SendGridEmailService sendGridEmailService;
+    private MailjetService mailjetService;
 
     @PostMapping("/register")
     public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest)
@@ -111,7 +111,7 @@ public class UserController {
             log.warn("Password reset attempted on inactive account: {} - Status: {}", email, user.getAccountStatus());
             throw new ValidationException("User account is not active: " + user.getAccountStatus());
         }
-        sendGridEmailService.sendPasswordResetEmail(user);
+        mailjetService.sendPasswordResetEmail(user);
         log.info("Password reset email sent to: {}", email);
     }
 

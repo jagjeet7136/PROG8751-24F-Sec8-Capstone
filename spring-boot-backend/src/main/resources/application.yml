@@ -19,13 +19,18 @@ spring:
     ansi:
       enabled: ALWAYS
 
+mailjet:
+  sender:
+    email: jagjeet7136@gmail.com
+    name: Shopee
+
 logging:
   level:
     root: INFO
     com.app.ecommerce: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
 
 application:
   title: ecommerce-backend

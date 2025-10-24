@@ -42,7 +42,7 @@ public class UserService {
     VerificationTokenRepository verificationTokenRepository;
 
     @Autowired
-    SendGridEmailService sendGridEmailService;
+    MailjetService mailjetService;
 
     public String createUser(UserCreateRequest request) throws ValidationException, BadRequestException, NotFoundException {
         log.debug("Creating user for email: {}", request.getEmail());
@@ -52,7 +52,7 @@ public class UserService {
             user = userRepository.findByUsername(request.getEmail());
             if (user.getAccountStatus() != AccountStatus.ACTIVE &&
                     user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
-                sendGridEmailService.sendUserVerificationEmail(user);
+                mailjetService.sendUserVerificationEmail(user);
                 throw new BadRequestException(user.getUsername() + " already exists, Please verify your email");
             }
             else if (user.getAccountStatus() == AccountStatus.DISABLED_BY_ADMIN) {
@@ -70,7 +70,7 @@ public class UserService {
             user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
             user.setRoles(new ArrayList<>(List.of(role)));
             user = userRepository.save(user);
-            sendGridEmailService.sendUserVerificationEmail(user);
+            mailjetService.sendUserVerificationEmail(user);
             log.info("New user created: {}", user.getUsername());
             return "User successfully created, Please verify your email";
         }

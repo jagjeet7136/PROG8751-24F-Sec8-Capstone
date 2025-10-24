@@ -4,12 +4,16 @@ import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.repository.VerificationTokenRepository;
-import com.sendgrid.*;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
+import com.mailjet.client.ClientOptions;
+import com.mailjet.client.MailjetClient;
+import com.mailjet.client.MailjetRequest;
+import com.mailjet.client.MailjetResponse;
+import com.mailjet.client.resource.Emailv31;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -18,22 +22,22 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SendGridEmailService {
+public class MailjetService {
 
-    private final VerificationTokenRepository verificationTokenRepository;
+    @Value("${MAILJET_API_KEY}")
+    private String mailjetAPIKey;
 
-    @Value("${SENDGRID_API_KEY}")
-    private String sendGridApiKey;
+    @Value("${MAILJET_SECRET_KEY}")
+    private String mailjetSecretKey;
 
-    public void sendPasswordResetEmail(User user) throws ValidationException {
-        String token = generateAndSaveToken(user, 1);
-        String resetLink = "http://localhost:3000/password-reset?token=" + token;
+    @Value("${mailjet.sender.email}")
+    private String senderEmail;
 
-        log.info("Generated password reset token for user [{}], expires in 1 hour", user.getUsername());
+    @Value("${mailjet.sender.name}")
+    private String senderName;
 
-        String emailBody = buildPasswordResetEmail(user, resetLink);
-        sendEmail(user, "Password Reset", emailBody);
-    }
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
 
     public void sendUserVerificationEmail(User user) throws ValidationException {
         String token = generateAndSaveToken(user, 24);
@@ -43,6 +47,16 @@ public class SendGridEmailService {
 
         String emailBody = buildVerificationEmail(user, verificationLink);
         sendEmail(user, "Email Verification", emailBody);
+    }
+
+    public void sendPasswordResetEmail(User user) throws ValidationException {
+        String token = generateAndSaveToken(user, 1);
+        String resetLink = "http://localhost:3000/password-reset?token=" + token;
+
+        log.info("Generated password reset token for user [{}], expires in 1 hour", user.getUsername());
+
+        String emailBody = buildPasswordResetEmail(user, resetLink);
+        sendEmail(user, "Password Reset", emailBody);
     }
 
     private String generateAndSaveToken(User user, int expiryHours) {
@@ -55,37 +69,16 @@ public class SendGridEmailService {
         return token;
     }
 
-    private void sendEmail(User user, String subject, String emailBody) throws ValidationException {
-        try {
-            Email from = new Email("jagjeet7136@gmail.com");
-            Email to = new Email(user.getUsername());
-            Content content = new Content("text/html", emailBody);
-            Mail mail = new Mail(from, subject, to, content);
-
-            SendGrid sg = new SendGrid(sendGridApiKey);
-            Request request = new Request();
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-
-            Response response = sg.api(request);
-            log.info("Email sent to [{}], statusCode: {}, body: {}", user.getUsername(), response.getStatusCode(), response.getBody());
-        } catch (Exception e) {
-            log.error("Failed to send email to [{}]: {}", user.getUsername(), e.getMessage());
-            throw new ValidationException("Error occurred while sending email.");
-        }
+    private String buildVerificationEmail(User user, String link) {
+        return getEmailTemplate(user, "Verify Your Email",
+                "Click the button below to verify your email. This link will be valid for the next 24 hours only.",
+                "Verify Email", link);
     }
 
     private String buildPasswordResetEmail(User user, String link) {
         return getEmailTemplate(user, "Reset Your Password",
                 "We received a request to reset your password. Click the button below to reset it. This link will expire in 1 hour.",
                 "Reset Password", link);
-    }
-
-    private String buildVerificationEmail(User user, String link) {
-        return getEmailTemplate(user, "Verify Your Email",
-                "Click the button below to verify your email. This link will be valid for the next 24 hours only.",
-                "Verify Email", link);
     }
 
     private String getEmailTemplate(User user, String title, String message, String buttonText, String link) {
@@ -117,5 +110,35 @@ public class SendGridEmailService {
                 "    <p>&copy; 2025 SHOPEE. All rights reserved.</p>" +
                 "  </div>" +
                 "</div></body></html>";
+    }
+
+    public void sendEmail(User user, String subject, String messageBody) {
+        try {
+            ClientOptions options = ClientOptions.builder().apiKey(mailjetAPIKey).apiSecretKey(mailjetSecretKey).build();
+            MailjetClient client = new MailjetClient(options);
+
+            MailjetRequest request = new MailjetRequest(Emailv31.resource)
+                    .property(Emailv31.MESSAGES, new JSONArray()
+                            .put(new JSONObject()
+                                    .put(Emailv31.Message.FROM, new JSONObject()
+                                            .put("Email", senderEmail)
+                                            .put("Name", senderName))
+                                    .put(Emailv31.Message.TO, new JSONArray()
+                                            .put(new JSONObject()
+                                                    .put("Email", user.getUsername())
+                                                    .put("Name", user.getUserFullName())))
+                                    .put(Emailv31.Message.SUBJECT, subject)
+                                    .put(Emailv31.Message.HTMLPART,
+                                            messageBody)));
+
+            MailjetResponse response = client.post(request);
+
+            System.out.println("Email sent successfully!");
+            System.out.println("Status: " + response.getStatus());
+            System.out.println("Response: " + response.getData().toString());
+
+        } catch (Exception e) {
+            log.error("Error sending email to {}: {}", user.getUsername(), e.getMessage(), e);
+        }
     }
 }

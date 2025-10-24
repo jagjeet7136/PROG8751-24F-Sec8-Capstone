@@ -19,10 +19,12 @@ public class EcommerceApplication {
 		Dotenv dotenv = Dotenv.configure()
 				.ignoreIfMissing()
 				.load();
-		System.setProperty(SecurityConstants.SENDGRID_API_KEY,
-				dotenv.get(SecurityConstants.SENDGRID_API_KEY));
 		System.setProperty(SecurityConstants.STRIPE_WEBHOOK_KEY,
 				dotenv.get(SecurityConstants.STRIPE_WEBHOOK_KEY));
+		System.setProperty(SecurityConstants.MAILJET_API_KEY,
+				dotenv.get(SecurityConstants.MAILJET_API_KEY));
+		System.setProperty(SecurityConstants.MAILJET_SECRET_KEY,
+				dotenv.get(SecurityConstants.MAILJET_SECRET_KEY));
 	}
 
 	public static void main(String[] args) {
