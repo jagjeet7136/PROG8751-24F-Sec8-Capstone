@@ -66,7 +66,7 @@ const Profile = () => {
         }
 
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:9898/user/changePassword", {
+        const response = await fetch("http://localhost:9898/user/reset-password", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -46,7 +46,7 @@ export const AdminDashboard = () => {
 
   const fetchProducts = (page = 1) => {
     axios
-      .get(`http://localhost:9898/products/getProducts?page=${page}&size=20&search=${productSearchInput}`)
+      .get(`http://localhost:9898/products?page=${page}&size=20&search=${productSearchInput}`)
       .then((res) => {
         setProducts(res.data.content);
         setProductTotalPages(res.data.totalPages);
@@ -69,7 +69,6 @@ export const AdminDashboard = () => {
 
   const handleCreateProduct = (e) => {
     e.preventDefault();
-
     const token = localStorage.getItem("adminToken");
 
     if (!token) {
