@@ -1,12 +1,16 @@
-package com.app.ecommerce.model.request;
+package com.app.ecommerce.modules.product.dto.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import javax.validation.constraints.*;
+import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
 public class ProductCreateRequest {
 
     @NotBlank(message = "Product name is required.")
+    @Size(max = 255, message = "Name cannot exceed 255 characters.")
     private String name;
 
     @NotBlank(message = "Product description is required.")
@@ -16,21 +20,21 @@ public class ProductCreateRequest {
     @NotBlank(message = "Product long description is required.")
     private String longDescription;
 
-    @NotNull(message = "Discounted price is required.")
     @PositiveOrZero(message = "Discounted price cannot be negative.")
-    private Double discountedPrice;
+    private BigDecimal discountedPrice;
 
     @NotNull(message = "Original price is required.")
     @Positive(message = "Price must be greater than zero.")
-    private Double price;
+    private BigDecimal price;
 
     @NotBlank(message = "Image URL is required.")
-    @Pattern(regexp = "^(http|https)://.*", message = "Image URL must be a valid URL.")
+    @Pattern(regexp = "^(https?://).+$", message = "Image URL must be a valid URL.")
     private String imageUrl;
 
+    @NotNull(message = "Stock is required.")
     @Min(value = 0, message = "Stock cannot be negative.")
-    private int stock;
+    private Integer stock;
 
-    @NotBlank(message = "Category name is required.")
-    private String categoryName;
+    @NotNull(message = "Category ID is required.")
+    private Long categoryId;
 }

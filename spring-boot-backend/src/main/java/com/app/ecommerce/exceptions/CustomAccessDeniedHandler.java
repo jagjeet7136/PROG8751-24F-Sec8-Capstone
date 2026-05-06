@@ -19,10 +19,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         ApiErrorDTO apiErrorDTO = new ApiErrorDTO();
-        apiErrorDTO.setStatus(HttpStatus.FORBIDDEN);
+        apiErrorDTO.setStatus(HttpStatus.FORBIDDEN.value());
         apiErrorDTO.setMessage("You do not have permission to access this resource.");
         apiErrorDTO.setErrors(Collections.singletonList(accessDeniedException.getMessage()));
-        apiErrorDTO.setTime(LocalDateTime.now());
+        apiErrorDTO.setTimestamp(LocalDateTime.now());
 
         response.setContentType("application/json");
         response.setStatus(HttpStatus.FORBIDDEN.value());

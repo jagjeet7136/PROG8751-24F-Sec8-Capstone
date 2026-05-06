@@ -1,5 +1,6 @@
 package com.app.ecommerce.entity;
 
+import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

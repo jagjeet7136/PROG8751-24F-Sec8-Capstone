@@ -1,7 +1,13 @@
 package com.app.ecommerce.service;
 
-import com.app.ecommerce.entity.*;
-import com.app.ecommerce.repository.*;
+import com.app.ecommerce.entity.Cart;
+import com.app.ecommerce.entity.CartItem;
+import com.app.ecommerce.entity.User;
+import com.app.ecommerce.modules.product.api.ProductApi;
+import com.app.ecommerce.modules.product.api.ProductInfo;
+import com.app.ecommerce.repository.CartItemRepository;
+import com.app.ecommerce.repository.CartRepository;
+import com.app.ecommerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +24,7 @@ public class CartService {
     private CartItemRepository cartItemRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductApi productApi;
 
     @Autowired
     private UserRepository userRepository;
@@ -35,20 +41,21 @@ public class CartService {
     public Cart addProductToCart(User user, Long productId, int quantity) {
         log.debug("Adding product (ID: {}) to cart for user: {} with quantity: {}", productId, user.getUsername(), quantity);
         Cart cart = getOrCreateCart(user);
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> {
-                    log.warn("Product with ID {} not found", productId);
-                    return new RuntimeException("Product not found");
-                });
+        ProductInfo productInfo = productApi.getProductInfo(productId);
+
+        if (productInfo == null) {
+            throw new RuntimeException("Product not found");
+        }
 
         CartItem cartItem = new CartItem();
         cartItem.setCart(cart);
-        cartItem.setProduct(product);
+        cartItem.setProductId(productInfo.getId());
         cartItem.setQuantity(quantity);
 
         cart.getItems().add(cartItem);
         Cart updatedCart = cartRepository.save(cart);
-        log.info("Product added to cart for user: {} - productId: {}, quantity: {}", user.getUsername(), productId, quantity);
+        log.info("Product added to cart for user: {} - productId: {}, quantity: {}", user.getUsername(), productId,
+                quantity);
         return updatedCart;
     }
 
@@ -57,7 +64,7 @@ public class CartService {
         Cart cart = getOrCreateCart(user);
 
         CartItem cartItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
+                .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
                 .orElseThrow(() -> {
                     log.warn("Product with ID {} not found in cart for user: {}", productId, user.getUsername());

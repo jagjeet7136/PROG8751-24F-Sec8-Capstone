@@ -30,7 +30,7 @@ public class CustomExceptionHandler {
             errorDetails.add(fieldError.getDefaultMessage());
         }
         ApiErrorDTO errorResponse = handleAllExceptions(req, ex);
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST);
+        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
         errorResponse.setErrors(errorDetails);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -38,21 +38,21 @@ public class CustomExceptionHandler {
     @ExceptionHandler({ValidationException.class, BadRequestException.class})
     public ResponseEntity<ApiErrorDTO> handleValidationException(HttpServletRequest req, Exception ex) {
         ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST);
+        apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiErrorDTO> handleNotFoundException(HttpServletRequest req, NotFoundException ex) {
         ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.NOT_FOUND);
+        apiErrorDTO.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ApiErrorDTO> handleForbiddenException(HttpServletRequest req, ForbiddenException ex) {
         ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.FORBIDDEN);
+        apiErrorDTO.setStatus(HttpStatus.FORBIDDEN.value());
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.FORBIDDEN);
     }
 
@@ -65,7 +65,7 @@ public class CustomExceptionHandler {
             errorDetails.add(fieldError.getDefaultMessage());
         }
         ApiErrorDTO errorResponse = handleAllExceptions(req, bindException);
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST);
+        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
         errorResponse.setErrors(errorDetails);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -79,7 +79,7 @@ public class CustomExceptionHandler {
                 .toList();
 
         ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST);
+        apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
         apiErrorDTO.setErrors(errorDetails);
 
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.BAD_REQUEST);
@@ -90,7 +90,7 @@ public class CustomExceptionHandler {
         ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
         apiErrorDTO.setMessage("An unexpected error occurred.");
         apiErrorDTO.setPath(req.getRequestURI());
-        apiErrorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        apiErrorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         log.error("Unexpected error at {}: {}", req.getRequestURI(), ex.getMessage(), ex);
         return new ResponseEntity<>(apiErrorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -100,7 +100,7 @@ public class CustomExceptionHandler {
         apiErrorDTO.setMessage(ex.getMessage());
         apiErrorDTO.setErrors(new ArrayList<>());
         apiErrorDTO.setPath(req.getRequestURI());
-        apiErrorDTO.setTime(LocalDateTime.now());
+        apiErrorDTO.setTimestamp(LocalDateTime.now());
         return apiErrorDTO;
     }
 

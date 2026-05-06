@@ -3,15 +3,12 @@ package com.app.ecommerce.service;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.app.ecommerce.entity.*;
 import com.app.ecommerce.exceptions.ForbiddenException;
-import com.app.ecommerce.model.dto.CartItemDTO;
-import com.app.ecommerce.model.dto.OrderDTO;
+import com.app.ecommerce.modules.product.api.ProductApi;
+import com.app.ecommerce.modules.product.api.ProductInfo;
 import com.app.ecommerce.repository.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -44,7 +41,7 @@ public class OrderService {
     private UserRepository userRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductApi productApi;
 
     public List<Order> getOrdersByUser(User user) {
         log.info("Fetching orders for user id={}", user.getId());
@@ -116,12 +113,15 @@ public class OrderService {
                 int quantity = Integer.parseInt(p.get("quantity").toString());
                 double price = Double.parseDouble(p.get("productPrice").toString());
 
-                Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+                ProductInfo productInfo = productApi.getProductInfo(productId);
+
+                if (productInfo == null) {
+                    throw new RuntimeException("Product not found with id: " + productId);
+                }
 
                 OrderItem orderItem = new OrderItem();
                 orderItem.setOrder(order);
-                orderItem.setProduct(product);
+                orderItem.setProductId(productInfo.getId());
                 orderItem.setQuantity(quantity);
                 orderItem.setPrice(price);
 
@@ -225,7 +225,7 @@ public class OrderService {
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA, 10);
             contentStream.newLineAtOffset(50, yPosition);
-            contentStream.showText(item.getProduct().getName());
+//            contentStream.showText(item.getProductId().getName());
             contentStream.newLineAtOffset(200, 0);
             contentStream.showText(String.valueOf(item.getQuantity()));
             contentStream.newLineAtOffset(100, 0);

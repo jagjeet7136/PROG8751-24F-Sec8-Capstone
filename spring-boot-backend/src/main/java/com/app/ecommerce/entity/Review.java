@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,15 +27,13 @@ public class Review {
     private String content;
 
     @Column(nullable = false)
-    private int rating; // e.g., 1 to 5
+    private int rating;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    private Long productId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

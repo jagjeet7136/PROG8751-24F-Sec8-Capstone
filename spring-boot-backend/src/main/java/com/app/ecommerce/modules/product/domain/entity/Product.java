@@ -1,18 +1,17 @@
-package com.app.ecommerce.entity;
+package com.app.ecommerce.modules.product.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.app.ecommerce.entity.Category;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Table(name = "product")
 public class Product {
 
@@ -20,29 +19,35 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String description;
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String longDescription;
 
-    private Double discountedPrice;
+    private BigDecimal discountedPrice;
 
-    private Double price;
+    @Column(nullable = false)
+    private BigDecimal price;
 
     private String imageUrl;
 
-    private int stock = 0;
+    @Column(nullable = false)
+    private Integer stock = 0;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonBackReference
+//    @JsonBackReference
     private Category category;
 
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -56,7 +61,4 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
-    @OneToMany(mappedBy = "product")
-    @JsonIgnore
-    private List<Review> reviews;
 }

@@ -21,9 +21,7 @@ public class OrderItem {
     @JsonIgnore
     private Order order;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    private Long productId;
 
     private int quantity;
     private double price;

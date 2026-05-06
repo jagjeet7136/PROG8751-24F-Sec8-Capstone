@@ -14,10 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 public class ApiErrorDTO {
 
-    private HttpStatus status;
+    private Integer status;
     private String message;
     private List<String> errors;
     private String path;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private LocalDateTime time;
+    private LocalDateTime timestamp;
 }

@@ -1,12 +1,12 @@
 package com.app.ecommerce.service;
 
-import com.app.ecommerce.entity.Product;
 import com.app.ecommerce.entity.Review;
 import com.app.ecommerce.entity.ReviewImage;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.model.dto.ReviewDTO;
 import com.app.ecommerce.model.response.ReviewResponse;
-import com.app.ecommerce.repository.ProductRepository;
+import com.app.ecommerce.modules.product.api.ProductApi;
+import com.app.ecommerce.modules.product.api.ProductInfo;
 import com.app.ecommerce.repository.ReviewImageRepository;
 import com.app.ecommerce.repository.ReviewRepository;
 import com.app.ecommerce.repository.UserRepository;
@@ -26,20 +26,23 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository imageRepository;
-    private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ProductApi productApi;
 
     public ReviewDTO createReview(User user, Long productId, String heading, Integer rating,
                                   String comment, List<MultipartFile> images) throws IOException {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+        ProductInfo productInfo = productApi.getProductInfo(productId);
+
+        if (productInfo == null) {
+            throw new RuntimeException("Product not found with id: " + productId);
+        }
         Review review = new Review();
         review.setHeading(heading);
         review.setContent(comment);
         review.setRating(rating);
         review.setUser(user);
-        review.setProduct(product);
+        review.setProductId(productInfo.getId());
 
         List<ReviewImage> savedImages = new ArrayList<>();
         if (images != null) {
@@ -78,10 +81,13 @@ public class ReviewService {
     public List<ReviewResponse> getReviewsByProduct(Long productId) {
         log.info("Fetching reviews for productId={}", productId);
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+//        ProductInfo productInfo = productApi.getProductInfo(productId);
+//
+//        if (productInfo == null) {
+//            throw new RuntimeException("Product not found with id: " + productId);
+//        }
 
-        List<ReviewResponse> responses = reviewRepository.findByProduct(product).stream()
+        List<ReviewResponse> responses = reviewRepository.findByProductId(productId).stream()
                 .map(r -> new ReviewResponse(
                         r.getUser().getUserFullName(),
                         r.getContent(),
