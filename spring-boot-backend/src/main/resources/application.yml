@@ -18,6 +18,12 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+  redis:
+    host: localhost
+    port: 7000
+app:
+  cache:
+    enabled: true
 
 mailjet:
   sender:

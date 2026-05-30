@@ -1,5 +1,6 @@
 package com.app.ecommerce.modules.product.service;
 
+import com.app.ecommerce.config.CacheProperties;
 import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.modules.product.domain.entity.Product;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,10 +26,12 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final CacheProperties cacheProperties;
+    private final ProductCacheService productCacheService;
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {  //this can be stored in cache especially Recently Added, Top Rated and Exclusive Deals
         List<Product> products = productRepository.findAll();
         return products.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
@@ -35,9 +39,24 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProduct(Long productId) {
+        if (cacheProperties.isEnabled()) {
+            ProductResponse cached = productCacheService.get(productId);
+
+            if (cached != null) {
+                log.info("Product fetched from cache: {}", cached);
+                return cached;
+            }
+        }
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ValidationException("Product not found with ID: " + productId));
-        return mapToResponse(product);
+        ProductResponse response = mapToResponse(product);
+
+        if (cacheProperties.isEnabled()) {
+            productCacheService.put(productId, response, Duration.ofMinutes(1440));
+            log.info("Product cached: {}", response);
+        }
+        return response;
     }
 
     @Override
@@ -74,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
         product.setImageUrl(request.getImageUrl());
         product.setStock(request.getStock());
         product.setCategory(category);
+//        redisTemplate.delete("products:recent");
         return mapToResponse(productRepository.save(product));
     }
 
@@ -117,8 +137,12 @@ public class ProductServiceImpl implements ProductService {
             }
             ProductResponse savedProduct = mapToResponse(productRepository.save(existingProduct));
             log.info("Product updated successfully: {}", savedProduct.getId());
-            return savedProduct;
 
+            if (cacheProperties.isEnabled()) {
+                productCacheService.evict(savedProduct.getId());
+                log.info("Product cache evicted: {}", savedProduct.getId());
+            }
+            return savedProduct;
         }).orElseThrow(() ->
             new ValidationException("Product not found with ID: " + id));
     }

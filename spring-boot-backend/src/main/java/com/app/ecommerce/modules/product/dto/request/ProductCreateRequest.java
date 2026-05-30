@@ -17,7 +17,7 @@ public class ProductCreateRequest {
     @Size(max = 255, message = "Description cannot exceed 255 characters.")
     private String description;
 
-    @NotBlank(message = "Product long description is required.")
+    @Size(max = 500, message = "Long description cannot exceed 255 characters.")
     private String longDescription;
 
     @PositiveOrZero(message = "Discounted price cannot be negative.")
@@ -32,7 +32,7 @@ public class ProductCreateRequest {
     private String imageUrl;
 
     @NotNull(message = "Stock is required.")
-    @Min(value = 0, message = "Stock cannot be negative.")
+    @PositiveOrZero(message = "Stock cannot be negative.")
     private Integer stock;
 
     @NotNull(message = "Category ID is required.")

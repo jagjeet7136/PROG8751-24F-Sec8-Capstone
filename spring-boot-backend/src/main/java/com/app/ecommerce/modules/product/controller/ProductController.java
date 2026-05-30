@@ -26,7 +26,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getHomeProducts() {
-        log.info("GET /products - Fetching all products for home");
+        log.info("GET /products/ - Fetching all products for home");
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
@@ -39,14 +39,14 @@ public class ProductController {
     @GetMapping("/search")
     public ResponseEntity<Page<ProductResponse>> getProducts(
             @Valid @ModelAttribute ProductSearchCriteriaRequest request) {
-        log.info("GET /products/getProducts - Fetching searched products : {}", request);
+        log.info("GET /products/search/ - Fetching searched products : {}", request);
         return ResponseEntity.ok(productService.getProducts(request));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductCreateRequest productCreateRequest) {
-        log.info("POST /products - Creating product: {}", productCreateRequest.getName());
+        log.info("POST /products/ - Creating product: {}", productCreateRequest.getName());
         return new ResponseEntity<>(productService.createProduct(productCreateRequest), HttpStatus.CREATED);
     }
 
