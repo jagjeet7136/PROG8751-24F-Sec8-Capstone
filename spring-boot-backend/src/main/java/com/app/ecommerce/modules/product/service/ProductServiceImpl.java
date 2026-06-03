@@ -32,8 +32,25 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {  //this can be stored in cache especially Recently Added, Top Rated and Exclusive Deals
-        List<Product> products = productRepository.findAll();
-        return products.stream().map(this::mapToResponse).collect(Collectors.toList());
+        if (cacheProperties.isEnabled()) {
+            List<ProductResponse> cached =
+                    productCacheService.getAllProducts();
+            if (cached != null) {
+                log.info("All products fetched from cache");
+                return cached;
+            }
+        }
+        List<ProductResponse> products =
+                productRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+
+        if (cacheProperties.isEnabled()) {
+            productCacheService.putAllProducts(
+                    products,
+                    Duration.ofMinutes(30)
+            );
+            log.info("All products cached");
+        }
+        return products;
     }
 
     @Override
@@ -41,7 +58,6 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProduct(Long productId) {
         if (cacheProperties.isEnabled()) {
             ProductResponse cached = productCacheService.get(productId);
-
             if (cached != null) {
                 log.info("Product fetched from cache: {}", cached);
                 return cached;
@@ -93,8 +109,12 @@ public class ProductServiceImpl implements ProductService {
         product.setImageUrl(request.getImageUrl());
         product.setStock(request.getStock());
         product.setCategory(category);
-//        redisTemplate.delete("products:recent");
-        return mapToResponse(productRepository.save(product));
+
+        ProductResponse productResponse = mapToResponse(productRepository.save(product));
+        if (cacheProperties.isEnabled()) {
+            productCacheService.evictAllProducts();
+        }
+        return productResponse;
     }
 
     @Override
@@ -141,6 +161,8 @@ public class ProductServiceImpl implements ProductService {
             if (cacheProperties.isEnabled()) {
                 productCacheService.evict(savedProduct.getId());
                 log.info("Product cache evicted: {}", savedProduct.getId());
+                productCacheService.evictAllProducts();
+                log.info("Products cache evicted");
             }
             return savedProduct;
         }).orElseThrow(() ->
