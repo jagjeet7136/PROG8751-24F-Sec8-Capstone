@@ -1,4 +1,4 @@
-package com.app.ecommerce.config;
+package com.app.ecommerce.security;
 
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.repository.UserRepository;

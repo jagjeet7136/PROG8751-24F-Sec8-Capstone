@@ -1,7 +1,9 @@
 package com.app.ecommerce.exceptions;
 
-public class ForbiddenException extends RuntimeException{
-    public ForbiddenException(String message) {
-        super(message);
+import com.app.ecommerce.enums.ErrorCode;
+
+public class ForbiddenException extends ApiException {
+    public ForbiddenException(String msg) {
+        super(msg, ErrorCode.ACCESS_DENIED);
     }
 }

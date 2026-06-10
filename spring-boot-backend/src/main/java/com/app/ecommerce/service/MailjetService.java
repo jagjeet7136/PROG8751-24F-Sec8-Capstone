@@ -2,7 +2,6 @@ package com.app.ecommerce.service;
 
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
-import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.repository.VerificationTokenRepository;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
@@ -39,7 +38,7 @@ public class MailjetService {
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
 
-    public void sendUserVerificationEmail(User user) throws ValidationException {
+    public void sendUserVerificationEmail(User user) {
         String token = generateAndSaveToken(user, 24);
         String verificationLink = "http://localhost:3000/verify-email?token=" + token;
 
@@ -49,7 +48,7 @@ public class MailjetService {
         sendEmail(user, "Email Verification", emailBody);
     }
 
-    public void sendPasswordResetEmail(User user) throws ValidationException {
+    public void sendPasswordResetEmail(User user) {
         String token = generateAndSaveToken(user, 1);
         String resetLink = "http://localhost:3000/password-reset?token=" + token;
 

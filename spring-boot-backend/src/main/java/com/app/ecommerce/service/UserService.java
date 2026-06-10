@@ -5,9 +5,9 @@ import com.app.ecommerce.entity.User;
 import com.app.ecommerce.entity.VerificationToken;
 import com.app.ecommerce.enums.AccountStatus;
 import com.app.ecommerce.exceptions.BadRequestException;
+import com.app.ecommerce.exceptions.ConflictException;
 import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.NotFoundException;
-import com.app.ecommerce.exceptions.ValidationException;
 import com.app.ecommerce.model.request.UserCreateRequest;
 import com.app.ecommerce.repository.RoleRepository;
 import com.app.ecommerce.repository.UserRepository;
@@ -44,7 +44,7 @@ public class UserService {
     @Autowired
     MailjetService mailjetService;
 
-    public String createUser(UserCreateRequest request) throws ValidationException, BadRequestException, NotFoundException {
+    public String createUser(UserCreateRequest request) {
         log.debug("Creating user for email: {}", request.getEmail());
         Boolean exists = usernameAlreadyExists(request.getEmail());
         User user;
@@ -53,13 +53,13 @@ public class UserService {
             if (user.getAccountStatus() != AccountStatus.ACTIVE &&
                     user.getAccountStatus() != AccountStatus.DISABLED_BY_ADMIN) {
                 mailjetService.sendUserVerificationEmail(user);
-                throw new BadRequestException(user.getUsername() + " already exists, Please verify your email");
+                throw new ConflictException(user.getUsername() + " already exists, Please verify your email");
             }
             else if (user.getAccountStatus() == AccountStatus.DISABLED_BY_ADMIN) {
-                throw new BadRequestException("Account disabled, Please contact customer service team");
+                throw new ForbiddenException("Account disabled, Please contact customer service team");
             }
             else {
-                throw new BadRequestException(user.getUsername() + " already exists");
+                throw new ConflictException(user.getUsername() + " already exists");
             }
         } else {
             Role role = roleRepository.findByName("ROLE_CUSTOMER")
@@ -76,10 +76,10 @@ public class UserService {
         }
     }
 
-    public User getUser(String username, String savedUser) throws NotFoundException {
+    public User getUser(String username, String savedUser) {
         if (!username.equals(savedUser)) {
             log.warn("User {} tried to access data of {}", savedUser, username);
-            throw new ForbiddenException("Cannot get the user: " + username);
+            throw new BadRequestException("Cannot get the user: " + username);
         }
         User user = userRepository.findByUsername(username);
         if (user == null) {
@@ -104,18 +104,17 @@ public class UserService {
                 : userRepository.findAll(pageable).getContent();
     }
 
-    public void resetPassword(String token, String newPassword)
-            throws ValidationException, BadRequestException {
+    public void resetPassword(String token, String newPassword) {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
         if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
             log.warn("Invalid/expired reset token: {}", token);
             throw new BadRequestException("Token is invalid or expired.");
         }
         if (newPassword.isBlank()){
-            throw new ValidationException("Password cannot be blank");
+            throw new BadRequestException("Password cannot be blank");
         }
         if (newPassword.length() < 6) {
-            throw new ValidationException("Password should be at least 6 characters long!");
+            throw new BadRequestException("Password should be at least 6 characters long!");
         }
 
         VerificationToken verificationToken = optionalToken.get();
@@ -134,7 +133,7 @@ public class UserService {
         }
     }
 
-    public void verifyEmail(String token) throws BadRequestException {
+    public void verifyEmail(String token) {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
         if (optionalToken.isEmpty()) {
             log.warn("Verification token not found: {}", token);

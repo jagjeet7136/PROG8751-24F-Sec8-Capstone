@@ -2,7 +2,7 @@ package com.app.ecommerce.modules.product.service;
 
 import com.app.ecommerce.config.CacheProperties;
 import com.app.ecommerce.entity.Category;
-import com.app.ecommerce.exceptions.ValidationException;
+import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.app.ecommerce.modules.product.dto.request.ProductSearchCriteriaRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ValidationException("Product not found with ID: " + productId));
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + productId));
         ProductResponse response = mapToResponse(product);
 
         if (cacheProperties.isEnabled()) {
@@ -97,9 +97,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse createProduct(ProductCreateRequest request) throws ValidationException {
+    public ProductResponse createProduct(ProductCreateRequest request) {
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ValidationException("Category not found with Id: " + request.getCategoryId()));
+                .orElseThrow(() -> new NotFoundException("Category not found with Id: " + request.getCategoryId()));
         Product product = new Product();
         product.setName(request.getName().trim());
         product.setDescription(request.getDescription().trim());
@@ -166,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
             }
             return savedProduct;
         }).orElseThrow(() ->
-            new ValidationException("Product not found with ID: " + id));
+            new NotFoundException("Product not found with ID: " + id));
     }
 
     private ProductResponse mapToResponse(Product product) {

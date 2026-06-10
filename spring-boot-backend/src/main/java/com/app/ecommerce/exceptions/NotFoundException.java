@@ -1,8 +1,9 @@
 package com.app.ecommerce.exceptions;
 
-public class NotFoundException extends RuntimeException{
-    public NotFoundException() {}
-    public NotFoundException(String message) {
-        super(message);
+import com.app.ecommerce.enums.ErrorCode;
+
+public class NotFoundException extends ApiException {
+    public NotFoundException(String msg) {
+        super(msg, ErrorCode.RESOURCE_NOT_FOUND);
     }
 }

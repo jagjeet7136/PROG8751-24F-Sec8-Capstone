@@ -1,4 +1,4 @@
-package com.app.ecommerce.config;
+package com.app.ecommerce.security;
 
 import com.app.ecommerce.constants.SecurityConstants;
 import com.app.ecommerce.entity.User;
@@ -6,6 +6,8 @@ import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +49,14 @@ public class JwtTokenProvider {
 
     public String generateTokenFromAuth(Authentication authentication) {
         return generateToken(null, null, null, authentication);
+    }
+
+    public String getJWTFromRequest(HttpServletRequest httpServletRequest) {
+        String bearerToken = httpServletRequest.getHeader(SecurityConstants.HEADER_STRING);
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+            return bearerToken.substring(SecurityConstants.TOKEN_PREFIX.length());
+        }
+        return null;
     }
 
     public boolean validateToken(String token) {

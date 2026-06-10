@@ -1,9 +1,12 @@
 package com.app.ecommerce.exceptions;
 
+import com.app.ecommerce.enums.ErrorCode;
 import com.app.ecommerce.model.dto.ApiErrorDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -12,7 +15,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +22,13 @@ import java.util.List;
 @Slf4j
 public class CustomExceptionHandler {
 
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiErrorDTO> handleApiException(HttpServletRequest req, ApiException ex) {
+        return ApiErrorFactory.buildErrorResponse(req, ex.getErrorCode(), ex, new ArrayList<>());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorDTO> handleValidationExceptions(HttpServletRequest req,
+    public ResponseEntity<ApiErrorDTO> handleValidationsExceptions(HttpServletRequest req,
                                                                   MethodArgumentNotValidException ex) {
         BindingResult bindingResult = ex.getBindingResult();
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -29,31 +36,7 @@ public class CustomExceptionHandler {
         for (FieldError fieldError : fieldErrors) {
             errorDetails.add(fieldError.getDefaultMessage());
         }
-        ApiErrorDTO errorResponse = handleAllExceptions(req, ex);
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setErrors(errorDetails);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler({ValidationException.class, BadRequestException.class})
-    public ResponseEntity<ApiErrorDTO> handleValidationException(HttpServletRequest req, Exception ex) {
-        ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(apiErrorDTO, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiErrorDTO> handleNotFoundException(HttpServletRequest req, NotFoundException ex) {
-        ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.NOT_FOUND.value());
-        return new ResponseEntity<>(apiErrorDTO, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ApiErrorDTO> handleForbiddenException(HttpServletRequest req, ForbiddenException ex) {
-        ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.FORBIDDEN.value());
-        return new ResponseEntity<>(apiErrorDTO, HttpStatus.FORBIDDEN);
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.VALIDATION_ERROR, errorDetails);
     }
 
     @ExceptionHandler(BindException.class)
@@ -64,10 +47,7 @@ public class CustomExceptionHandler {
         for (FieldError fieldError : fieldErrors) {
             errorDetails.add(fieldError.getDefaultMessage());
         }
-        ApiErrorDTO errorResponse = handleAllExceptions(req, bindException);
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setErrors(errorDetails);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.VALIDATION_ERROR, errorDetails);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -77,31 +57,31 @@ public class CustomExceptionHandler {
                 .stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .toList();
-
-        ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
-        apiErrorDTO.setErrors(errorDetails);
-
-        return new ResponseEntity<>(apiErrorDTO, HttpStatus.BAD_REQUEST);
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.VALIDATION_ERROR, errorDetails);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> handleGenericException(HttpServletRequest req, Exception ex) {
-        ApiErrorDTO apiErrorDTO = handleAllExceptions(req, ex);
-        apiErrorDTO.setMessage("An unexpected error occurred.");
-        apiErrorDTO.setPath(req.getRequestURI());
-        apiErrorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        log.error("Unexpected error at {}: {}", req.getRequestURI(), ex.getMessage(), ex);
-        return new ResponseEntity<>(apiErrorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.INTERNAL_SERVER_ERROR, new ArrayList<>());
     }
 
-    private static ApiErrorDTO handleAllExceptions(HttpServletRequest req, Exception ex) {
-        ApiErrorDTO apiErrorDTO = new ApiErrorDTO();
-        apiErrorDTO.setMessage(ex.getMessage());
-        apiErrorDTO.setErrors(new ArrayList<>());
-        apiErrorDTO.setPath(req.getRequestURI());
-        apiErrorDTO.setTimestamp(LocalDateTime.now());
-        return apiErrorDTO;
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiErrorDTO> handleBadCredentials(
+            HttpServletRequest req,
+            BadCredentialsException ex) {
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.BAD_CREDENTIALS, new ArrayList<>());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorDTO> handleAccessDeniedException(
+            HttpServletRequest req, AccessDeniedException ex) {
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.ACCESS_DENIED, new ArrayList<>());
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiErrorDTO> handleDisabledException(
+            HttpServletRequest req, DisabledException ex) {
+        return ApiErrorFactory.buildErrorResponse(req, ErrorCode.ACCOUNT_DISABLED, new ArrayList<>());
     }
 
 }

@@ -1,10 +1,10 @@
-package com.app.ecommerce.config;
+package com.app.ecommerce.security;
 
 import com.app.ecommerce.constants.SecurityConstants;
-import com.app.ecommerce.exceptions.CustomAccessDeniedHandler;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -23,19 +23,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true,
         prePostEnabled = true
 )
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private JwtAuthenticationEntryPoint entryPoint;
-
-    @Autowired
-    private CustomUserDetailsService customUserDetailService;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomUserDetailsService customUserDetailService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
@@ -52,8 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().
                 exceptionHandling()
-                .authenticationEntryPoint(entryPoint)
-                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -73,10 +68,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.js",
                         "/ping"
                 ).permitAll()
-                .antMatchers("/user/login", "/user/register", "/user/getUser", "/products/**", "/user/passwordResetEmailVerification/**",
+                .antMatchers(HttpMethod.GET, "/products/**").permitAll()
+                .antMatchers("/user/login", "/user/register", "/user/passwordResetEmailVerification/**",
                         "/user/reset-password/**", "/user/verify/**", "/user/validate-reset-token/**", "/reviews/product/**",
                         "/stripe/save-order-webhook").permitAll()
-                .antMatchers("/admin/**", "/user/getUsers", "/orders/userOrders/").hasRole("ADMIN")
+                .antMatchers("/admin/**", "/user/getUsers", "/orders/userOrders/**").hasRole("ADMIN")
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
                 .anyRequest().authenticated();
 

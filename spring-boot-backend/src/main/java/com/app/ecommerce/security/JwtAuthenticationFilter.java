@@ -1,6 +1,5 @@
-package com.app.ecommerce.config;
+package com.app.ecommerce.security;
 
-import com.app.ecommerce.constants.SecurityConstants;
 import com.app.ecommerce.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -26,17 +25,17 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private CustomUserDetailsService customUserDetailService;
 
     @Autowired
-    private CustomUserDetailsService customUserDetailService;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            String jwt = getJWTFromRequest(request);
+            String jwt = jwtTokenProvider.getJWTFromRequest(request);
             if(StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
                 Long userId = jwtTokenProvider.getUserIdFromJWT(jwt);
                 User userDetails = customUserDetailService.loadUserById(userId);
@@ -54,13 +53,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.error("Could not set user authentication in security context", ex);
         }
         filterChain.doFilter(request, response);
-    }
-
-    private String getJWTFromRequest(HttpServletRequest httpServletRequest) {
-        String bearerToken = httpServletRequest.getHeader(SecurityConstants.HEADER_STRING);
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(SecurityConstants.TOKEN_PREFIX)) {
-            return bearerToken.substring(SecurityConstants.TOKEN_PREFIX.length());
-        }
-        return null;
     }
 }
