@@ -6,14 +6,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -24,58 +23,89 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         prePostEnabled = true
 )
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final CustomUserDetailsService customUserDetailService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(customUserDetailService).passwordEncoder(bCryptPasswordEncoder);
-    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    @Override
-    @Bean(BeanIds.AUTHENTICATION_MANAGER)
-    protected AuthenticationManager authenticationManager() throws Exception {
-        return super.authenticationManager();
-    }
+        http.cors().and()
+                .csrf().disable()
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().
-                exceptionHandling()
+                .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
+
                 .and()
+
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
                 .and()
-                .headers().frameOptions().sameOrigin()
+
+                .headers()
+                .frameOptions()
+                .sameOrigin()
+
                 .and()
-                .authorizeHttpRequests()
+
+                .authorizeRequests()
+
                 .antMatchers(
                         "/",
                         "favicon.ico",
                         "/**/*.png",
                         "/**/*.gif",
-                        "**/*.svg",
-                        "**/*.jpg",
+                        "/**/*.svg",
+                        "/**/*.jpg",
                         "/**/*.html",
                         "/**/*.css",
                         "/**/*.js",
                         "/ping"
                 ).permitAll()
+
                 .antMatchers(HttpMethod.GET, "/products/**").permitAll()
-                .antMatchers("/user/login", "/user/register", "/user/passwordResetEmailVerification/**",
-                        "/user/reset-password/**", "/user/verify/**", "/user/validate-reset-token/**", "/reviews/product/**",
-                        "/stripe/save-order-webhook").permitAll()
-                .antMatchers("/admin/**", "/user/getUsers", "/orders/userOrders/**").hasRole("ADMIN")
+
+                .antMatchers(
+                        "/user/login",
+                        "/user/register",
+                        "/user/passwordResetEmailVerification/**",
+                        "/user/reset-password/**",
+                        "/user/verify/**",
+                        "/user/validate-reset-token/**",
+                        "/reviews/product/**",
+                        "/stripe/save-order-webhook"
+                ).permitAll()
+
+                .antMatchers(
+                        "/admin/**",
+                        "/user/getUsers",
+                        "/orders/userOrders/**"
+                ).hasRole("ADMIN")
+
                 .antMatchers(SecurityConstants.H2_URL).permitAll()
+
                 .anyRequest().authenticated();
 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+        );
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder auth =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        auth.userDetailsService(customUserDetailsService)
+                .passwordEncoder(bCryptPasswordEncoder);
+        return auth.build();
     }
 }

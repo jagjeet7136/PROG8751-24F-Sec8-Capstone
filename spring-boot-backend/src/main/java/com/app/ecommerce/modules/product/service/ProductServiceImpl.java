@@ -159,10 +159,14 @@ public class ProductServiceImpl implements ProductService {
             log.info("Product updated successfully: {}", savedProduct.getId());
 
             if (cacheProperties.isEnabled()) {
-                productCacheService.evict(savedProduct.getId());
-                log.info("Product cache evicted: {}", savedProduct.getId());
-                productCacheService.evictAllProducts();
-                log.info("Products cache evicted");
+                try {
+                    productCacheService.evict(savedProduct.getId());
+                    log.info("Product cache evicted: {}", savedProduct.getId());
+                    productCacheService.evictAllProducts();
+                    log.info("Products cache evicted");
+                } catch (Exception ex) {
+                    log.error("redis server failed");
+                }
             }
             return savedProduct;
         }).orElseThrow(() ->
