@@ -2,7 +2,6 @@ package com.app.ecommerce.security;
 
 import com.app.ecommerce.enums.ErrorCode;
 import com.app.ecommerce.model.dto.ApiErrorDTO;
-import com.app.ecommerce.model.response.InvalidLoginResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.security.core.AuthenticationException;
@@ -20,12 +19,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-
-//        InvalidLoginResponse loginResponse = new InvalidLoginResponse();
-//        String jsonLoginResponse = new ObjectMapper().writeValueAsString(loginResponse);
-//        response.setContentType("application/json");
-//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//        response.getWriter().print(jsonLoginResponse);
 
         ApiErrorDTO apiErrorDTO = new ApiErrorDTO();
         apiErrorDTO.setStatus(ErrorCode.BAD_CREDENTIALS.getStatus().value());
