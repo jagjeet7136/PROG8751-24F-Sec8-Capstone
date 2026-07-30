@@ -3,6 +3,7 @@ package com.app.ecommerce.modules.product.service;
 import com.app.ecommerce.config.CacheProperties;
 import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.NotFoundException;
+import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import com.app.ecommerce.modules.product.repository.ProductRepository;
@@ -49,14 +50,14 @@ class ProductServiceImplTest {
                         .build();
 
         when(cacheProperties.isEnabled()).thenReturn(true);
-        when(productCacheService.get(productId)).thenReturn(cachedResponse);
+        when(productCacheService.getCachedProduct(productId)).thenReturn(cachedResponse);
 
         ProductResponse result = productService.getProduct(productId);
 
         assertEquals("iPhone 16", result.getName());
 
         verify(productRepository, never()).findById(anyLong());
-        verify(productCacheService, never()).put(anyLong(), any(ProductResponse.class), any());
+        verify(productCacheService, never()).cacheProduct(anyLong(), any(ProductResponse.class), any());
     }
 
     @Test
@@ -73,7 +74,7 @@ class ProductServiceImplTest {
         product.setCategory(category);
 
         when(cacheProperties.isEnabled()).thenReturn(true);
-        when(productCacheService.get(1L)).thenReturn(null);
+        when(productCacheService.getCachedProduct(1L)).thenReturn(null);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         ProductResponse response = productService.getProduct(1L);
@@ -83,9 +84,9 @@ class ProductServiceImplTest {
         assertEquals(1L, response.getCategoryId());
         assertEquals(BigDecimal.valueOf(999), response.getPrice());
 
-        verify(productCacheService).get(1L);
+        verify(productCacheService).getCachedProduct(1L);
         verify(productRepository).findById(1L);
-        verify(productCacheService).put(eq(1L), any(ProductResponse.class), eq(Duration.ofMinutes(1440)));
+        verify(productCacheService).cacheProduct(eq(1L), any(ProductResponse.class), eq(Duration.ofMinutes(1440)));
     }
 
     @Test
@@ -111,25 +112,25 @@ class ProductServiceImplTest {
         assertEquals(1L, productResponse.getCategoryId());
         assertEquals(BigDecimal.valueOf(999), productResponse.getPrice());
 
-        verify(productCacheService, never()).get(1L);
+        verify(productCacheService, never()).getCachedProduct(1L);
         verify(productRepository).findById(1L);
-        verify(productCacheService, never()).put(eq(1L), any(ProductResponse.class), eq(Duration.ofMinutes(1440)));
+        verify(productCacheService, never()).cacheProduct(eq(1L), any(ProductResponse.class),
+                eq(Duration.ofMinutes(1440)));
     }
 
     @Test
     void shouldThrowNotFoundException_whenProductDoesNotExist() {
 
         when(cacheProperties.isEnabled()).thenReturn(true);
-        when(productCacheService.get(1L)).thenReturn(null);
+        when(productCacheService.getCachedProduct(1L)).thenReturn(null);
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         NotFoundException exception = assertThrows(NotFoundException.class, ()->productService.getProduct(1L));
 
         assertEquals("Product not found with ID: 1", exception.getMessage());
 
-        verify(productCacheService).get(1L);
+        verify(productCacheService).getCachedProduct(1L);
         verify(productRepository).findById(1L);
-        verify(productCacheService, never())
-                .put(anyLong(), any(ProductResponse.class), any(Duration.class));
+        verify(productCacheService, never()).cacheProduct(anyLong(), any(ProductResponse.class), any(Duration.class));
     }
 }

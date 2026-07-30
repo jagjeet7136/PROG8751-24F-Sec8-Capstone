@@ -3,6 +3,7 @@ package com.app.ecommerce.modules.product.service;
 import com.app.ecommerce.config.CacheProperties;
 import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.NotFoundException;
+import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.app.ecommerce.modules.product.dto.request.ProductSearchCriteriaRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
@@ -34,9 +35,9 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getAllProducts() {  //this can be stored in cache especially Recently Added, Top Rated and Exclusive Deals
         if (cacheProperties.isEnabled()) {
             List<ProductResponse> cached =
-                    productCacheService.getAllProducts();
+                    productCacheService.getCachedProductList();
             if (cached != null) {
-                log.info("All products fetched from cache");
+                log.info("CACHE HIT - All Products");
                 return cached;
             }
         }
@@ -44,11 +45,11 @@ public class ProductServiceImpl implements ProductService {
                 productRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
 
         if (cacheProperties.isEnabled()) {
-            productCacheService.putAllProducts(
+            productCacheService.cacheProductList(
                     products,
                     Duration.ofMinutes(30)
             );
-            log.info("All products cached");
+            log.info("CACHE PUT - All Products");
         }
         return products;
     }
@@ -57,9 +58,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getProduct(Long productId) {
         if (cacheProperties.isEnabled()) {
-            ProductResponse cached = productCacheService.get(productId);
+            ProductResponse cached = productCacheService.getCachedProduct(productId);
             if (cached != null) {
-                log.info("Product fetched from cache: {}", cached);
+                log.info("CACHE HIT - Product {}", productId);
                 return cached;
             }
         }
@@ -69,8 +70,8 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse response = mapToResponse(product);
 
         if (cacheProperties.isEnabled()) {
-            productCacheService.put(productId, response, Duration.ofMinutes(1440));
-            log.info("Product cached: {}", response);
+            productCacheService.cacheProduct(productId, response, Duration.ofMinutes(1440));
+            log.info("CACHE PUT - Product {}", productId);
         }
         return response;
     }
@@ -112,7 +113,8 @@ public class ProductServiceImpl implements ProductService {
 
         ProductResponse productResponse = mapToResponse(productRepository.save(product));
         if (cacheProperties.isEnabled()) {
-            productCacheService.evictAllProducts();
+            productCacheService.evictProductList();
+            log.info("CACHE EVICT - All Products");
         }
         return productResponse;
     }
@@ -160,10 +162,10 @@ public class ProductServiceImpl implements ProductService {
 
             if (cacheProperties.isEnabled()) {
                 try {
-                    productCacheService.evict(savedProduct.getId());
-                    log.info("Product cache evicted: {}", savedProduct.getId());
-                    productCacheService.evictAllProducts();
-                    log.info("Products cache evicted");
+                    productCacheService.evictProduct(savedProduct.getId());
+                    log.info("CACHE EVICT - Product {}", savedProduct.getId());
+                    productCacheService.evictProductList();
+                    log.info("CACHE EVICT - All Products");
                 } catch (Exception ex) {
                     log.error("redis server failed");
                 }

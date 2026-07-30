@@ -1,4 +1,4 @@
-package com.app.ecommerce.modules.product.service;
+package com.app.ecommerce.modules.product.cache;
 
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,15 +15,13 @@ import java.util.List;
 @Slf4j
 public class ProductCacheServiceImpl implements ProductCacheService {
 
-    private static final String PRODUCT_KEY_PREFIX = "product:";
-    private static final String ALL_PRODUCTS_KEY = "products:all";
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Override
-    public ProductResponse get(Long productId) {
+    public ProductResponse getCachedProduct(Long productId) {
         try {
-            String json = redisTemplate.opsForValue().get(PRODUCT_KEY_PREFIX + productId);
+            String json = redisTemplate.opsForValue().get(ProductCacheKeys.product(productId));
             if (json == null) {
                 return null;
             }
@@ -36,9 +34,9 @@ public class ProductCacheServiceImpl implements ProductCacheService {
     }
 
     @Override
-    public List<ProductResponse> getAllProducts() {
+    public List<ProductResponse> getCachedProductList() {
         try {
-            String json = redisTemplate.opsForValue().get(ALL_PRODUCTS_KEY);
+            String json = redisTemplate.opsForValue().get(ProductCacheKeys.ALL_PRODUCTS);
             if (json == null) {
                 return null;
             }
@@ -51,35 +49,33 @@ public class ProductCacheServiceImpl implements ProductCacheService {
     }
 
     @Override
-    public void put(Long productId,
-                    ProductResponse response,
-                    Duration ttl) {
+    public void cacheProduct(Long productId, ProductResponse response, Duration ttl) {
         try {
             String json = objectMapper.writeValueAsString(response);
             redisTemplate.opsForValue()
-                    .set(PRODUCT_KEY_PREFIX + productId, json, ttl);
+                    .set(ProductCacheKeys.product(productId), json, ttl);
         } catch (Exception e) {
             log.error("Failed to cache product", e);
         }
     }
 
     @Override
-    public void putAllProducts(List<ProductResponse> products, Duration ttl) {
+    public void cacheProductList(List<ProductResponse> products, Duration ttl) {
         try {
             String json = objectMapper.writeValueAsString(products);
-            redisTemplate.opsForValue().set(ALL_PRODUCTS_KEY, json, ttl);
+            redisTemplate.opsForValue().set(ProductCacheKeys.ALL_PRODUCTS, json, ttl);
         } catch (Exception e) {
             log.error("Failed to cache product list", e);
         }
     }
 
     @Override
-    public void evict(Long productId) {
-        redisTemplate.delete(PRODUCT_KEY_PREFIX + productId);
+    public void evictProduct(Long productId) {
+        redisTemplate.delete(ProductCacheKeys.product(productId));
     }
 
     @Override
-    public void evictAllProducts() {
-        redisTemplate.delete(ALL_PRODUCTS_KEY);
+    public void evictProductList() {
+        redisTemplate.delete(ProductCacheKeys.ALL_PRODUCTS);
     }
 }
