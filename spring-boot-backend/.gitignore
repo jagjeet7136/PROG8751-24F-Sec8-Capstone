@@ -20,6 +20,8 @@ target/
 *.ipr
 .gitignore
 .env
+logs/
+*.log
 
 ### NetBeans ###
 /nbproject/private/

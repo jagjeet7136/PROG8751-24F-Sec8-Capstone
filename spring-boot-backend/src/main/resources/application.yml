@@ -21,6 +21,11 @@ spring:
   redis:
     host: localhost
     port: 7000
+
+security:
+    jwt:
+      secret: ${JWT_SECRET}
+
 app:
   cache:
     enabled: true

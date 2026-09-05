@@ -4,6 +4,7 @@ import com.app.ecommerce.constants.SecurityConstants;
 import com.app.ecommerce.entity.User;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -15,6 +16,12 @@ import java.util.Map;
 @Slf4j
 @Component
 public class JwtTokenProvider {
+
+    private final String jwtSecret;
+
+    public JwtTokenProvider(@Value("${security.jwt.secret}") String jwtSecret) {
+        this.jwtSecret = jwtSecret;
+    }
 
     public String generateToken(Long id, String fullName, String email, Authentication... authentication) {
         String userId;
@@ -43,7 +50,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, SecurityConstants.SECRET)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
 
@@ -61,7 +68,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SecurityConstants.SECRET).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
             log.warn("Invalid JWT signature");
@@ -79,7 +86,7 @@ public class JwtTokenProvider {
 
     public Long getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(SecurityConstants.SECRET)
+                .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody();
         return Long.parseLong((String) claims.get("id"));
