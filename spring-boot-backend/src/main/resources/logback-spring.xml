@@ -4,7 +4,7 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <conversionRule conversionWord="highlight" converterClass="com.app.ecommerce.logging.CustomHighlightingLogLevel"/>
 
-    <property name="LOG_DIR" value="D:/Spring-Logs/ecommerce"/>
+    <springProperty scope="context" name="LOG_DIR" source="logging.file.path" defaultValue="logs"/>
     <property name="LOG_FILE_NAME" value="ecommerce.log"/>
 
     <property name="CUSTOM_LOG_PATTERN"
