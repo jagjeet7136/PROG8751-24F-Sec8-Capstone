@@ -1,8 +1,8 @@
 package com.app.ecommerce.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.app.ecommerce.entity.*;
 import com.app.ecommerce.exceptions.ForbiddenException;
+import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.modules.product.api.ProductApi;
 import com.app.ecommerce.modules.product.api.ProductInfo;
 import com.app.ecommerce.repository.*;
