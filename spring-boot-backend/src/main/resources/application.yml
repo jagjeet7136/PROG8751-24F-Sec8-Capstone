@@ -26,11 +26,17 @@ security:
     jwt:
       secret: ${JWT_SECRET}
 
+stripe:
+  api-key: ${STRIPE_API_KEY}
+  webhook-key: ${STRIPE_WEBHOOK_KEY}
+
 app:
   cache:
     enabled: true
 
 mailjet:
+  api-key: ${MAILJET_API_KEY}
+  secret-key: ${MAILJET_SECRET_KEY}
   sender:
     email: jagjeet7136@gmail.com
     name: Shopee
