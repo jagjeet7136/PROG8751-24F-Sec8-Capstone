@@ -21,6 +21,8 @@ spring:
   redis:
     host: localhost
     port: 7000
+    connect-timeout: 1s
+    timeout: 1s
 
 security:
     jwt:

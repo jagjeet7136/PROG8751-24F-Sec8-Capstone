@@ -54,8 +54,9 @@ public class ProductCacheServiceImpl implements ProductCacheService {
             String json = objectMapper.writeValueAsString(response);
             redisTemplate.opsForValue()
                     .set(ProductCacheKeys.product(productId), json, ttl);
+            log.info("CACHE PUT - Product {}", productId);
         } catch (Exception e) {
-            log.error("Failed to cache product", e);
+            log.error("Failed to cache product: {}", e.getMessage());
         }
     }
 
@@ -71,11 +72,21 @@ public class ProductCacheServiceImpl implements ProductCacheService {
 
     @Override
     public void evictProduct(Long productId) {
-        redisTemplate.delete(ProductCacheKeys.product(productId));
+        try {
+            redisTemplate.delete(ProductCacheKeys.product(productId));
+            log.info("CACHE EVICT - Product {}", productId);
+        } catch (Exception e) {
+            log.error("Failed to evict product {} from cache: {}", productId, e.getMessage());
+        }
     }
 
     @Override
     public void evictProductList() {
-        redisTemplate.delete(ProductCacheKeys.ALL_PRODUCTS);
+        try {
+            redisTemplate.delete(ProductCacheKeys.ALL_PRODUCTS);
+            log.info("CACHE EVICT - All Products");
+        } catch (Exception e) {
+            log.error("Failed to evict product list from cache: {}", e.getMessage());
+        }
     }
 }
