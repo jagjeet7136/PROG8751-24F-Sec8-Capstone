@@ -65,6 +65,7 @@ class ProductServiceImplTest {
         Category category = new Category();
         category.setId(1L);
 
+        Duration productTtl = Duration.ofHours(24);
         Product product = new Product();
         product.setId(1L);
         product.setName("iPhone 16");
@@ -76,6 +77,7 @@ class ProductServiceImplTest {
         when(cacheProperties.isEnabled()).thenReturn(true);
         when(productCacheService.getCachedProduct(1L)).thenReturn(null);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(cacheProperties.getProductTtl()).thenReturn(productTtl);
 
         ProductResponse response = productService.getProduct(1L);
 
@@ -86,7 +88,7 @@ class ProductServiceImplTest {
 
         verify(productCacheService).getCachedProduct(1L);
         verify(productRepository).findById(1L);
-        verify(productCacheService).cacheProduct(eq(1L), any(ProductResponse.class), eq(Duration.ofMinutes(1440)));
+        verify(productCacheService).cacheProduct(eq(1L), any(ProductResponse.class), eq(productTtl));
     }
 
     @Test

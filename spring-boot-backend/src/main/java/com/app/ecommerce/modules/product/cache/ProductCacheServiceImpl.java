@@ -25,6 +25,7 @@ public class ProductCacheServiceImpl implements ProductCacheService {
             if (json == null) {
                 return null;
             }
+            log.info("CACHE HIT - Product {}", productId);
             return objectMapper.readValue(json, ProductResponse.class);
 
         } catch (Exception e) {
@@ -40,6 +41,7 @@ public class ProductCacheServiceImpl implements ProductCacheService {
             if (json == null) {
                 return null;
             }
+            log.info("CACHE HIT - All Products");
             return objectMapper.readValue(json,
                     new TypeReference<List<ProductResponse>>() {});
         } catch (Exception e) {
@@ -65,6 +67,7 @@ public class ProductCacheServiceImpl implements ProductCacheService {
         try {
             String json = objectMapper.writeValueAsString(products);
             redisTemplate.opsForValue().set(ProductCacheKeys.ALL_PRODUCTS, json, ttl);
+            log.info("CACHE PUT - All Products");
         } catch (Exception e) {
             log.error("Failed to cache product list", e);
         }

@@ -35,6 +35,8 @@ stripe:
 app:
   cache:
     enabled: true
+    product-ttl: 24h
+    product-list-ttl: 30m
 
 mailjet:
   api-key: ${MAILJET_API_KEY}

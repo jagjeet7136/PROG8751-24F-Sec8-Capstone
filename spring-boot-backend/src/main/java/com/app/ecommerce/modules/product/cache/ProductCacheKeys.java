@@ -2,8 +2,7 @@ package com.app.ecommerce.modules.product.cache;
 
 public final class ProductCacheKeys {
 
-    private ProductCacheKeys() {
-    }
+    private ProductCacheKeys() {}
 
     public static final String ALL_PRODUCTS = "products:all";
 

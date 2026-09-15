@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +33,8 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {  //this can be stored in cache especially Recently Added, Top Rated and Exclusive Deals
         if (cacheProperties.isEnabled()) {
-            List<ProductResponse> cached =
-                    productCacheService.getCachedProductList();
+            List<ProductResponse> cached = productCacheService.getCachedProductList();
             if (cached != null) {
-                log.info("CACHE HIT - All Products");
                 return cached;
             }
         }
@@ -45,11 +42,7 @@ public class ProductServiceImpl implements ProductService {
                 productRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
 
         if (cacheProperties.isEnabled()) {
-            productCacheService.cacheProductList(
-                    products,
-                    Duration.ofMinutes(30)
-            );
-            log.info("CACHE PUT - All Products");
+            productCacheService.cacheProductList(products, cacheProperties.getProductListTtl());
         }
         return products;
     }
@@ -60,7 +53,6 @@ public class ProductServiceImpl implements ProductService {
         if (cacheProperties.isEnabled()) {
             ProductResponse cached = productCacheService.getCachedProduct(productId);
             if (cached != null) {
-                log.info("CACHE HIT - Product {}", productId);
                 return cached;
             }
         }
@@ -70,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse response = mapToResponse(product);
 
         if (cacheProperties.isEnabled()) {
-            productCacheService.cacheProduct(productId, response, Duration.ofMinutes(1440));
+            productCacheService.cacheProduct(productId, response, cacheProperties.getProductTtl());
         }
         return response;
     }
@@ -113,7 +105,6 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse productResponse = mapToResponse(productRepository.save(product));
         if (cacheProperties.isEnabled()) {
             productCacheService.evictProductList();
-            log.info("CACHE EVICT - All Products");
         }
         return productResponse;
     }
