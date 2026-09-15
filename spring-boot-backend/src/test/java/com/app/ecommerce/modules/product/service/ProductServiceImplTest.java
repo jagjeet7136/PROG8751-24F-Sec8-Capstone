@@ -5,6 +5,7 @@ import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
+import com.app.ecommerce.modules.product.dto.request.ProductUpdateRequest;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import com.app.ecommerce.modules.product.repository.ProductRepository;
 import com.app.ecommerce.repository.CategoryRepository;
@@ -135,4 +136,81 @@ class ProductServiceImplTest {
         verify(productRepository).findById(1L);
         verify(productCacheService, never()).cacheProduct(anyLong(), any(ProductResponse.class), any(Duration.class));
     }
+
+    @Test
+    void shouldEvictProductCaches_whenProductIsUpdated() {
+
+        Long productId = 1L;
+
+        Category category = new Category();
+        category.setId(1L);
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+        existingProduct.setName("Old Name");
+        existingProduct.setDescription("Old Description");
+        existingProduct.setPrice(BigDecimal.valueOf(100));
+        existingProduct.setStock(10);
+        existingProduct.setCategory(category);
+
+        ProductUpdateRequest request = new ProductUpdateRequest();
+        request.setName("Updated Name");
+        request.setPrice(BigDecimal.valueOf(150));
+
+        when(productRepository.findById(productId))
+                .thenReturn(Optional.of(existingProduct));
+
+        when(productRepository.save(existingProduct))
+                .thenReturn(existingProduct);
+
+        when(cacheProperties.isEnabled())
+                .thenReturn(true);
+
+        ProductResponse response =
+                productService.updateProduct(productId, request);
+
+        assertEquals("Updated Name", response.getName());
+        assertEquals(BigDecimal.valueOf(150), response.getPrice());
+
+        verify(productRepository).findById(productId);
+        verify(productRepository).save(existingProduct);
+
+        verify(productCacheService).evictProduct(productId);
+        verify(productCacheService).evictProductList();
+    }
+
+    @Test
+    void shouldNotEvictProductCaches_whenCacheIsDisabled() {
+
+        Long productId = 1L;
+
+        Category category = new Category();
+        category.setId(1L);
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+        existingProduct.setName("Old Name");
+        existingProduct.setDescription("Old Description");
+        existingProduct.setPrice(BigDecimal.valueOf(100));
+        existingProduct.setStock(10);
+        existingProduct.setCategory(category);
+
+        ProductUpdateRequest request = new ProductUpdateRequest();
+        request.setName("Updated Name");
+
+        when(productRepository.findById(productId))
+                .thenReturn(Optional.of(existingProduct));
+
+        when(productRepository.save(existingProduct))
+                .thenReturn(existingProduct);
+
+        when(cacheProperties.isEnabled())
+                .thenReturn(false);
+
+        productService.updateProduct(productId, request);
+
+        verify(productCacheService, never()).evictProduct(anyLong());
+        verify(productCacheService, never()).evictProductList();
+    }
+
 }
