@@ -5,6 +5,7 @@ import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
+import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductUpdateRequest;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import com.app.ecommerce.modules.product.repository.ProductRepository;
@@ -211,6 +212,86 @@ class ProductServiceImplTest {
 
         verify(productCacheService, never()).evictProduct(anyLong());
         verify(productCacheService, never()).evictProductList();
+    }
+
+    @Test
+    void shouldEvictProductListCache_whenProductIsCreated() {
+
+        Category category = new Category();
+        category.setId(1L);
+
+        ProductCreateRequest request = new ProductCreateRequest();
+        request.setName("New Product");
+        request.setDescription("New product description");
+        request.setPrice(BigDecimal.valueOf(200));
+        request.setStock(20);
+        request.setCategoryId(1L);
+
+        Product savedProduct = new Product();
+        savedProduct.setId(1L);
+        savedProduct.setName("New Product");
+        savedProduct.setDescription("New product description");
+        savedProduct.setPrice(BigDecimal.valueOf(200));
+        savedProduct.setStock(20);
+        savedProduct.setCategory(category);
+
+        when(categoryRepository.findById(1L))
+                .thenReturn(Optional.of(category));
+
+        when(productRepository.save(any(Product.class)))
+                .thenReturn(savedProduct);
+
+        when(cacheProperties.isEnabled())
+                .thenReturn(true);
+
+        ProductResponse response =
+                productService.createProduct(request);
+
+        assertEquals(1L, response.getId());
+        assertEquals("New Product", response.getName());
+
+        verify(productRepository).save(any(Product.class));
+
+        verify(productCacheService).evictProductList();
+
+        verify(productCacheService, never())
+                .evictProduct(anyLong());
+    }
+
+    @Test
+    void shouldNotEvictProductListCache_whenCreatingProductAndCacheIsDisabled() {
+
+        Category category = new Category();
+        category.setId(1L);
+
+        ProductCreateRequest request = new ProductCreateRequest();
+        request.setName("New Product");
+        request.setDescription("New product description");
+        request.setPrice(BigDecimal.valueOf(200));
+        request.setStock(20);
+        request.setCategoryId(1L);
+
+        Product savedProduct = new Product();
+        savedProduct.setId(1L);
+        savedProduct.setName("New Product");
+        savedProduct.setDescription("New product description");
+        savedProduct.setPrice(BigDecimal.valueOf(200));
+        savedProduct.setStock(20);
+        savedProduct.setCategory(category);
+
+        when(categoryRepository.findById(1L))
+                .thenReturn(Optional.of(category));
+
+        when(productRepository.save(any(Product.class)))
+                .thenReturn(savedProduct);
+
+        when(cacheProperties.isEnabled())
+                .thenReturn(false);
+
+        productService.createProduct(request);
+
+        verify(productCacheService, never())
+                .evictProductList();
     }
 
 }
