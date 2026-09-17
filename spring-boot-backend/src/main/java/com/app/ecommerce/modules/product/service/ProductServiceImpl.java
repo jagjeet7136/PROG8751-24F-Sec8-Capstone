@@ -160,16 +160,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductResponse mapToResponse(Product product) {
-//        List<Review> reviews = product.getReviews();
-//        double averageRating = 0;
-//        int totalRatings = reviews != null ? reviews.size() : 0;
-//
-//        if (totalRatings > 0) {
-//            averageRating = reviews.stream()
-//                    .mapToInt(Review::getRating)
-//                    .average()
-//                    .orElse(0);
-//        }
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -182,8 +172,6 @@ public class ProductServiceImpl implements ProductService {
                 .categoryId(product.getCategory().getId())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
-//                .averageRating(averageRating)
-//                .totalRatings(totalRatings)
                 .build();
     }
 }

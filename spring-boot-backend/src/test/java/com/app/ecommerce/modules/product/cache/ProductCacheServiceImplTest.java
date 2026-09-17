@@ -1,9 +1,9 @@
 package com.app.ecommerce.modules.product.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,16 +24,8 @@ class ProductCacheServiceImplTest {
     @Mock
     private ValueOperations<String, String> valueOperations;
 
+    @InjectMocks
     private ProductCacheServiceImpl productCacheService;
-
-    @BeforeEach
-    void setUp() {
-        productCacheService =
-                new ProductCacheServiceImpl(
-                        redisTemplate,
-                        objectMapper
-                );
-    }
 
     @Test
     void shouldNotThrowException_whenProductEvictionFails() {
