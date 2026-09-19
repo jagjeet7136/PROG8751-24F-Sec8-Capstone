@@ -25,8 +25,4 @@ public class ProductApiImpl implements ProductApi {
                 .stock(product.getStock())
                 .build();
     }
-
-    @Override
-    public void reduceStock(Long productId, int quantity) {
-    }
 }
