@@ -294,4 +294,46 @@ class ProductServiceImplTest {
                 .evictProductList();
     }
 
+    @Test
+    void shouldThrowNotFoundException_whenUpdatingWithInvalidCategory() {
+
+        Long productId = 1L;
+        Long categoryId = 999L;
+
+        Category existingCategory = new Category();
+        existingCategory.setId(1L);
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+        existingProduct.setName("iPhone");
+        existingProduct.setPrice(BigDecimal.valueOf(999));
+        existingProduct.setStock(10);
+        existingProduct.setCategory(existingCategory);
+
+        ProductUpdateRequest request = new ProductUpdateRequest();
+        request.setCategoryId(categoryId);
+
+        when(productRepository.findById(productId))
+                .thenReturn(Optional.of(existingProduct));
+
+        when(categoryRepository.findById(categoryId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> productService.updateProduct(productId, request)
+        );
+
+        verify(categoryRepository).findById(categoryId);
+
+        verify(productRepository, never())
+                .save(any(Product.class));
+
+        verify(productCacheService, never())
+                .evictProduct(anyLong());
+
+        verify(productCacheService, never())
+                .evictProductList();
+    }
+
 }

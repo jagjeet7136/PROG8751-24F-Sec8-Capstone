@@ -145,7 +145,17 @@ public class ProductServiceImpl implements ProductService {
             }
 
             if (request.getCategoryId() != null) {
-                categoryRepository.findById(request.getCategoryId()).ifPresent(existingProduct::setCategory);
+
+                Category category = categoryRepository
+                        .findById(request.getCategoryId())
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Category not found with ID: "
+                                                + request.getCategoryId()
+                                )
+                        );
+
+                existingProduct.setCategory(category);
             }
             ProductResponse savedProduct = mapToResponse(productRepository.save(existingProduct));
             log.info("Product updated successfully: {}", savedProduct.getId());
