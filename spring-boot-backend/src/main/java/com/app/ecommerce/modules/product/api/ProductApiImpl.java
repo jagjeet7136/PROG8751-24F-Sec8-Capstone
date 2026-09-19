@@ -1,6 +1,7 @@
 package com.app.ecommerce.modules.product.api;
 
 import com.app.ecommerce.exceptions.BadRequestException;
+import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import com.app.ecommerce.modules.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,12 +14,16 @@ public class ProductApiImpl implements ProductApi {
 
     @Override
     public ProductInfo getProductInfo(Long productId) {
-        if(productId==null || productId<=0) {
+        if (productId == null || productId <= 0) {
             throw new BadRequestException("Invalid product id: {" + productId + "}");
         }
-        var product = productService.getProduct(productId); //may need to change because getProduct returns ProductResponse which is for controller
+        ProductResponse product = productService.getProduct(productId);
 
-        return ProductInfo.builder()           //extract to different method if same code is anywhere other
+        return mapToProductInfo(product);
+    }
+
+    private ProductInfo mapToProductInfo(ProductResponse product) {
+        return ProductInfo.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .price(product.getPrice())
