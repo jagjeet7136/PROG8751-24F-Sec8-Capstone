@@ -2,11 +2,13 @@ package com.app.ecommerce.modules.product.service;
 
 import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.model.dto.ProductRatingSummary;
+import com.app.ecommerce.model.dto.ProductSalesSummary;
 import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.app.ecommerce.modules.product.domain.mapper.ProductMapper;
 import com.app.ecommerce.modules.product.dto.response.HomeProductsResponse;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import com.app.ecommerce.modules.product.repository.ProductRepository;
+import com.app.ecommerce.repository.OrderItemRepository;
 import com.app.ecommerce.repository.ReviewRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +21,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class HomeCatalogServiceImplTest {
@@ -34,6 +34,9 @@ class HomeCatalogServiceImplTest {
 
     @Spy
     private ProductMapper productMapper = new ProductMapper();
+
+    @Mock
+    private OrderItemRepository orderItemRepository;
 
     @InjectMocks
     private HomeCatalogServiceImpl homeCatalogService;
@@ -63,6 +66,21 @@ class HomeCatalogServiceImplTest {
         ratedProduct.setPrice(BigDecimal.valueOf(300));
         ratedProduct.setCategory(category);
 
+        Product sellingProduct = new Product();
+        sellingProduct.setId(4L);
+        sellingProduct.setName("Best Seller");
+        sellingProduct.setPrice(BigDecimal.valueOf(500));
+        sellingProduct.setCategory(category);
+
+        ProductSalesSummary salesSummary =
+                mock(ProductSalesSummary.class);
+
+        when(salesSummary.getProductId())
+                .thenReturn(4L);
+
+        when(orderItemRepository.findTopSellingProducts(any(Pageable.class)))
+                .thenReturn(List.of(salesSummary));
+
         ProductRatingSummary ratingSummary =
                 mock(ProductRatingSummary.class);
 
@@ -84,8 +102,11 @@ class HomeCatalogServiceImplTest {
         when(reviewRepository.findTopRatedProducts(any(Pageable.class)))
                 .thenReturn(List.of(ratingSummary));
 
-        when(productRepository.findAllById(anyList()))
+        when(productRepository.findAllById(List.of(3L)))
                 .thenReturn(List.of(ratedProduct));
+
+        when(productRepository.findAllById(List.of(4L)))
+                .thenReturn(List.of(sellingProduct));
 
         HomeProductsResponse response =
                 homeCatalogService.getHomeProducts();
@@ -138,8 +159,18 @@ class HomeCatalogServiceImplTest {
         );
 
         assertEquals(
-                0,
+                1,
                 response.getTopSelling().size()
         );
+
+        assertEquals(
+                "Best Seller",
+                response.getTopSelling()
+                        .get(0)
+                        .getName()
+        );
+
+        verify(orderItemRepository)
+                .findTopSellingProducts(any(Pageable.class));
     }
 }

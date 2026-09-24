@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.app.ecommerce.model.dto.ProductSalesSummary;
+import com.app.ecommerce.repository.OrderItemRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,9 +23,9 @@ import java.util.stream.Collectors;
 public class HomeCatalogServiceImpl implements HomeCatalogService {
 
     private static final int SECTION_SIZE = 8;
-
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ProductMapper productMapper;
 
     @Override
@@ -48,11 +49,15 @@ public class HomeCatalogServiceImpl implements HomeCatalogService {
         List<ProductResponse> topRated =
                 getTopRatedProducts();
 
+        List<ProductResponse> topSelling =
+                getTopSellingProducts();
+
         return HomeProductsResponse.builder()
                 .newlyReleased(newlyReleased)
                 .topSelling(List.of())
                 .exclusiveDeals(exclusiveDeals)
                 .topRated(topRated)
+                .topSelling(topSelling)
                 .build();
     }
 
@@ -104,6 +109,42 @@ public class HomeCatalogServiceImpl implements HomeCatalogService {
 
                     return response;
                 })
+                .collect(Collectors.toList());
+    }
+
+    private List<ProductResponse> getTopSellingProducts() {
+
+        List<ProductSalesSummary> salesSummaries =
+                orderItemRepository.findTopSellingProducts(
+                        PageRequest.of(0, SECTION_SIZE)
+                );
+
+        List<Long> productIds =
+                salesSummaries.stream()
+                        .map(ProductSalesSummary::getProductId)
+                        .collect(Collectors.toList());
+
+        Map<Long, Product> productsById =
+                productRepository.findAllById(productIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                Product::getId,
+                                Function.identity()
+                        ));
+
+        return salesSummaries.stream()
+                .filter(summary ->
+                        productsById.containsKey(
+                                summary.getProductId()
+                        )
+                )
+                .map(summary ->
+                        productMapper.toResponse(
+                                productsById.get(
+                                        summary.getProductId()
+                                )
+                        )
+                )
                 .collect(Collectors.toList());
     }
 }
