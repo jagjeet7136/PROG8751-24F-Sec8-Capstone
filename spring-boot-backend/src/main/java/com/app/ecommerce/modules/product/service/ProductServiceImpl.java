@@ -5,6 +5,7 @@ import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
+import com.app.ecommerce.modules.product.domain.mapper.ProductMapper;
 import com.app.ecommerce.modules.product.dto.request.ProductSearchCriteriaRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductUpdateRequest;
@@ -28,6 +29,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final CacheProperties cacheProperties;
     private final ProductCacheService productCacheService;
+    private final ProductMapper productMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         List<ProductResponse> products =
-                productRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+                productRepository.findAll().stream().map(productMapper::toResponse).collect(Collectors.toList());
 
         if (cacheProperties.isEnabled()) {
             productCacheService.cacheProductList(products, cacheProperties.getProductListTtl());
@@ -59,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + productId));
-        ProductResponse response = mapToResponse(product);
+        ProductResponse response = productMapper.toResponse(product);
 
         if (cacheProperties.isEnabled()) {
             productCacheService.cacheProduct(productId, response, cacheProperties.getProductTtl());
@@ -85,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
                 (search == null || search.trim().isEmpty())
                         ? productRepository.findAll(pageable)
                         : productRepository.searchProducts(search.trim(), pageable);
-        return productPage.map(this::mapToResponse);
+        return productPage.map(productMapper::toResponse);
     }
 
     @Override
@@ -103,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(request.getStock());
         product.setCategory(category);
 
-        ProductResponse productResponse = mapToResponse(productRepository.save(product));
+        ProductResponse productResponse = productMapper.toResponse(productRepository.save(product));
         if (cacheProperties.isEnabled()) {
             productCacheService.evictProductList();
         }
@@ -159,7 +161,7 @@ public class ProductServiceImpl implements ProductService {
 
                 existingProduct.setCategory(category);
             }
-            ProductResponse savedProduct = mapToResponse(productRepository.save(existingProduct));
+            ProductResponse savedProduct = productMapper.toResponse(productRepository.save(existingProduct));
             log.info("Product updated successfully: {}", savedProduct.getId());
 
             if (cacheProperties.isEnabled()) {
@@ -171,19 +173,4 @@ public class ProductServiceImpl implements ProductService {
             new NotFoundException("Product not found with ID: " + id));
     }
 
-    private ProductResponse mapToResponse(Product product) {
-        return ProductResponse.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .longDescription(product.getLongDescription())
-                .discountedPrice(product.getDiscountedPrice())
-                .price(product.getPrice())
-                .imageUrl(product.getImageUrl())
-                .stock(product.getStock())
-                .categoryId(product.getCategory().getId())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build();
-    }
 }

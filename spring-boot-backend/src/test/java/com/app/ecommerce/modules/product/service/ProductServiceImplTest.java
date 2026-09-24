@@ -5,6 +5,7 @@ import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.exceptions.NotFoundException;
 import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
+import com.app.ecommerce.modules.product.domain.mapper.ProductMapper;
 import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductUpdateRequest;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
@@ -14,13 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,105 +40,199 @@ class ProductServiceImplTest {
     @Mock
     private ProductCacheService productCacheService;
 
+    @Spy
+    private ProductMapper productMapper = new ProductMapper();
+
     @InjectMocks
     private ProductServiceImpl productService;
+
 
     @Test
     void shouldReturnProductFromCache_whenCacheHit() {
 
         Long productId = 1L;
+
         ProductResponse cachedResponse =
                 ProductResponse.builder()
                         .id(productId)
                         .name("iPhone 16")
                         .build();
 
-        when(cacheProperties.isEnabled()).thenReturn(true);
-        when(productCacheService.getCachedProduct(productId)).thenReturn(cachedResponse);
+        when(cacheProperties.isEnabled())
+                .thenReturn(true);
 
-        ProductResponse result = productService.getProduct(productId);
+        when(productCacheService.getCachedProduct(productId))
+                .thenReturn(cachedResponse);
 
+        ProductResponse result =
+                productService.getProduct(productId);
+
+        assertEquals(1L, result.getId());
         assertEquals("iPhone 16", result.getName());
 
-        verify(productRepository, never()).findById(anyLong());
-        verify(productCacheService, never()).cacheProduct(anyLong(), any(ProductResponse.class), any());
+        verify(productCacheService).getCachedProduct(productId);
+
+        verify(productRepository, never())
+                .findById(anyLong());
+
+        verify(productMapper, never())
+                .toResponse(any(Product.class));
+
+        verify(productCacheService, never())
+                .cacheProduct(
+                        anyLong(),
+                        any(ProductResponse.class),
+                        any(Duration.class)
+                );
     }
+
 
     @Test
     void shouldFetchProductFromDatabase_whenCacheMiss() {
+
+        Long productId = 1L;
+
         Category category = new Category();
         category.setId(1L);
 
-        Duration productTtl = Duration.ofHours(24);
         Product product = new Product();
-        product.setId(1L);
+        product.setId(productId);
         product.setName("iPhone 16");
         product.setDescription("Latest iPhone");
         product.setPrice(BigDecimal.valueOf(999));
         product.setStock(25);
         product.setCategory(category);
 
-        when(cacheProperties.isEnabled()).thenReturn(true);
-        when(productCacheService.getCachedProduct(1L)).thenReturn(null);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(cacheProperties.getProductTtl()).thenReturn(productTtl);
+        Duration productTtl = Duration.ofHours(24);
 
-        ProductResponse response = productService.getProduct(1L);
+        when(cacheProperties.isEnabled())
+                .thenReturn(true);
 
-        assertEquals(1L, response.getId());
+        when(productCacheService.getCachedProduct(productId))
+                .thenReturn(null);
+
+        when(productRepository.findById(productId))
+                .thenReturn(Optional.of(product));
+
+        when(cacheProperties.getProductTtl())
+                .thenReturn(productTtl);
+
+        ProductResponse response =
+                productService.getProduct(productId);
+
+        assertEquals(productId, response.getId());
         assertEquals("iPhone 16", response.getName());
         assertEquals(1L, response.getCategoryId());
         assertEquals(BigDecimal.valueOf(999), response.getPrice());
 
-        verify(productCacheService).getCachedProduct(1L);
-        verify(productRepository).findById(1L);
-        verify(productCacheService).cacheProduct(eq(1L), any(ProductResponse.class), eq(productTtl));
+        verify(productCacheService)
+                .getCachedProduct(productId);
+
+        verify(productRepository)
+                .findById(productId);
+
+        verify(productMapper)
+                .toResponse(product);
+
+        verify(productCacheService)
+                .cacheProduct(
+                        eq(productId),
+                        eq(response),
+                        eq(productTtl)
+                );
     }
+
 
     @Test
     void shouldFetchProductFromDatabase_whenCacheIsDisabled() {
+
+        Long productId = 1L;
+
         Category category = new Category();
         category.setId(1L);
 
         Product product = new Product();
-        product.setId(1L);
+        product.setId(productId);
         product.setName("iPhone 16");
         product.setDescription("Latest iPhone");
         product.setPrice(BigDecimal.valueOf(999));
         product.setStock(25);
         product.setCategory(category);
 
-        when(cacheProperties.isEnabled()).thenReturn(false);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(cacheProperties.isEnabled())
+                .thenReturn(false);
 
-        ProductResponse productResponse = productService.getProduct(1L);
+        when(productRepository.findById(productId))
+                .thenReturn(Optional.of(product));
 
-        assertEquals(1L, productResponse.getId());
+        ProductResponse productResponse =
+                productService.getProduct(productId);
+
+        assertEquals(productId, productResponse.getId());
         assertEquals("iPhone 16", productResponse.getName());
         assertEquals(1L, productResponse.getCategoryId());
         assertEquals(BigDecimal.valueOf(999), productResponse.getPrice());
 
-        verify(productCacheService, never()).getCachedProduct(1L);
-        verify(productRepository).findById(1L);
-        verify(productCacheService, never()).cacheProduct(eq(1L), any(ProductResponse.class),
-                eq(Duration.ofMinutes(1440)));
+        verify(productCacheService, never())
+                .getCachedProduct(anyLong());
+
+        verify(productRepository)
+                .findById(productId);
+
+        verify(productMapper)
+                .toResponse(product);
+
+        verify(productCacheService, never())
+                .cacheProduct(
+                        anyLong(),
+                        any(ProductResponse.class),
+                        any(Duration.class)
+                );
     }
+
 
     @Test
     void shouldThrowNotFoundException_whenProductDoesNotExist() {
 
-        when(cacheProperties.isEnabled()).thenReturn(true);
-        when(productCacheService.getCachedProduct(1L)).thenReturn(null);
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+        Long productId = 1L;
 
-        NotFoundException exception = assertThrows(NotFoundException.class, ()->productService.getProduct(1L));
+        when(cacheProperties.isEnabled())
+                .thenReturn(true);
 
-        assertEquals("Product not found with ID: 1", exception.getMessage());
+        when(productCacheService.getCachedProduct(productId))
+                .thenReturn(null);
 
-        verify(productCacheService).getCachedProduct(1L);
-        verify(productRepository).findById(1L);
-        verify(productCacheService, never()).cacheProduct(anyLong(), any(ProductResponse.class), any(Duration.class));
+        when(productRepository.findById(productId))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception =
+                assertThrows(
+                        NotFoundException.class,
+                        () -> productService.getProduct(productId)
+                );
+
+        assertEquals(
+                "Product not found with ID: 1",
+                exception.getMessage()
+        );
+
+        verify(productCacheService)
+                .getCachedProduct(productId);
+
+        verify(productRepository)
+                .findById(productId);
+
+        verify(productMapper, never())
+                .toResponse(any(Product.class));
+
+        verify(productCacheService, never())
+                .cacheProduct(
+                        anyLong(),
+                        any(ProductResponse.class),
+                        any(Duration.class)
+                );
     }
+
 
     @Test
     void shouldEvictProductCaches_whenProductIsUpdated() {
@@ -154,7 +250,9 @@ class ProductServiceImplTest {
         existingProduct.setStock(10);
         existingProduct.setCategory(category);
 
-        ProductUpdateRequest request = new ProductUpdateRequest();
+        ProductUpdateRequest request =
+                new ProductUpdateRequest();
+
         request.setName("Updated Name");
         request.setPrice(BigDecimal.valueOf(150));
 
@@ -168,17 +266,34 @@ class ProductServiceImplTest {
                 .thenReturn(true);
 
         ProductResponse response =
-                productService.updateProduct(productId, request);
+                productService.updateProduct(
+                        productId,
+                        request
+                );
 
+        assertEquals(productId, response.getId());
         assertEquals("Updated Name", response.getName());
-        assertEquals(BigDecimal.valueOf(150), response.getPrice());
+        assertEquals(
+                BigDecimal.valueOf(150),
+                response.getPrice()
+        );
 
-        verify(productRepository).findById(productId);
-        verify(productRepository).save(existingProduct);
+        verify(productRepository)
+                .findById(productId);
 
-        verify(productCacheService).evictProduct(productId);
-        verify(productCacheService).evictProductList();
+        verify(productRepository)
+                .save(existingProduct);
+
+        verify(productMapper)
+                .toResponse(existingProduct);
+
+        verify(productCacheService)
+                .evictProduct(productId);
+
+        verify(productCacheService)
+                .evictProductList();
     }
+
 
     @Test
     void shouldNotEvictProductCaches_whenCacheIsDisabled() {
@@ -196,7 +311,9 @@ class ProductServiceImplTest {
         existingProduct.setStock(10);
         existingProduct.setCategory(category);
 
-        ProductUpdateRequest request = new ProductUpdateRequest();
+        ProductUpdateRequest request =
+                new ProductUpdateRequest();
+
         request.setName("Updated Name");
 
         when(productRepository.findById(productId))
@@ -208,11 +325,31 @@ class ProductServiceImplTest {
         when(cacheProperties.isEnabled())
                 .thenReturn(false);
 
-        productService.updateProduct(productId, request);
+        ProductResponse response =
+                productService.updateProduct(
+                        productId,
+                        request
+                );
 
-        verify(productCacheService, never()).evictProduct(anyLong());
-        verify(productCacheService, never()).evictProductList();
+        assertEquals(productId, response.getId());
+        assertEquals("Updated Name", response.getName());
+
+        verify(productRepository)
+                .findById(productId);
+
+        verify(productRepository)
+                .save(existingProduct);
+
+        verify(productMapper)
+                .toResponse(existingProduct);
+
+        verify(productCacheService, never())
+                .evictProduct(anyLong());
+
+        verify(productCacheService, never())
+                .evictProductList();
     }
+
 
     @Test
     void shouldEvictProductListCache_whenProductIsCreated() {
@@ -220,7 +357,9 @@ class ProductServiceImplTest {
         Category category = new Category();
         category.setId(1L);
 
-        ProductCreateRequest request = new ProductCreateRequest();
+        ProductCreateRequest request =
+                new ProductCreateRequest();
+
         request.setName("New Product");
         request.setDescription("New product description");
         request.setPrice(BigDecimal.valueOf(200));
@@ -249,14 +388,28 @@ class ProductServiceImplTest {
 
         assertEquals(1L, response.getId());
         assertEquals("New Product", response.getName());
+        assertEquals(
+                BigDecimal.valueOf(200),
+                response.getPrice()
+        );
+        assertEquals(1L, response.getCategoryId());
 
-        verify(productRepository).save(any(Product.class));
+        verify(categoryRepository)
+                .findById(1L);
 
-        verify(productCacheService).evictProductList();
+        verify(productRepository)
+                .save(any(Product.class));
+
+        verify(productMapper)
+                .toResponse(savedProduct);
+
+        verify(productCacheService)
+                .evictProductList();
 
         verify(productCacheService, never())
                 .evictProduct(anyLong());
     }
+
 
     @Test
     void shouldNotEvictProductListCache_whenCreatingProductAndCacheIsDisabled() {
@@ -264,7 +417,9 @@ class ProductServiceImplTest {
         Category category = new Category();
         category.setId(1L);
 
-        ProductCreateRequest request = new ProductCreateRequest();
+        ProductCreateRequest request =
+                new ProductCreateRequest();
+
         request.setName("New Product");
         request.setDescription("New product description");
         request.setPrice(BigDecimal.valueOf(200));
@@ -288,11 +443,28 @@ class ProductServiceImplTest {
         when(cacheProperties.isEnabled())
                 .thenReturn(false);
 
-        productService.createProduct(request);
+        ProductResponse response =
+                productService.createProduct(request);
+
+        assertEquals(1L, response.getId());
+        assertEquals("New Product", response.getName());
+
+        verify(categoryRepository)
+                .findById(1L);
+
+        verify(productRepository)
+                .save(any(Product.class));
+
+        verify(productMapper)
+                .toResponse(savedProduct);
 
         verify(productCacheService, never())
                 .evictProductList();
+
+        verify(productCacheService, never())
+                .evictProduct(anyLong());
     }
+
 
     @Test
     void shouldThrowNotFoundException_whenUpdatingWithInvalidCategory() {
@@ -310,7 +482,9 @@ class ProductServiceImplTest {
         existingProduct.setStock(10);
         existingProduct.setCategory(existingCategory);
 
-        ProductUpdateRequest request = new ProductUpdateRequest();
+        ProductUpdateRequest request =
+                new ProductUpdateRequest();
+
         request.setCategoryId(categoryId);
 
         when(productRepository.findById(productId))
@@ -319,15 +493,31 @@ class ProductServiceImplTest {
         when(categoryRepository.findById(categoryId))
                 .thenReturn(Optional.empty());
 
-        assertThrows(
-                NotFoundException.class,
-                () -> productService.updateProduct(productId, request)
+        NotFoundException exception =
+                assertThrows(
+                        NotFoundException.class,
+                        () -> productService.updateProduct(
+                                productId,
+                                request
+                        )
+                );
+
+        assertEquals(
+                "Category not found with ID: 999",
+                exception.getMessage()
         );
 
-        verify(categoryRepository).findById(categoryId);
+        verify(productRepository)
+                .findById(productId);
+
+        verify(categoryRepository)
+                .findById(categoryId);
 
         verify(productRepository, never())
                 .save(any(Product.class));
+
+        verify(productMapper, never())
+                .toResponse(any(Product.class));
 
         verify(productCacheService, never())
                 .evictProduct(anyLong());
@@ -335,5 +525,4 @@ class ProductServiceImplTest {
         verify(productCacheService, never())
                 .evictProductList();
     }
-
 }
