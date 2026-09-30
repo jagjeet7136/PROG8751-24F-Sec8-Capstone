@@ -3,7 +3,9 @@ package com.app.ecommerce.modules.product.controller;
 import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductSearchCriteriaRequest;
 import com.app.ecommerce.modules.product.dto.request.ProductUpdateRequest;
+import com.app.ecommerce.modules.product.dto.response.HomeProductsResponse;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
+import com.app.ecommerce.modules.product.service.HomeCatalogService;
 import com.app.ecommerce.modules.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +25,10 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final HomeCatalogService homeCatalogService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getHomeProducts() {
+    public ResponseEntity<List<ProductResponse>> getHomeProductsList() {
         log.info("GET /products - Fetching all products for home");
         return ResponseEntity.ok(productService.getAllProducts());
     }
@@ -60,6 +63,16 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 productService.updateProduct(id, productUpdateRequest)
+        );
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<HomeProductsResponse> getHomeProducts() {
+
+        log.info("GET /products/home - Fetching homepage products");
+
+        return ResponseEntity.ok(
+                homeCatalogService.getHomeProducts()
         );
     }
 }

@@ -1,7 +1,9 @@
 package com.app.ecommerce.modules.product.controller;
 
 import com.app.ecommerce.exceptions.NotFoundException;
+import com.app.ecommerce.modules.product.dto.response.HomeProductsResponse;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
+import com.app.ecommerce.modules.product.service.HomeCatalogService;
 import com.app.ecommerce.modules.product.service.ProductService;
 import com.app.ecommerce.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +39,9 @@ class ProductControllerTest {
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private HomeCatalogService homeCatalogService;
 
     @Test
     void shouldReturnProduct_whenProductExists() throws Exception {
@@ -214,5 +221,82 @@ class ProductControllerTest {
                         anyLong(),
                         any(ProductUpdateRequest.class)
                 );
+    }
+
+    @Test
+    void shouldReturnHomeProducts() throws Exception {
+
+        ProductResponse newProduct =
+                ProductResponse.builder()
+                        .id(1L)
+                        .name("New Product")
+                        .build();
+
+        ProductResponse topSellingProduct =
+                ProductResponse.builder()
+                        .id(2L)
+                        .name("Best Seller")
+                        .build();
+
+        ProductResponse dealProduct =
+                ProductResponse.builder()
+                        .id(3L)
+                        .name("Deal Product")
+                        .build();
+
+        ProductResponse topRatedProduct =
+                ProductResponse.builder()
+                        .id(4L)
+                        .name("Top Rated Product")
+                        .averageRating(4.8)
+                        .totalRatings(25)
+                        .build();
+
+        HomeProductsResponse response =
+                HomeProductsResponse.builder()
+                        .newlyReleased(List.of(newProduct))
+                        .topSelling(List.of(topSellingProduct))
+                        .exclusiveDeals(List.of(dealProduct))
+                        .topRated(List.of(topRatedProduct))
+                        .build();
+
+        when(homeCatalogService.getHomeProducts())
+                .thenReturn(response);
+
+        mockMvc.perform(get("/products/home"))
+                .andExpect(status().isOk())
+
+                .andExpect(
+                        jsonPath("$.newlyReleased[0].name")
+                                .value("New Product")
+                )
+
+                .andExpect(
+                        jsonPath("$.topSelling[0].name")
+                                .value("Best Seller")
+                )
+
+                .andExpect(
+                        jsonPath("$.exclusiveDeals[0].name")
+                                .value("Deal Product")
+                )
+
+                .andExpect(
+                        jsonPath("$.topRated[0].name")
+                                .value("Top Rated Product")
+                )
+
+                .andExpect(
+                        jsonPath("$.topRated[0].averageRating")
+                                .value(4.8)
+                )
+
+                .andExpect(
+                        jsonPath("$.topRated[0].totalRatings")
+                                .value(25)
+                );
+
+        verify(homeCatalogService)
+                .getHomeProducts();
     }
 }

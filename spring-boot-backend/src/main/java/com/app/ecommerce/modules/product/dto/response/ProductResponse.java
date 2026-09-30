@@ -19,6 +19,8 @@ public class ProductResponse {
     private String imageUrl;
     private Integer stock;
     private Long categoryId;
+    private Double averageRating;
+    private Integer totalRatings;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

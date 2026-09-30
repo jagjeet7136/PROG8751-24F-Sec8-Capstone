@@ -2,6 +2,7 @@ package com.app.ecommerce.modules.product.controller;
 
 import com.app.ecommerce.modules.product.dto.request.ProductCreateRequest;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
+import com.app.ecommerce.modules.product.service.HomeCatalogService;
 import com.app.ecommerce.modules.product.service.ProductService;
 import com.app.ecommerce.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ class ProductControllerSecurityTest {
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private HomeCatalogService homeCatalogService;
 
     @TestConfiguration
     @EnableGlobalMethodSecurity(prePostEnabled = true)

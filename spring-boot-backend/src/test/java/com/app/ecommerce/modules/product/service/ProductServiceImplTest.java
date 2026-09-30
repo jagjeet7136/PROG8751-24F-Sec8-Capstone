@@ -46,7 +46,6 @@ class ProductServiceImplTest {
     @InjectMocks
     private ProductServiceImpl productService;
 
-
     @Test
     void shouldReturnProductFromCache_whenCacheHit() {
 
