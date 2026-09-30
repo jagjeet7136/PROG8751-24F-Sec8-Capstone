@@ -44,11 +44,11 @@ class ProductCacheServiceImplTest {
     @Test
     void shouldNotThrowException_whenProductListEvictionFails() {
 
-        when(redisTemplate.delete(ProductCacheKeys.ALL_PRODUCTS))
+        when(redisTemplate.delete(ProductCacheKeys.HOME_PRODUCTS))
                 .thenThrow(new RuntimeException("Redis unavailable"));
 
         assertDoesNotThrow(
-                () -> productCacheService.evictProductList()
+                () -> productCacheService.evictHomeProducts()
         );
     }
 

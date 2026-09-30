@@ -1,8 +1,10 @@
 package com.app.ecommerce.modules.product.service;
 
+import com.app.ecommerce.config.CacheProperties;
 import com.app.ecommerce.entity.Category;
 import com.app.ecommerce.model.dto.ProductRatingSummary;
 import com.app.ecommerce.model.dto.ProductSalesSummary;
+import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.app.ecommerce.modules.product.domain.mapper.ProductMapper;
 import com.app.ecommerce.modules.product.dto.response.HomeProductsResponse;
@@ -40,6 +42,12 @@ class HomeCatalogServiceImplTest {
 
     @InjectMocks
     private HomeCatalogServiceImpl homeCatalogService;
+
+    @Mock
+    private ProductCacheService productCacheService;
+
+    @Mock
+    private CacheProperties cacheProperties;
 
     @Test
     void shouldBuildHomeProductSections() {

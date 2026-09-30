@@ -1,6 +1,8 @@
 package com.app.ecommerce.modules.product.service;
 
+import com.app.ecommerce.config.CacheProperties;
 import com.app.ecommerce.model.dto.ProductRatingSummary;
+import com.app.ecommerce.modules.product.cache.ProductCacheService;
 import com.app.ecommerce.modules.product.domain.entity.Product;
 import com.app.ecommerce.modules.product.domain.mapper.ProductMapper;
 import com.app.ecommerce.modules.product.dto.response.HomeProductsResponse;
@@ -27,10 +29,22 @@ public class HomeCatalogServiceImpl implements HomeCatalogService {
     private final ReviewRepository reviewRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductMapper productMapper;
+    private final ProductCacheService productCacheService;
+    private final CacheProperties cacheProperties;
 
     @Override
     @Transactional(readOnly = true)
     public HomeProductsResponse getHomeProducts() {
+
+        if (cacheProperties.isEnabled()) {
+
+            HomeProductsResponse cached =
+                    productCacheService.getCachedHomeProducts();
+
+            if (cached != null) {
+                return cached;
+            }
+        }
 
         List<ProductResponse> newlyReleased =
                 productRepository.findTop8ByOrderByCreatedAtDesc()
@@ -52,13 +66,22 @@ public class HomeCatalogServiceImpl implements HomeCatalogService {
         List<ProductResponse> topSelling =
                 getTopSellingProducts();
 
-        return HomeProductsResponse.builder()
-                .newlyReleased(newlyReleased)
-                .topSelling(List.of())
-                .exclusiveDeals(exclusiveDeals)
-                .topRated(topRated)
-                .topSelling(topSelling)
-                .build();
+        HomeProductsResponse response =
+                HomeProductsResponse.builder()
+                        .newlyReleased(newlyReleased)
+                        .topSelling(topSelling)
+                        .exclusiveDeals(exclusiveDeals)
+                        .topRated(topRated)
+                        .build();
+
+        if (cacheProperties.isEnabled()) {
+            productCacheService.cacheHomeProducts(
+                    response,
+                    cacheProperties.getHomeTtl()
+            );
+        }
+
+        return response;
     }
 
     private List<ProductResponse> getTopRatedProducts() {

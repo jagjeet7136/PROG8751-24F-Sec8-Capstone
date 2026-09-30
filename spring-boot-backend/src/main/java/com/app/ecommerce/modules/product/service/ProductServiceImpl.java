@@ -87,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
 
         ProductResponse productResponse = productMapper.toResponse(productRepository.save(product));
         if (cacheProperties.isEnabled()) {
-            productCacheService.evictProductList();
+            productCacheService.evictHomeProducts();
         }
         return productResponse;
     }
@@ -146,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
 
             if (cacheProperties.isEnabled()) {
                 productCacheService.evictProduct(savedProduct.getId());
-                productCacheService.evictProductList();
+                productCacheService.evictHomeProducts();
             }
             return savedProduct;
         }).orElseThrow(() ->

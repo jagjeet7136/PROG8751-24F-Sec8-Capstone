@@ -36,7 +36,7 @@ app:
   cache:
     enabled: true
     product-ttl: 24h
-    product-list-ttl: 30m
+    home-ttl: 10m
 
 mailjet:
   api-key: ${MAILJET_API_KEY}

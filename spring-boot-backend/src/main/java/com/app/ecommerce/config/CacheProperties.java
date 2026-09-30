@@ -14,5 +14,5 @@ public class CacheProperties {
 
     private boolean enabled;
     private Duration productTtl;
-    private Duration productListTtl;
+    private Duration homeTtl;
 }

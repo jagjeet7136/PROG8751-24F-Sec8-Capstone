@@ -289,8 +289,7 @@ class ProductServiceImplTest {
         verify(productCacheService)
                 .evictProduct(productId);
 
-        verify(productCacheService)
-                .evictProductList();
+        verify(productCacheService).evictHomeProducts();
     }
 
 
@@ -346,12 +345,12 @@ class ProductServiceImplTest {
                 .evictProduct(anyLong());
 
         verify(productCacheService, never())
-                .evictProductList();
+                .evictHomeProducts();
     }
 
 
     @Test
-    void shouldEvictProductListCache_whenProductIsCreated() {
+    void shouldEvictHomeCache_whenProductIsCreated() {
 
         Category category = new Category();
         category.setId(1L);
@@ -403,7 +402,7 @@ class ProductServiceImplTest {
                 .toResponse(savedProduct);
 
         verify(productCacheService)
-                .evictProductList();
+                .evictHomeProducts();
 
         verify(productCacheService, never())
                 .evictProduct(anyLong());
@@ -458,7 +457,7 @@ class ProductServiceImplTest {
                 .toResponse(savedProduct);
 
         verify(productCacheService, never())
-                .evictProductList();
+                .evictHomeProducts();
 
         verify(productCacheService, never())
                 .evictProduct(anyLong());
@@ -522,6 +521,6 @@ class ProductServiceImplTest {
                 .evictProduct(anyLong());
 
         verify(productCacheService, never())
-                .evictProductList();
+                .evictHomeProducts();
     }
 }
