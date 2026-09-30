@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -26,12 +25,6 @@ public class ProductController {
 
     private final ProductService productService;
     private final HomeCatalogService homeCatalogService;
-
-    @GetMapping
-    public ResponseEntity<List<ProductResponse>> getHomeProductsList() {
-        log.info("GET /products - Fetching all products for home");
-        return ResponseEntity.ok(productService.getAllProducts());
-    }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long productId) {
@@ -68,9 +61,7 @@ public class ProductController {
 
     @GetMapping("/home")
     public ResponseEntity<HomeProductsResponse> getHomeProducts() {
-
         log.info("GET /products/home - Fetching homepage products");
-
         return ResponseEntity.ok(
                 homeCatalogService.getHomeProducts()
         );

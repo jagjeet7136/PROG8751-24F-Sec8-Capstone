@@ -5,11 +5,8 @@ import com.app.ecommerce.modules.product.dto.request.ProductSearchCriteriaReques
 import com.app.ecommerce.modules.product.dto.request.ProductUpdateRequest;
 import com.app.ecommerce.modules.product.dto.response.ProductResponse;
 import org.springframework.data.domain.Page;
-import java.util.List;
 
 public interface ProductService {
-
-    List<ProductResponse> getAllProducts(); //needs to replace it with getProducts
 
     ProductResponse getProduct(Long productId);
 

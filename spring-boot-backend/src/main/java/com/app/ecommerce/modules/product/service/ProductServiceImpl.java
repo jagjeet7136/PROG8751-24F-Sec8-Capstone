@@ -17,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,24 +28,6 @@ public class ProductServiceImpl implements ProductService {
     private final CacheProperties cacheProperties;
     private final ProductCacheService productCacheService;
     private final ProductMapper productMapper;
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductResponse> getAllProducts() {  //this can be stored in cache especially Recently Added, Top Rated and Exclusive Deals
-        if (cacheProperties.isEnabled()) {
-            List<ProductResponse> cached = productCacheService.getCachedProductList();
-            if (cached != null) {
-                return cached;
-            }
-        }
-        List<ProductResponse> products =
-                productRepository.findAll().stream().map(productMapper::toResponse).collect(Collectors.toList());
-
-        if (cacheProperties.isEnabled()) {
-            productCacheService.cacheProductList(products, cacheProperties.getProductListTtl());
-        }
-        return products;
-    }
 
     @Override
     @Transactional(readOnly = true)
