@@ -91,6 +91,10 @@ public class HomeCatalogServiceImpl implements HomeCatalogService {
                         PageRequest.of(0, SECTION_SIZE)
                 );
 
+        if (ratingSummaries.isEmpty()) {
+            return List.of();
+        }
+
         List<Long> productIds =
                 ratingSummaries.stream()
                         .map(ProductRatingSummary::getProductId)
@@ -141,6 +145,10 @@ public class HomeCatalogServiceImpl implements HomeCatalogService {
                 orderItemRepository.findTopSellingProducts(
                         PageRequest.of(0, SECTION_SIZE)
                 );
+
+        if (salesSummaries.isEmpty()) {
+            return List.of();
+        }
 
         List<Long> productIds =
                 salesSummaries.stream()

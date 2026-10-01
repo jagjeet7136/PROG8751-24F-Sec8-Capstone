@@ -20,8 +20,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -177,6 +179,92 @@ class HomeCatalogServiceImplTest {
                         .get(0)
                         .getName()
         );
+
+        verify(orderItemRepository)
+                .findTopSellingProducts(any(Pageable.class));
+    }
+
+    @Test
+    void shouldReturnCachedHomeProducts_whenCacheHit() {
+
+        ProductResponse product =
+                ProductResponse.builder()
+                        .id(1L)
+                        .name("Cached Product")
+                        .build();
+
+        HomeProductsResponse cachedResponse =
+                HomeProductsResponse.builder()
+                        .newlyReleased(List.of(product))
+                        .topSelling(List.of())
+                        .exclusiveDeals(List.of())
+                        .topRated(List.of())
+                        .build();
+
+        when(cacheProperties.isEnabled())
+                .thenReturn(true);
+
+        when(productCacheService.getCachedHomeProducts())
+                .thenReturn(cachedResponse);
+
+        HomeProductsResponse result =
+                homeCatalogService.getHomeProducts();
+
+        assertSame(cachedResponse, result);
+
+        verify(productCacheService)
+                .getCachedHomeProducts();
+
+        verifyNoInteractions(
+                productRepository,
+                reviewRepository,
+                orderItemRepository
+        );
+
+        verify(productCacheService, never())
+                .cacheHomeProducts(
+                        any(HomeProductsResponse.class),
+                        any(Duration.class)
+                );
+    }
+
+    @Test
+    void shouldBypassCache_whenCacheIsDisabled() {
+
+        when(cacheProperties.isEnabled())
+                .thenReturn(false);
+
+        when(productRepository.findTop8ByOrderByCreatedAtDesc())
+                .thenReturn(List.of());
+
+        when(productRepository.findExclusiveDeals(any(Pageable.class)))
+                .thenReturn(List.of());
+
+        when(reviewRepository.findTopRatedProducts(any(Pageable.class)))
+                .thenReturn(List.of());
+
+        when(orderItemRepository.findTopSellingProducts(any(Pageable.class)))
+                .thenReturn(List.of());
+
+        HomeProductsResponse result =
+                homeCatalogService.getHomeProducts();
+
+        assertNotNull(result);
+
+        verify(productCacheService, never())
+                .getCachedHomeProducts();
+
+        verify(productCacheService, never())
+                .cacheHomeProducts(
+                        any(HomeProductsResponse.class),
+                        any(Duration.class)
+                );
+
+        verify(productRepository)
+                .findTop8ByOrderByCreatedAtDesc();
+
+        verify(reviewRepository)
+                .findTopRatedProducts(any(Pageable.class));
 
         verify(orderItemRepository)
                 .findTopSellingProducts(any(Pageable.class));
