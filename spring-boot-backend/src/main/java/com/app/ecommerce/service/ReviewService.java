@@ -5,6 +5,7 @@ import com.app.ecommerce.entity.ReviewImage;
 import com.app.ecommerce.entity.User;
 import com.app.ecommerce.model.dto.ReviewDTO;
 import com.app.ecommerce.model.response.ReviewResponse;
+import com.app.ecommerce.modules.product.api.HomeCatalogApi;
 import com.app.ecommerce.modules.product.api.ProductApi;
 import com.app.ecommerce.modules.product.api.ProductInfo;
 import com.app.ecommerce.repository.ReviewImageRepository;
@@ -28,6 +29,7 @@ public class ReviewService {
     private final ReviewImageRepository imageRepository;
     private final UserRepository userRepository;
     private final ProductApi productApi;
+    private final HomeCatalogApi homeCatalogApi;
 
     public ReviewDTO createReview(User user, Long productId, String heading, Integer rating,
                                   String comment, List<MultipartFile> images) throws IOException {
@@ -57,7 +59,15 @@ public class ReviewService {
 
         review.setImages(savedImages);
         Review savedReview = reviewRepository.save(review);
-        log.info("Review saved with id={} for productId={} by user={}", savedReview.getId(), productId, user.getUsername());
+
+        homeCatalogApi.evictHomeCache();
+
+        log.info(
+                "Review saved with id={} for productId={} by user={}",
+                savedReview.getId(),
+                productId,
+                user.getUsername()
+        );
         ReviewDTO dto = new ReviewDTO();
         dto.setId(savedReview.getId());
         dto.setRating(savedReview.getRating());
@@ -99,4 +109,6 @@ public class ReviewService {
         log.info("Fetched {} reviews for productId={}", responses.size(), productId);
         return responses;
     }
+
+
 }
