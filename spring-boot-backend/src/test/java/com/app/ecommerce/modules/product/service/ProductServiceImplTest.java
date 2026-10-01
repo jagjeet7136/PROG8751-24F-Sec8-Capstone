@@ -410,7 +410,7 @@ class ProductServiceImplTest {
 
 
     @Test
-    void shouldNotEvictProductListCache_whenCreatingProductAndCacheIsDisabled() {
+    void shouldNotEvictHomeCache_whenCreatingProductAndCacheIsDisabled() {
 
         Category category = new Category();
         category.setId(1L);

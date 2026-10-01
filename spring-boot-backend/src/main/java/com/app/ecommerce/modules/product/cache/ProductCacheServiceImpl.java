@@ -28,7 +28,10 @@ public class ProductCacheServiceImpl implements ProductCacheService {
             return objectMapper.readValue(json, ProductResponse.class);
 
         } catch (Exception e) {
-            log.error("Failed to read product from cache", e);
+            log.warn(
+                    "Failed to read product from cache: {}",
+                    e.getMessage()
+            );
             return null;
         }
     }
@@ -41,7 +44,7 @@ public class ProductCacheServiceImpl implements ProductCacheService {
                     .set(ProductCacheKeys.product(productId), json, ttl);
             log.info("CACHE PUT - Product {}", productId);
         } catch (Exception e) {
-            log.error("Failed to cache product: {}", e.getMessage());
+            log.warn("Failed to cache product: {}", e.getMessage());
         }
     }
 
@@ -51,7 +54,7 @@ public class ProductCacheServiceImpl implements ProductCacheService {
             redisTemplate.delete(ProductCacheKeys.product(productId));
             log.info("CACHE EVICT - Product {}", productId);
         } catch (Exception e) {
-            log.error("Failed to evict product {} from cache: {}", productId, e.getMessage());
+            log.warn("Failed to evict product {} from cache: {}", productId, e.getMessage());
         }
     }
 
