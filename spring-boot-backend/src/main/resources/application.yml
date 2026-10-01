@@ -19,8 +19,8 @@ spring:
     ansi:
       enabled: ALWAYS
   redis:
-    host: localhost
-    port: 7000
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:7000}
     connect-timeout: 1s
     timeout: 1s
 
@@ -34,7 +34,7 @@ stripe:
 
 app:
   cache:
-    enabled: true
+    enabled: ${CACHE_ENABLED:true}
     product-ttl: 24h
     home-ttl: 10m
 
