@@ -3,6 +3,7 @@ package com.app.ecommerce.service;
 import com.app.ecommerce.entity.*;
 import com.app.ecommerce.exceptions.ForbiddenException;
 import com.app.ecommerce.exceptions.NotFoundException;
+import com.app.ecommerce.modules.product.api.HomeCatalogApi;
 import com.app.ecommerce.modules.product.api.ProductApi;
 import com.app.ecommerce.modules.product.api.ProductInfo;
 import com.app.ecommerce.repository.*;
@@ -42,6 +43,9 @@ public class OrderService {
 
     @Autowired
     private ProductApi productApi;
+
+    @Autowired
+    private HomeCatalogApi homeCatalogApi;
 
     public List<Order> getOrdersByUser(User user) {
         log.info("Fetching orders for user id={}", user.getId());
@@ -134,6 +138,7 @@ public class OrderService {
 
         order.setOrderItems(orderItems);
         orderRepository.save(order);
+        homeCatalogApi.evictHomeCache();
         log.info("Order saved successfully with id={}", order.getId());
     }
 
