@@ -11,6 +11,8 @@ import com.app.ecommerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Slf4j
@@ -29,15 +31,43 @@ public class CartService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public Cart getOrCreateCart(User user) {
-        return cartRepository.findByUser(user).orElseGet(() -> {
-            log.info("No cart found for user: {}. Creating new cart.", user.getUsername());
-            Cart cart = new Cart();
-            cart.setUser(user);
-            return cartRepository.save(cart);
-        });
+
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException(
+                    "A persisted user is required"
+            );
+        }
+
+        User lockedUser = userRepository
+                .findByIdForUpdate(user.getId())
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found with ID: " + user.getId()
+                        )
+                );
+
+        return cartRepository.findByUser(lockedUser)
+                .orElseGet(() -> {
+
+                    log.info(
+                            "No cart found for user ID: {}. Creating new cart.",
+                            lockedUser.getId()
+                    );
+
+                    Cart cart = new Cart();
+                    cart.setUser(lockedUser);
+
+                    Cart savedCart = cartRepository.save(cart);
+
+                    lockedUser.setCart(savedCart);
+
+                    return savedCart;
+                });
     }
 
+    @Transactional
     public Cart addProductToCart(User user, Long productId, int quantity) {
         log.debug("Adding product (ID: {}) to cart for user: {} with quantity: {}", productId, user.getUsername(), quantity);
         Cart cart = getOrCreateCart(user);
@@ -59,6 +89,7 @@ public class CartService {
         return updatedCart;
     }
 
+    @Transactional
     public Cart removeProductFromCart(User user, Long productId) {
         log.debug("Removing product (ID: {}) from cart for user: {}", productId, user.getUsername());
         Cart cart = getOrCreateCart(user);
@@ -78,11 +109,13 @@ public class CartService {
         return updatedCart;
     }
 
+    @Transactional
     public Cart getUserCart(User user) {
         log.debug("Fetching cart for user: {}", user.getUsername());
         return getOrCreateCart(user);
     }
 
+    @Transactional
     public List<CartItem> getCartItems(User user) {
         Cart cart = getUserCart(user);
         log.debug("Retrieving cart items for user: {}", user.getUsername());
