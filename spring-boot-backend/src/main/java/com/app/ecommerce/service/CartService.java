@@ -3,6 +3,8 @@ package com.app.ecommerce.service;
 import com.app.ecommerce.entity.Cart;
 import com.app.ecommerce.entity.CartItem;
 import com.app.ecommerce.entity.User;
+import com.app.ecommerce.model.response.CartItemResponse;
+import com.app.ecommerce.model.response.CartProductResponse;
 import com.app.ecommerce.modules.product.api.ProductApi;
 import com.app.ecommerce.modules.product.api.ProductInfo;
 import com.app.ecommerce.repository.CartItemRepository;
@@ -116,11 +118,38 @@ public class CartService {
     }
 
     @Transactional
-    public List<CartItem> getCartItems(User user) {
+    public List<CartItemResponse> getCartItems(User user) {
+
         Cart cart = getUserCart(user);
-        log.debug("Retrieving cart items for user: {}", user.getUsername());
-        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
-        log.info("Retrieved {} cart items for user: {}", items.size(), user.getUsername());
-        return items;
+
+        return cartItemRepository.findByCartId(cart.getId())
+                .stream()
+                .map(item -> {
+
+                    ProductInfo product = productApi.getProductInfo(
+                            item.getProductId()
+                    );
+
+                    if (product == null) {
+                        throw new IllegalStateException(
+                                "Product not found: " + item.getProductId()
+                        );
+                    }
+
+                    CartProductResponse productResponse =
+                            new CartProductResponse(
+                                    product.getId(),
+                                    product.getName(),
+                                    product.getPrice(),
+                                    product.getImageUrl()
+                            );
+
+                    return new CartItemResponse(
+                            item.getId(),
+                            productResponse,
+                            item.getQuantity()
+                    );
+                })
+                .toList();
     }
 }

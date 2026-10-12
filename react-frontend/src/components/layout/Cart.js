@@ -36,17 +36,23 @@ const Cart = () => {
     fetchCartItems();
   }, [deleted]);
 
-  const handleRemoveFromCart = async (itemId) => {
+  const handleRemoveFromCart = async (productId) => {
     try {
-      await axios.delete(`http://localhost:9898/cart/${itemId}`, {
-        headers: {
-          Authorization: token,
-        },
-      });
-      setDeleted(deleted ? false : true);
-      setCartItems((prevItems) =>
-        prevItems.filter((item) => item.id !== itemId)
+      await axios.delete(
+        `http://localhost:9898/cart/${productId}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
       );
+
+      setCartItems((prevItems) =>
+        prevItems.filter((item) => item.product.id !== productId)
+      );
+
+      setDeleted((prev) => !prev);
+
     } catch (error) {
       console.error("Failed to remove item from cart", error);
     }

@@ -3,6 +3,7 @@ package com.app.ecommerce.controller;
 import com.app.ecommerce.entity.Cart;
 import com.app.ecommerce.entity.CartItem;
 import com.app.ecommerce.entity.User;
+import com.app.ecommerce.model.response.CartItemResponse;
 import com.app.ecommerce.repository.UserRepository;
 import com.app.ecommerce.service.CartService;
 import com.app.ecommerce.service.UserService;
@@ -60,11 +61,9 @@ public class CartController {
     }
 
     @GetMapping("getCartItems")
-    public ResponseEntity<List<CartItem>> getCartItems(Principal principal) {
-        log.debug("GET /cart/getCartItems - Retrieving cart items for user: {}", principal.getName());
+    public ResponseEntity<List<CartItemResponse>> getCartItems(Principal principal) {
         User loggedInUser = userService.getLoggedInUser(principal);
-        List<CartItem> items = cartService.getCartItems(loggedInUser);
-        log.info("Cart items fetched successfully for user: {} ({} items)", principal.getName(), items.size());
-        return new ResponseEntity<>(items, HttpStatus.OK);
+        List<CartItemResponse> items = cartService.getCartItems(loggedInUser);
+        return ResponseEntity.ok(items);
     }
 }

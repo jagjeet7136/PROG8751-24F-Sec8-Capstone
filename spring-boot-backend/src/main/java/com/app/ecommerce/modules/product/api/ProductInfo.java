@@ -11,4 +11,5 @@ public class ProductInfo {
     private String name;
     private BigDecimal price;
     private Integer stock;
+    private String imageUrl;
 }

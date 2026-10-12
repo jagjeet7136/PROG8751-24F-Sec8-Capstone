@@ -28,6 +28,7 @@ public class ProductApiImpl implements ProductApi {
                 .name(product.getName())
                 .price(product.getPrice())
                 .stock(product.getStock())
+                .imageUrl(product.getImageUrl())
                 .build();
     }
 }
