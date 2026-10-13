@@ -15,8 +15,13 @@ const Cart = () => {
   const [deleted, setDeleted] = useState(false);
   const navigate = useNavigate();
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchCartItems = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
         const response = await axios.get(
           "http://localhost:9898/cart/getCartItems",
@@ -26,15 +31,32 @@ const Cart = () => {
             },
           }
         );
+        console.log(response.data);
         setCartItems(response.data);
+
       } catch (error) {
-        console.error("Failed to fetch cart items", error);
+
+        const status = error.response?.status;
+
+        if (status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+
+          setCartItems([]);
+          navigate("/login");
+        } else {
+          setError("Unable to load your cart. Please try again.");
+          console.error("Failed to fetch cart items", error);
+        }
+
       } finally {
         setLoading(false);
       }
     };
+
     fetchCartItems();
-  }, [deleted]);
+
+  }, [deleted, token, navigate]);
 
   const handleRemoveFromCart = async (productId) => {
     try {

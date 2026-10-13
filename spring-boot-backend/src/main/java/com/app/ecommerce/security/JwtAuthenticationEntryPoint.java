@@ -27,6 +27,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         apiErrorDTO.setErrors(Collections.singletonList(authException.getMessage()));
         apiErrorDTO.setPath(request.getRequestURI());
         apiErrorDTO.setTimestamp(LocalDateTime.now());
+        response.setStatus(apiErrorDTO.getStatus());
         response.setContentType("application/json");
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
