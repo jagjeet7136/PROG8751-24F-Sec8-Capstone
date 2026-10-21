@@ -1,4 +1,5 @@
 services:
+
   redis:
     image: redis:7-alpine
     ports:
@@ -10,3 +11,13 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+  stripe-webhook:
+    image: stripe/stripe-cli:v1.54.0
+    command:
+      - listen
+      - --events=checkout.session.completed
+      - --forward-to=http://host.docker.internal:9898/stripe/save-order-webhook
+    environment:
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+    restart: unless-stopped
